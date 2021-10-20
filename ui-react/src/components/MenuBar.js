@@ -8,7 +8,6 @@ import { SideBar } from './';
 
 const MenuBar = () => {
   const { isAuthenticated } = useAuth0();
-  if (isAuthenticated) {
     return (
       <>
         <SideBar />
@@ -16,44 +15,25 @@ const MenuBar = () => {
           <BurgerContainer /> 
           <CompanyContainer>
             ORCA Ireland &nbsp;
-            <ProfileImage src={mainLogo}></ProfileImage>
+            <CompanyImage src={mainLogo} />
           </CompanyContainer>
-          <MenuItems />
-          <ProfileContainer>
-            <Profile />
-          </ProfileContainer>        
+          {isAuthenticated && <MenuItems />}
+          <div style={{height: '100%'}} >
+            <Profile param={{isMenuBar: true}} />
+          </div>        
         </MenuBarContainer>
       </ >
     )
-  } else {
-    return (
-      <>
-        <MenuBarContainer> 
-          <CompanyContainer>
-            ORCA Ireland &nbsp;
-            <ProfileImage src={mainLogo}></ProfileImage>
-          </CompanyContainer>
-          <ProfileContainer>
-            <Profile />
-          </ProfileContainer>        
-        </MenuBarContainer>
-      </ >
-    )
-  }
 };
 
-const ProfileContainer = styled.div` 
-  height: 100%;
-  @media (max-width: ${({ theme}) => theme.mobileS}) {
-    display: none;
-  }
-`;
-
-const ProfileImage = styled.img` 
+const CompanyImage = styled.img` 
   float: right;
   position: 'absolute';
   height: 100%;
   padding: 6px;
+  @media (max-width: ${({ theme}) => theme.mobileM}) {
+    display: none;
+  }
 `;
 
 const BurgerContainer = styled.div` 

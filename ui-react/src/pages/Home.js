@@ -8,7 +8,7 @@ function Home() {
     <div style={{ alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center', alignItems:'center', height: '100%'}}>
       <h1>On Road Circuit Association</h1>
       <div style={{width: '100%'}}>
-        <img src={CircuitLogo} alt="Circuit Logo"></img>
+        <img style={{maxWidth: '50%', maxHeight: '50%'}} src={CircuitLogo} alt="Circuit Logo"></img>
       </div>  
       <h2> Ireland's only 1/8 scale on road circuit</h2>
       <span>St.Anne's Park, Raheny, Dublin, Ireland</span>

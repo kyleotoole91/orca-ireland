@@ -18,25 +18,21 @@ const Profile = () => {
     }
     console.log(user);
   }
- if (isAuthenticated) { 
-    return (
-      <ProfileContainer>
-        <ProfileImage src={profilePic}></ProfileImage>
-        <Username>
-        <button className="btn btn-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>{username}</button>
-        </Username>
-      </ProfileContainer>
-    )
-  } else {
-    return (
-      <ProfileContainer>
-        <ProfileImage src={profilePic}></ProfileImage>
-        <Username>
-          <button className="btn btn-primary btn-block btn-sm" onClick={() => loginWithRedirect()} href='/dashboard'>{username}</button>
-        </Username>
-      </ProfileContainer>
-    )
-  }
+
+  return (
+    <ProfileContainer>
+      {isAuthenticated &&
+        <ProfileImage src={profilePic} onClick={() => logout({ returnTo: window.location.origin })} href='./'></ProfileImage>} 
+      {!isAuthenticated &&
+        <ProfileImage src={profilePic} onClick={() => loginWithRedirect()} href='./'></ProfileImage>}
+      <Username>
+        {isAuthenticated &&
+          <button className="btn btn-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>{username}</button>}  
+        {!isAuthenticated &&
+          <button className="btn btn-primary btn-block btn-sm" onClick={() => loginWithRedirect()} href='./'>{username}</button>}
+      </Username>
+    </ProfileContainer>
+  )
 }
 
 const ProfileContainer = styled.div`
@@ -54,21 +50,14 @@ const ProfileContainer = styled.div`
   } 
 `;
 
-/*const UsernameText = styled.a`
-  display:table-cell;
-  vertical-align:middle;
-  font-size: 14px;
-  color: ${({ theme}) => theme.primaryLight};
-;*/
-
 const Username = styled.div`
-  text-align: right;
-  float: right; 
+  float: right;
+  position: 'absolute';
   height: 100%;
-  display: flex;
-  align-items: center; 
-  padding-right: 12px
-
+  padding: 8px;
+  @media (max-width: ${({ theme}) => theme.mobileM}) {
+    display: none;
+  }
 `;
 
 const ProfileImage = styled.img` 
