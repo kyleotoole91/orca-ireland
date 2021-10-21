@@ -11,7 +11,7 @@ export class Events {
                    {id: 2,
                     name: "Round 5",
                     location: "Saint Anne''s Park",
-                    title: "€10",
+                    price: "€10",
                     date: "Sunday, Nov 21, 2021"},
                    {id: 3,
                     name: "Round 6",

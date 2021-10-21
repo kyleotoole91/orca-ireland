@@ -2,26 +2,27 @@ import React, {Component} from 'react';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 
-class TextCards extends Component {
+class EventCards extends Component {
   constructor(props) {
     super(props)
     this.state = { }
   }
 
   render() {
-    if (this.props.data.cardData.length === 1) {
+    if (this.props.data.events.length === 1) {
       return ( <div>No events</div> )
     } else if (this.props.data.loading) {
       return (  <div>Loading...</div> )
     } else {
       return (
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
-            {this.props.data.cardData.map((cardData, index) => (
+            {this.props.data.events.map((events, index) => (
               <Card style={{maxWidth: '40vh', margin: '3px'}} key={index}>
-                <Card.Header>{cardData.header}</Card.Header>
+                <Card.Header>{events.name}</Card.Header>
                 <Card.Body>
-                  <Card.Title>{cardData.title}</Card.Title>
-                  <Card.Text>{cardData.text}</Card.Text>
+                  <Card.Title>{events.location}</Card.Title>
+                  <Card.Text>{events.price}</Card.Text>
+                  <Card.Text>{events.date}</Card.Text>
                   <Button variant="primary">{this.props.buttonText}</Button>
                 </Card.Body>
               </Card>
@@ -32,4 +33,4 @@ class TextCards extends Component {
   }
 }
 
-export default TextCards
+export default EventCards

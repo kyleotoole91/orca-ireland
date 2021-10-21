@@ -1,13 +1,32 @@
 const express = require('express')
 const app = express();
+var cors = require('cors');
 import { Events } from './events'
 
 let eventsDB = new Events();
 app.use(express.json());
 
+app.get('/cors', (req, res) => {
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.send({ "msg": "This has CORS enabled" })
+})
+const corsOpts = {
+  origin: 'http://localhost:3000',
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+  ],
+  allowedHeaders: [
+    'Content-Type',
+  ],
+};
+
+app.use(cors(corsOpts));
+
 app.get('/events', (req, res) => {
   let events = eventsDB.getEvents() 
-  console.log(events.length)
   if (events) {
     return res.status(200).send({
       success: true,
