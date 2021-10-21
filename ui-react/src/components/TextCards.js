@@ -17,7 +17,7 @@ class TextCards extends Component {
               <Card.Body>
                 <Card.Title>{cardData.title}</Card.Title>
                 <Card.Text>{cardData.text}</Card.Text>
-                <Button variant="primary">Registration</Button>
+                <Button variant="primary">{this.props.buttonText}</Button>
               </Card.Body>
             </Card>
           ))}

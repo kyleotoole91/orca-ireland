@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import TextCards from '../components/TextCards';
 
+const buttonText = 'Register'
+
 class Events extends Component {
 
   constructor(props) {
@@ -22,7 +24,7 @@ class Events extends Component {
   render() {
     return (
       <div style={{display: 'flex', flexFlow: 'wrap'}}>
-        <TextCards cardData={this.state.cardData} > </TextCards>
+        <TextCards cardData={this.state.cardData} buttonText={buttonText} > </TextCards>
       </div>
     )
   }
