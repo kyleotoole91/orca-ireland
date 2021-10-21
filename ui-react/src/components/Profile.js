@@ -4,19 +4,18 @@ import { useAuth0 } from "@auth0/auth0-react";
 //import LogoutButton from './LogoutButton';
 import DefaultProfilePng from './images/default-profile-image.png';
 
-const Profile = () => {
+function Profile () {
   const { logout, loginWithRedirect,  user, isAuthenticated } = useAuth0(); 
   var profilePic = DefaultProfilePng;
   var username = 'Sign In';
 
   if (user != null) {
     profilePic = user.picture;
-    if (user.given_name != null) {
-      username = user.given_name;
+    if (user.name != null) {
+      username = user.name;
     } else {
       username = user.nickname;
     }
-    console.log(user);
   }
 
   return (
@@ -55,7 +54,7 @@ const Username = styled.div`
   position: 'absolute';
   height: 100%;
   padding: 8px;
-  @media (max-width: ${({ theme}) => theme.mobileM}) {
+  @media (max-width: ${ ({ theme}) => theme.mobileL}) {
     display: none;
   }
 `;

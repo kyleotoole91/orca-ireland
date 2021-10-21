@@ -6,7 +6,7 @@ import MenuItems from './MenuItems';
 import { useAuth0 } from '@auth0/auth0-react';
 import { SideBar } from './'; 
 
-const MenuBar = () => {
+function MenuBar () {
   const { isAuthenticated } = useAuth0();
     return (
       <>
@@ -19,7 +19,7 @@ const MenuBar = () => {
           </CompanyContainer>
           {isAuthenticated && <MenuItems />}
           <div style={{height: '100%'}} >
-            <Profile param={{isMenuBar: true}} />
+            <Profile />
           </div>        
         </MenuBarContainer>
       </ >

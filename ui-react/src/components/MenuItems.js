@@ -1,16 +1,29 @@
-import React from 'react';
+import React, {Component} from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
-const MenuItems = () => {
-  return (
-    <>
-      <MenuItem><Link to='./'>Home</Link></MenuItem>
-      <MenuItem><Link to='/events'>Events</Link></MenuItem>
-      <MenuItem><Link to='/garage'>Garage</Link></MenuItem>
-      <MenuItem><Link to='./membership'>Membership</Link></MenuItem>
-    </ >
-  )
+class MenuItems extends Component {
+
+    constructor(props) {
+      super(props)
+      this.state = {loading: true}
+    }
+  
+    async componentDidMount() {
+      this.setState({ loading: false })  
+    } 
+
+    render() {
+      return (
+        <>
+          <MenuItem><Link to='./'>Home</Link></MenuItem>
+          <MenuItem><Link to='/events'>Events</Link></MenuItem>
+          <MenuItem><Link to='/garage'>Garage</Link></MenuItem>
+          <MenuItem><Link to='./membership'>Membership</Link></MenuItem>
+        </ >
+      )
+    }
+
 };
 
 const MenuItem = styled.div`
@@ -29,7 +42,7 @@ const MenuItem = styled.div`
   &:hover {
     background: white;
   }
-  @media (max-width: ${({ theme}) => theme.mobile}) {
+  @media (max-width: ${({ theme}) => theme.mobileM}) {
     display: none;
   }
 `;

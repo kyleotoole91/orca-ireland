@@ -21,6 +21,6 @@ const Membership = () => {
 }
 
 export default withAuthenticationRequired(Membership, {
-  onRedirecting: () => (<div>Redirecting you..</div>)  
+  onRedirecting: () => (<div>Loading...</div>)  
 });
 

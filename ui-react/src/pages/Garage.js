@@ -1,7 +1,7 @@
 import React from 'react';
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 
-const Garage = () => {  
+function Garage () {  
   return (
     <div>
       <h1>Garage</h1>
@@ -10,6 +10,6 @@ const Garage = () => {
 }
 
 export default withAuthenticationRequired(Garage, {
-  onRedirecting: () => (<div>Redirecting you..</div>)  
+  onRedirecting: () => (<div>Loading...</div>)  
 });
 
