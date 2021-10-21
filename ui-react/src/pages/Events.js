@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import { withAuthenticationRequired } from "@auth0/auth0-react";
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
+import TextCards from '../components/TextCards';
 
 class Events extends Component {
 
@@ -23,16 +22,7 @@ class Events extends Component {
   render() {
     return (
       <div style={{display: 'flex', flexFlow: 'wrap'}}>
-          {this.state.cardData.map((cardData) => (
-            <Card style={{maxWidth: '40vh', margin: '6px'}}>
-              <Card.Header>{cardData.header}</Card.Header>
-              <Card.Body>
-                <Card.Title>{cardData.title}</Card.Title>
-                <Card.Text>{cardData.text}</Card.Text>
-                <Button variant="primary">Registration</Button>
-              </Card.Body>
-            </Card>
-          ))}
+        <TextCards cardData={this.state.cardData} > </TextCards>
       </div>
     )
   }
