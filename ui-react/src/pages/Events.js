@@ -24,7 +24,7 @@ class Events extends Component {
   render() {
     return (
       <div style={{display: 'flex', flexFlow: 'wrap'}}>
-        <TextCards cardData={this.state.cardData} buttonText={buttonText} > </TextCards>
+        <TextCards data={this.state} buttonText={buttonText} > </TextCards>
       </div>
     )
   }

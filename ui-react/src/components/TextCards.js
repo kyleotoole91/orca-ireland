@@ -9,20 +9,26 @@ class TextCards extends Component {
   }
 
   render() {
-    return (
-      <div style={{display: 'flex', flexFlow: 'wrap'}}>
-          {this.props.cardData.map((cardData, index) => (
-            <Card style={{maxWidth: '40vh', margin: '3px'}} key={index}>
-              <Card.Header>{cardData.header}</Card.Header>
-              <Card.Body>
-                <Card.Title>{cardData.title}</Card.Title>
-                <Card.Text>{cardData.text}</Card.Text>
-                <Button variant="primary">{this.props.buttonText}</Button>
-              </Card.Body>
-            </Card>
-          ))}
-      </div>
-    )
+    if (this.props.data.loading) {
+      return (
+        <div>Loading...</div>
+      )
+    } else {
+      return (
+        <div style={{display: 'flex', flexFlow: 'wrap'}}>
+            {this.props.data.cardData.map((cardData, index) => (
+              <Card style={{maxWidth: '40vh', margin: '3px'}} key={index}>
+                <Card.Header>{cardData.header}</Card.Header>
+                <Card.Body>
+                  <Card.Title>{cardData.title}</Card.Title>
+                  <Card.Text>{cardData.text}</Card.Text>
+                  <Button variant="primary">{this.props.buttonText}</Button>
+                </Card.Body>
+              </Card>
+            ))}
+        </div>
+      )
+    }
   }
 }
 
