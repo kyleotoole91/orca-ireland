@@ -2,6 +2,7 @@ import React from 'react'
 import { withAuthenticationRequired } from "@auth0/auth0-react"
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import Loading from '../components/Loading';
 
 const Membership = () => {  
   return (
@@ -21,6 +22,6 @@ const Membership = () => {
 }
 
 export default withAuthenticationRequired(Membership, {
-  onRedirecting: () => (<div>Loading...</div>)  
+  onRedirecting: () => (<Loading />)  
 });
 

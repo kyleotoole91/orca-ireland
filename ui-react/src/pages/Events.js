@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
+import Loading from '../components/Loading';
 
 let events = [];
 
@@ -13,11 +14,10 @@ class Events extends Component {
   }
 
   async componentDidMount() {
-    await fetch('http://localhost:8000/events')
+    await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS)
               .then(response => response.json())
               .then((data) => {
                       this.setState({ events: data.events, loading: false })
-                      console.log(this.state.events)
                     }).catch((error) => {
                       this.setState({ loading: false })
                       console.log(error)
@@ -25,12 +25,10 @@ class Events extends Component {
     
   }
 
-  // <EventCards data={this.state} buttonText={buttonText} > </EventCards>
-
   render() {
     events = this.state.events;
-    if (this.state.Loading) {
-      return ( <div>Loading...</div> )
+    if (this.state.loading) {
+      return ( <Loading /> )
     } else if (this.state.events.length === 0) {
       return ( <div>No events</div> )
     } else {

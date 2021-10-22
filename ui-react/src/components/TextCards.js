@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import Loading from '../components/Loading';
 
 class TextCards extends Component {
   constructor(props) {
@@ -12,7 +13,7 @@ class TextCards extends Component {
     if (this.props.data.cardData.length === 1) {
       return ( <div>No events</div> )
     } else if (this.props.data.loading) {
-      return (  <div>Loading...</div> )
+      return (  <Loading /> )
     } else {
       return (
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
