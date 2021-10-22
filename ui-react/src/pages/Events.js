@@ -51,4 +51,4 @@ class Events extends Component {
     }
 };
 
-export default withAuthenticationRequired(Events, { onRedirecting: () => (<div>Loading..</div>) });
+export default withAuthenticationRequired(Events, { onRedirecting: () => (<Loading />) });

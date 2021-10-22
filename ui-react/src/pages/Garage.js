@@ -1,5 +1,6 @@
 import React from 'react';
 import { withAuthenticationRequired } from "@auth0/auth0-react";
+import Loading from '../components/Loading';
 
 function Garage () {  
   return (
@@ -10,6 +11,6 @@ function Garage () {
 }
 
 export default withAuthenticationRequired(Garage, {
-  onRedirecting: () => (<div>Loading...</div>)  
+  onRedirecting: () => (<Loading />)  
 });
 
