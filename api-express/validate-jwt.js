@@ -1,8 +1,8 @@
-import jwt from "express-jwt";
-import { expressJwtSecret } from "jwks-rsa";
+import jwt from "express-jwt"
+import { expressJwtSecret } from "jwks-rsa"
 require('dotenv').config()
 
-const checkJwt = jwt({
+const validateJwt = jwt({
   secret: expressJwtSecret({
     cache: true,
     rateLimit: true,
@@ -13,6 +13,6 @@ const checkJwt = jwt({
   audience: process.env.AUTH0_AUDIENCE,
   issuer: `https://${process.env.AUTH0_DOMAIN}/`,
   algorithms: ["RS256"],
-});
+})
 
-export default { checkJwt };
+export default validateJwt 

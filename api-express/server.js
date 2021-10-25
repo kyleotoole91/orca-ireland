@@ -3,6 +3,7 @@ const app = express();
 var cors = require('cors');
 import { Events } from './events'
 require('dotenv').config()
+import validateJwt from './validate-jwt'
 
 let eventsDB = new Events();
 app.use(express.json());
@@ -59,7 +60,7 @@ app.get('/events/:id', (req, res) => {
   }
 })
 
-app.post('/events', (req, res) => {
+app.post('/events', validateJwt, (req, res) => {
 	if(!req.body.name) {
 		return res.status(400).send({
 			success: false,
@@ -98,7 +99,7 @@ app.post('/events', (req, res) => {
   }
 })
 
-app.put('/events/:id', (req, res) => {
+app.put('/events/:id', validateJwt, (req, res) => {
 	const id = parseInt(req.params.id, 10);
   if(!req.body.name) {
 		return res.status(400).send({
