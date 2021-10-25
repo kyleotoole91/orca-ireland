@@ -2,6 +2,7 @@ const express = require('express')
 const app = express();
 var cors = require('cors');
 import { Events } from './events'
+require('dotenv').config()
 
 let eventsDB = new Events();
 app.use(express.json());

@@ -15,27 +15,17 @@ import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 //import { useAuth0 } from '@auth0/auth0-react';
 require('dotenv').config()
 
-const domain = process.env.REACT_APP_AUTH0_DOMAIN
-const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID
-const callbackUri = process.env.REACT_APP_AUTH0_URI_CALLBACK 
-
 function App() {
   const history = useHistory();
+
   const onRedirectCallback = (appState) => {
     history.push(appState?.returnTo || window.location.pathname);
   };
 
-  //const { isAuthenticated } = useAuth0();
-  //console.log(isAuthenticated);
-
   return ( 
     <Router> 
       <Auth0ProviderWithHistory
-        domain={domain}
-        clientId={clientId}
-        redirectUri={callbackUri}
-        onRedirectCallback={onRedirectCallback}
-      >
+        onRedirectCallback={onRedirectCallback} >
         <ThemeProvider theme={theme} className="App">
           <MenuBar />   
           <AppContainer className="content">
