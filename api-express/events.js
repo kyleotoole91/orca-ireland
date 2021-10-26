@@ -30,7 +30,9 @@ export class Events {
   }
 
   addEvent(event){
-    return eventList.push(event)
+    event.id = eventList.length+1
+    eventList.push(event)
+    return event
   }
 
   deleteEvent(id){

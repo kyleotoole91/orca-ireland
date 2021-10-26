@@ -5,8 +5,8 @@ import { Events } from './events'
 require('dotenv').config()
 import validateJwt from './validate-jwt'
 
-let eventsDB = new Events();
-app.use(express.json());
+let eventsDB = new Events()
+app.use(express.json())
 
 app.get('/cors', (req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -145,7 +145,7 @@ app.put('/events/:id', validateJwt, (req, res) => {
   }
 })
 
-app.delete('/events/:id', (req, res) => {
+app.delete('/events/:id', validateJwt, (req, res) => {
 	const id = parseInt(req.params.id, 10);
   const event = eventsDB.deleteEvent(id)
   if (event) {
