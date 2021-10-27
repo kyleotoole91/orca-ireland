@@ -12,7 +12,6 @@ function Profile () {
   var username = 'Sign In'
 
   if (user != null) {
-    //const { user, isAuthenticated } = useAuth0();
     console.log(user)    
     token = getApiToken();
     console.log(token)

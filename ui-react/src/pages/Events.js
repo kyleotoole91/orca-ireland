@@ -35,7 +35,7 @@ class Events extends Component {
       return (
           <div style={{display: 'flex', flexFlow: 'wrap'}}>
              {events.map((event, index) => (
-              <Card style={{maxWidth: '40vh', margin: '3px'}} key={index}>
+              <Card style={{maxWidth: '40vh', margin: '3px', zIndex: -1}} key={index}>
                 <Card.Header>{event.name}</Card.Header>
                 <Card.Body>
                   <Card.Title>{event.location}</Card.Title>

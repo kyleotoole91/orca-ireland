@@ -18,7 +18,7 @@ class TextCards extends Component {
       return (
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
             {this.props.data.cardData.map((cardData, index) => (
-              <Card style={{maxWidth: '40vh', margin: '3px'}} key={index}>
+              <Card style={{maxWidth: '40vh', margin: '3px', zIndex: -1}} key={index}>
                 <Card.Header>{cardData.header}</Card.Header>
                 <Card.Body>
                   <Card.Title>{cardData.title}</Card.Title>
