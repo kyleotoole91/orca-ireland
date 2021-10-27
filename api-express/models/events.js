@@ -1,4 +1,7 @@
-require('mongodb')
+require('dotenv').config()
+import mongoClient from '../mongo-client';
+
+const collectionName = 'events'
 
 let eventList;
 
@@ -23,27 +26,33 @@ export class Events {
       
   }
 
-  getEvents() {
-    return eventList  
+  async getEvents() {
+    //TODO should return all events
+    let events = await mongoClient.db(process.env.MONGO_DB_NAME)
+                                  .collection(collectionName)
+                                  .findOne()
+    let eventArr = []
+    eventArr.push(events)
+    return eventArr  
   }
 
-  getEvent(id) {
+  async getEvent(id) {
     let index = eventList.findIndex(e => e.id === id) 
     return eventList[index]
   }
 
-  addEvent(event){
+  async addEvent(event){
     event.id = eventList.length+1
     eventList.push(event)
     return event
   }
 
-  deleteEvent(id){
+  async deleteEvent(id){
     let index = eventList.findIndex(e => e.id === id)
     return eventList.splice(index, 1)
   }
 
-  updateEvent(id, event){
+  async updateEvent(id, event){
     let index = eventList.findIndex(e => e.id === id)
     if (index >= 0) {
       eventList[index] = event

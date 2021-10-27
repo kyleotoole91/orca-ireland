@@ -1,17 +1,10 @@
 const express = require('express')
 const app = express();
 var cors = require('cors');
-import { Events } from './events'
+import { Events } from './models/events'
 require('dotenv').config()
-import validateJwt from './validate-jwt'
+import validateJwt from './utils/validate-jwt'
 
-let eventsDB = new Events()
-app.use(express.json())
-
-app.get('/cors', (req, res) => {
-  res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.send({ "msg": "This has CORS enabled" })
-})
 const corsOpts = {
   origin: 'http://localhost:3000',
   methods: [
@@ -25,10 +18,22 @@ const corsOpts = {
   ],
 };
 
+app.use(express.urlencoded({extended: true})); 
+app.use(express.json());   
 app.use(cors(corsOpts));
+app.get('/cors', (req, res) => {
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.send({ "msg": "This has CORS enabled" })
+})
+app.use(function(err,req,res,next){
+  res.status(401).send({error: err.message})
+  res.status(422).send({error: err.message})
+});
 
-app.get('/events', (req, res) => {
-  let events = eventsDB.getEvents() 
+let eventsDB = new Events()
+
+app.get('/events', async (req, res) => {
+  let events = await eventsDB.getEvents() 
   if (events) {
     return res.status(200).send({
       success: true,
@@ -43,7 +48,7 @@ app.get('/events', (req, res) => {
   }
 })
 
-app.get('/events/:id', (req, res) => {
+app.get('/events/:id', async (req, res) => {
 	const id = parseInt(req.params.id, 10);
   const event = eventsDB.getEvent(id) 
   if (event) {
@@ -60,7 +65,7 @@ app.get('/events/:id', (req, res) => {
   }
 })
 
-app.post('/events', validateJwt, (req, res) => {
+app.post('/events', validateJwt, async (req, res) => {
 	if(!req.body.name) {
 		return res.status(400).send({
 			success: false,
@@ -99,7 +104,7 @@ app.post('/events', validateJwt, (req, res) => {
   }
 })
 
-app.put('/events/:id', validateJwt, (req, res) => {
+app.put('/events/:id', validateJwt, async (req, res) => {
 	const id = parseInt(req.params.id, 10);
   if(!req.body.name) {
 		return res.status(400).send({
@@ -145,7 +150,7 @@ app.put('/events/:id', validateJwt, (req, res) => {
   }
 })
 
-app.delete('/events/:id', validateJwt, (req, res) => {
+app.delete('/events/:id', validateJwt, async (req, res) => {
 	const id = parseInt(req.params.id, 10);
   const event = eventsDB.deleteEvent(id)
   if (event) {
