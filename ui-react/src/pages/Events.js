@@ -3,6 +3,7 @@ import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import Loading from '../components/Loading';
+import dayjs from 'dayjs';
 
 let events = [];
 
@@ -39,8 +40,8 @@ class Events extends Component {
                 <Card.Header>{event.name}</Card.Header>
                 <Card.Body>
                   <Card.Title>{event.location}</Card.Title>
-                  <Card.Text>{event.price}</Card.Text>
-                  <Card.Text>{event.date}</Card.Text>
+                  <Card.Text>Entry fee €{event.price}</Card.Text>
+                  <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
                   <Button variant="primary">Enter</Button>
                 </Card.Body>
               </Card>
