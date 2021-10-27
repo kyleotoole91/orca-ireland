@@ -27,13 +27,7 @@ export class Events {
   }
 
   async getEvents() {
-    //TODO should return all events
-    let events = await mongoClient.db(process.env.MONGO_DB_NAME)
-                                  .collection(collectionName)
-                                  .findOne()
-    let eventArr = []
-    eventArr.push(events)
-    return eventArr  
+    return await mongoClient.db(process.env.MONGO_DB_NAME).collection(collectionName).find({}).toArray();
   }
 
   async getEvent(id) {
