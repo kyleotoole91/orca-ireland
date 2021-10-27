@@ -11,7 +11,7 @@ function MenuBar () {
   return (
     <>
       <SideBar authenticated={isAuthenticated} />
-      <MenuBarContainer> 
+      <MenuBarContainer style={{zIndex: 1}} > 
         <BurgerContainer />
         <CompanyContainer>
           ORCA Ireland &nbsp;
