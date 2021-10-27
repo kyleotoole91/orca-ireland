@@ -18,8 +18,8 @@ class MenuItems extends Component {
         <>
           <MenuItem><Link to='./'>Home</Link></MenuItem>
           <MenuItem><Link to='/events'>Events</Link></MenuItem>
-          <MenuItem><Link to='/garage'>Garage</Link></MenuItem>
-          <MenuItem><Link to='./membership'>Membership</Link></MenuItem>
+          {this.props.authenticated && <MenuItem><Link to='/garage'>Garage</Link></MenuItem> }
+          {this.props.authenticated && <MenuItem><Link to='./membership'>Membership</Link></MenuItem> }
         </ >
       )
     }

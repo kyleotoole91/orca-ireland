@@ -1,5 +1,9 @@
 node_modules
 api-express/node_modules
 ui-react/node_modules
-api-express/.env.production
+ui-react/.env
+ui-react/.env.development
 ui-react/.env.production
+api-express/.env
+api-express/.env.development
+api-express/.env.production

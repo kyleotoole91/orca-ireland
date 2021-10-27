@@ -8,22 +8,22 @@ import { SideBar } from './';
 
 function MenuBar () {
   const { isAuthenticated } = useAuth0();
-    return (
-      <>
-        <SideBar />
-        <MenuBarContainer> 
-          <BurgerContainer /> 
-          <CompanyContainer>
-            ORCA Ireland &nbsp;
-            <CompanyImage src={mainLogo} />
-          </CompanyContainer>
-          {isAuthenticated && <MenuItems />}
-          <div style={{height: '100%'}} >
-            <Profile />
-          </div>        
-        </MenuBarContainer>
-      </ >
-    )
+  return (
+    <>
+      <SideBar authenticated={isAuthenticated} />
+      <MenuBarContainer> 
+        <BurgerContainer />
+        <CompanyContainer>
+          ORCA Ireland &nbsp;
+          <CompanyImage src={mainLogo} />
+        </CompanyContainer>
+        <MenuItems authenticated={isAuthenticated} />
+        <div style={{height: '100%'}} >
+          <Profile />
+        </div>        
+      </MenuBarContainer>
+    </ >
+  )
 };
 
 const CompanyImage = styled.img` 

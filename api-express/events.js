@@ -1,23 +1,26 @@
+require('mongodb')
+
 let eventList;
 
 export class Events {
 
   constructor() {
-      eventList = [{id: 1,
-                    name: "Round 4",
-                    location: "Saint Anne''s Park",
-                    price: "€10",
-                    date: "Sunday, Nov 7, 2021"},
-                   {id: 2,
-                    name: "Round 5",
-                    location: "Saint Anne''s Park",
-                    price: "€10",
-                    date: "Sunday, Nov 21, 2021"},
-                   {id: 3,
-                    name: "Round 6",
-                    location: "Saint Anne''s Park",
-                    price: "€10",
-                    date: "Sunday, Nov 28, 2021"}]
+    eventList = [{id: 1,
+                  name: "Round 4",
+                  location: "Saint Anne''s Park",
+                  price: "€10",
+                  date: "Sunday, Nov 7, 2021"},
+                  {id: 2,
+                  name: "Round 5",
+                  location: "Saint Anne''s Park",
+                  price: "€10",
+                  date: "Sunday, Nov 21, 2021"},
+                  {id: 3,
+                  name: "Round 6",
+                  location: "Saint Anne''s Park",
+                  price: "€10",
+                  date: "Sunday, Nov 28, 2021"}]
+      
   }
 
   getEvents() {
