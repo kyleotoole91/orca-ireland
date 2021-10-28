@@ -16,8 +16,9 @@ function Events() {
   }
 
   async function getApiToken() {
-    let token = await getAccessTokenSilently();
+    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE });
     setApiToken(token)   
+    console.log(token)
   }
   
   //Alternative to declaring loadData() in useEffect(). Memoize with useCallback()

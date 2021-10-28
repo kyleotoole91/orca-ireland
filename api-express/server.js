@@ -18,7 +18,8 @@ const corsOpts = {
   ],
   allowedHeaders: [
     'Content-Type',
-    'Authorization'
+    'Authorization',
+    'Bearer'
   ],
 };
 
@@ -72,6 +73,7 @@ app.get('/events/:id', async (req, res) => {
 })
 
 app.post('/events', validateJwt, async (req, res) => {
+  console.log(req.body)
 	if(!req.body.name) {
 		return res.status(400).send({
 			success: false,

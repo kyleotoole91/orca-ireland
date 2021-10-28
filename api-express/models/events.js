@@ -28,10 +28,12 @@ export class Events {
   }
 
   async setToken(tokenParam){
-    this.token = tokenParam
+    let decoded
     try { 
-      let decoded = await jwt_decode(this.token)
+      decoded = await jwt_decode(tokenParam)
+      this.token = tokenParam
       console.log('Events token set: ')
+      console.log(tokenParam)
       console.log(decoded)
     } catch (error) {
       console.error(error);
@@ -39,7 +41,7 @@ export class Events {
   } 
 
   async getEvents() {
-    return await mongoClient.db(process.env.MONGO_DB_NAME).collection(collectionName).find({}).toArray();
+    return await mongoClient.db(process.env.MONGO_DB_NAME).collection(collectionName).find({}).toArray()
   }
 
   async getEvent(id) {
@@ -48,8 +50,7 @@ export class Events {
   }
 
   async addEvent(event){
-    event.id = eventList.length+1
-    eventList.push(event)
+    return await mongoClient.db(process.env.MONGO_DB_NAME).collection(collectionName).insertOne({event})
     return event
   }
 
