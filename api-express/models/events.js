@@ -1,5 +1,6 @@
 require('dotenv').config()
-import mongoClient from '../mongo-client';
+import mongoClient from '../mongo-client'
+import jwt_decode from "jwt-decode"
 
 const collectionName = 'events'
 
@@ -26,14 +27,19 @@ export class Events {
       date: "Sunday, Nov 28, 2021"}]
   }
 
-  setToken(tokenParam){
-    this.token = tokenParam 
-    console.log('Events token set: ')
-    console.log(this.token)
+  async setToken(tokenParam){
+    this.token = tokenParam
+    try { 
+      let decoded = await jwt_decode(this.token)
+      console.log('Events token set: ')
+      console.log(decoded)
+    } catch (error) {
+      console.error(error);
+    }
   } 
 
   async getEvents() {
-      return await mongoClient.db(process.env.MONGO_DB_NAME).collection(collectionName).find({}).toArray();
+    return await mongoClient.db(process.env.MONGO_DB_NAME).collection(collectionName).find({}).toArray();
   }
 
   async getEvent(id) {
