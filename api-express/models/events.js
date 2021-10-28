@@ -3,31 +3,37 @@ import mongoClient from '../mongo-client';
 
 const collectionName = 'events'
 
-let eventList;
+let eventList, token
 
 export class Events {
 
   constructor() {
-    eventList = [{id: 1,
-                  name: "Round 4",
-                  location: "Saint Anne''s Park",
-                  price: "€10",
-                  date: "Sunday, Nov 7, 2021"},
-                  {id: 2,
-                  name: "Round 5",
-                  location: "Saint Anne''s Park",
-                  price: "€10",
-                  date: "Sunday, Nov 21, 2021"},
-                  {id: 3,
-                  name: "Round 6",
-                  location: "Saint Anne''s Park",
-                  price: "€10",
-                  date: "Sunday, Nov 28, 2021"}]
-      
+    token= '',
+    eventList= [{id: 1,
+      name: "Round 4",
+      location: "Saint Anne''s Park",
+      price: "€10",
+      date: "Sunday, Nov 7, 2021"},
+      {id: 2,
+      name: "Round 5",
+      location: "Saint Anne''s Park",
+      price: "€10",
+      date: "Sunday, Nov 21, 2021"},
+      {id: 3,
+      name: "Round 6",
+      location: "Saint Anne''s Park",
+      price: "€10",
+      date: "Sunday, Nov 28, 2021"}]
   }
 
+  setToken(tokenParam){
+    this.token = tokenParam 
+    console.log('Events token set: ')
+    console.log(this.token)
+  } 
+
   async getEvents() {
-    return await mongoClient.db(process.env.MONGO_DB_NAME).collection(collectionName).find({}).toArray();
+      return await mongoClient.db(process.env.MONGO_DB_NAME).collection(collectionName).find({}).toArray();
   }
 
   async getEvent(id) {

@@ -5,6 +5,9 @@ import { Events } from './models/events'
 require('dotenv').config()
 import validateJwt from './utils/validate-jwt'
 
+const authHeader='Authorization'
+const bearer='Bearer'
+
 const corsOpts = {
   origin: 'http://localhost:3000',
   methods: [
@@ -15,6 +18,7 @@ const corsOpts = {
   ],
   allowedHeaders: [
     'Content-Type',
+    'Authorization'
   ],
 };
 
@@ -33,6 +37,8 @@ app.use(function(err,req,res,next){
 let eventsDB = new Events()
 
 app.get('/events', async (req, res) => {
+  let token = req.get(authHeader).replace(bearer, '').trim() 
+  eventsDB.setToken(token)
   let events = await eventsDB.getEvents() 
   if (events) {
     return res.status(200).send({

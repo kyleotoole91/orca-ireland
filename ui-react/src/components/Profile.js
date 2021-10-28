@@ -4,27 +4,18 @@ import { useAuth0 } from "@auth0/auth0-react";
 //import LogoutButton from './LogoutButton';
 import DefaultProfilePng from './images/default-profile-image.png';
 
-let token
-
 function Profile () {
-  const { logout, loginWithRedirect,  user, isAuthenticated, getAccessTokenSilently } = useAuth0()
+  const { logout, loginWithRedirect,  user, isAuthenticated } = useAuth0()
   var profilePic = DefaultProfilePng
   var username = 'Sign In'
 
   if (user != null) {
-    console.log(user)    
-    token = getApiToken();
-    console.log(token)
     profilePic = user.picture
     if (user.name != null) {
       username = user.name;
     } else {
       username = user.nickname;
     }
-  }
- 
-  async function getApiToken() {
-    return await getAccessTokenSilently();
   }
 
   return (
