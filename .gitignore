@@ -7,3 +7,4 @@ ui-react/.env.production
 api-express/.env
 api-express/.env.development
 api-express/.env.production
+api-express/.env
