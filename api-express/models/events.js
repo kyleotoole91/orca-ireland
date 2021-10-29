@@ -1,7 +1,7 @@
 require('dotenv').config()
 import mongoClient from '../mongo-client'
 import jwt_decode from "jwt-decode"
-
+import jwt from 'jsonwebtoken'
 const collectionName = 'events'
 
 let eventList, token
@@ -28,13 +28,13 @@ export class Events {
   }
 
   async setToken(tokenParam){
-    let decoded
     try { 
-      decoded = await jwt_decode(tokenParam)
-      this.token = tokenParam
-      console.log('Events token set: ')
-      console.log(tokenParam)
+      this.token = tokenParam 
+      //let decoded = jwt.decode(tokenParam)
+      let decoded = jwt_decode(tokenParam)
       console.log(decoded)
+      //console.log('Events token set: ')
+      //console.log(tokenParam)
     } catch (error) {
       console.error(error);
     }
@@ -50,7 +50,7 @@ export class Events {
   }
 
   async addEvent(event){
-    return await mongoClient.db(process.env.MONGO_DB_NAME).collection(collectionName).insertOne({event})
+    await mongoClient.db(process.env.MONGO_DB_NAME).collection(collectionName).insertOne({event})
     return event
   }
 

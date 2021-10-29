@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 
 function Events() {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0()
-  const [events, setEvents] = useState()
+  const [data, setData] = useState()
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -35,8 +35,9 @@ function Events() {
       await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((data) => {
-                    setEvents(data.events)
+                    setData(data.events)
                     setLoading(false)
+                    console.log(data)
                   }).catch((error) => {
                     setLoading(false); 
                     console.log(error)
@@ -47,18 +48,18 @@ function Events() {
 
   if (loading) {
     return ( <Loading /> )
-  } else if (events.length === 0) {
+  } else if (data.length === 0) {
     return ( <div>No events</div> )
   } else {
     return (
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
-            {events.map((event, index) => (
+            {data.map((event, index) => (
             <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
-              <Card.Header>{event.name}</Card.Header>
+              <Card.Header>{event.event.name}</Card.Header>
               <Card.Body>
-                <Card.Title>{event.location}</Card.Title>
-                <Card.Text>Entry fee €{event.price}</Card.Text>
-                <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
+                <Card.Title>{event.event.location}</Card.Title>
+                <Card.Text>Entry fee €{event.event.price}</Card.Text>
+                <Card.Text>{dayjs(event.event.date).format('DD/MM/YYYY') }</Card.Text>
                 <Button variant="primary">Enter</Button>
               </Card.Body>
             </Card>
