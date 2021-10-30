@@ -28,7 +28,7 @@ app.get('/cors', (req, res) => {
   res.send({ "msg": "This has CORS enabled" })
 })
 
-let eventsController = new EventsController()
+const eventsController = new EventsController()
 
 app.get('/events', (req, res) => eventsController.getEvents(req, res))
 app.get('/events/:id', (req, res) => eventsController.getEvent(req, res))
