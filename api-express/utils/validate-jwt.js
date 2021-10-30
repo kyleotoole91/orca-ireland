@@ -1,5 +1,6 @@
 import jwt from "express-jwt"
 import { expressJwtSecret } from "jwks-rsa"
+import jwt_decode from "jwt-decode"
 require('dotenv').config()
 
 const validateJwt = jwt({
@@ -14,4 +15,4 @@ const validateJwt = jwt({
   algorithms: ["RS256"],
 })
 
-export default validateJwt 
+export default validateJwt  

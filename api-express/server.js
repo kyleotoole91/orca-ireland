@@ -4,9 +4,7 @@ var cors = require('cors');
 import { Events } from './models/events'
 require('dotenv').config()
 import validateJwt from './utils/validate-jwt'
-
-const authHeader='Authorization'
-const bearer='Bearer'
+import { Permissions } from './utils/permissions.js'
 
 const corsOpts = {
   origin: 'http://localhost:3000',
@@ -30,16 +28,15 @@ app.get('/cors', (req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.send({ "msg": "This has CORS enabled" })
 })
-app.use(function(err,req,res,next){
-  res.status(401).send({error: err.message})
-  res.status(422).send({error: err.message})
-});
 
+let permissions = new Permissions()
 let eventsDB = new Events()
 
+function getToken(req) {
+  return req.get('Authorization').replace('Bearer', '').trim() 
+}
+
 app.get('/events', async (req, res) => {
-  let token = req.get(authHeader).replace(bearer, '').trim() 
-  eventsDB.setToken(token)
   let events = await eventsDB.getEvents() 
   if (events) {
     return res.status(200).send({
@@ -73,8 +70,12 @@ app.get('/events/:id', async (req, res) => {
 })
 
 app.post('/events', validateJwt, async (req, res) => {
-  console.log(req.body)
-	if(!req.body.name) {
+  if (!permissions.check(getToken(req), 'post', 'events')) {
+    return res.status(403).send({
+			success: false,
+			message: 'forbidden'
+		})
+  } else if(!req.body.name) {
 		return res.status(400).send({
 			success: false,
 			message: 'name is required',
@@ -113,8 +114,12 @@ app.post('/events', validateJwt, async (req, res) => {
 })
 
 app.put('/events/:id', validateJwt, async (req, res) => {
-	const id = parseInt(req.params.id, 10);
-  if(!req.body.name) {
+  if (!permissions.check(getToken(req), 'put', 'events')) {
+    return res.status(403).send({
+			success: false,
+			message: 'forbidden'
+		})
+  } else if(!req.body.name) {
 		return res.status(400).send({
 			success: false,
 			message: 'name is required',
@@ -135,6 +140,7 @@ app.put('/events/:id', validateJwt, async (req, res) => {
 			message: 'price is required',
 		});
 	} else {
+    const id = parseInt(req.params.id, 10)
     let event = {
       id: id,
       name: req.body.name,
@@ -159,20 +165,27 @@ app.put('/events/:id', validateJwt, async (req, res) => {
 })
 
 app.delete('/events/:id', validateJwt, async (req, res) => {
-	const id = parseInt(req.params.id, 10);
-  const event = eventsDB.deleteEvent(id)
-  if (event) {
-    return res.status(410).send({
-      success: true,
-      message: 'event deleted successfully',
-      event
+  if (!permissions.check(getToken(req), 'delete', 'events')) {
+    return res.status(403).send({
+			success: false,
+			message: 'forbidden'
+		})
+  } else {
+    const id = parseInt(req.params.id, 10);
+    const event = eventsDB.deleteEvent(id)
+    if (event) {
+      return res.status(410).send({
+        success: true,
+        message: 'event deleted successfully',
+        event
+        });
+    }else {
+      return res.status(404).send({
+        success: false,
+        message: 'error deleting event'
       });
-  }else {
-    return res.status(404).send({
-      success: false,
-      message: 'error deleting event'
-    });
-  }
+    }
+  } 
 })
 
 app.listen(8000, () => {

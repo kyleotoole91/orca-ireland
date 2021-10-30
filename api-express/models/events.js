@@ -30,11 +30,8 @@ export class Events {
   async setToken(tokenParam){
     try { 
       this.token = tokenParam 
-      //let decoded = jwt.decode(tokenParam)
       let decoded = jwt_decode(tokenParam)
       console.log(decoded)
-      //console.log('Events token set: ')
-      //console.log(tokenParam)
     } catch (error) {
       console.error(error);
     }
