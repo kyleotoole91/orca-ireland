@@ -30,11 +30,11 @@ app.get('/cors', (req, res) => {
 
 let eventsController = new EventsController()
 
-app.get('/events', async (req, res) => eventsController.getEvents(req, res))
-app.get('/events/:id', async (req, res) => eventsController.getEvent(req, res))
-app.post('/events', validateJwt, async (req, res) => eventsController.addEvent(req, res))
-app.put('/events/:id', validateJwt, async (req, res) => eventsController.updateEvent(req, res))
-app.delete('/events/:id', validateJwt, async (req, res) => eventsController.updateEvent(req, res))
+app.get('/events', (req, res) => eventsController.getEvents(req, res))
+app.get('/events/:id', (req, res) => eventsController.getEvent(req, res))
+app.post('/events', validateJwt, (req, res) => eventsController.addEvent(req, res))
+app.put('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
+app.delete('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
 
 app.listen(8000, () => {
   console.log('ORCA api server listening on port 8000')
