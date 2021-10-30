@@ -1,4 +1,4 @@
-import { Events } from '../models/events'
+import { EventsModel } from '../models/events'
 import { Permissions } from '../utils/permissions.js'
 
 let eventsDB
@@ -10,7 +10,7 @@ function getToken(req) {
 
 export class EventsController {
   constructor () {
-    eventsDB = new Events()
+    eventsDB = new EventsModel()
     permissions = new Permissions()
   }
   
@@ -19,30 +19,29 @@ export class EventsController {
     if (events) {
       return res.status(200).send({
         success: true,
-        messsage: 'events',
-        events
+        messsage: eventsDB.message,
+        data: events
       })
     } else {
       return res.status(404).send({
         success: false,
-        message: 'error getting event data'
+        message: eventsDB.message
       });  
     }
   }
 
   async getEvent(req, res, next) {
-    const id = parseInt(req.params.id, 10);
-    const event = eventsDB.getEvent(id) 
+    const event = await eventsDB.getEvent(req.params.id) 
     if (event) {
       return res.status(200).send({
         success: true,
-        messsage: 'events',
-        event
+        messsage: eventsDB.message,
+        data: event
       })
     } else {
       return res.status(404).send({
         success: false,
-        message: 'error getting event data'
+        message: eventsDB.message
       });  
     } 
   }
@@ -81,12 +80,18 @@ export class EventsController {
         date: req.body.date
       }
       event = await eventsDB.addEvent(event)
-      console.log(event)
-      return res.status(201).send({
-        success: true,
-        message: 'event added successfully',
-        event,
-      })  
+      if (event) {
+        return res.status(201).send({
+          success: true,
+          message: eventsDB.message,
+          data: event
+        })
+      } else {
+        return res.status(404).send({
+          success: false,
+          message: eventsDB.message
+        });  
+      } 
     }
   }
 
@@ -117,25 +122,23 @@ export class EventsController {
         message: 'price is required',
       });
     } else {
-      const id = parseInt(req.params.id, 10)
       let event = {
-        id: id,
         name: req.body.name,
         location: req.body.location,
         price: req.body.price,
         date: req.body.date
       };
-      event = eventsDB.updateEvent(id, event)
+      event = await eventsDB.updateEvent(req.params.id, event)
       if (event) {
         return res.status(201).send({
           success: true,
-          message: 'event updated successfully',
-          event,
+          message: eventsDB.message,
+          data: event
         })
       } else {
         return res.status(404).send({
           success: false,
-          message: 'error updating event data, record not found'
+          message: eventsDB.message
         });  
       } 
     }
@@ -148,18 +151,17 @@ export class EventsController {
         message: 'forbidden'
       })
     } else {
-      const id = parseInt(req.params.id, 10);
-      const event = eventsDB.deleteEvent(id)
+      const event = await eventsDB.deleteEvent(req.params.id)
       if (event) {
         return res.status(410).send({
           success: true,
-          message: 'event deleted successfully',
-          event
+          message: eventsDB.message,
+          data: event
           });
       }else {
         return res.status(404).send({
           success: false,
-          message: 'error deleting event'
+          message: eventsDB.message
         });
       }
     }     

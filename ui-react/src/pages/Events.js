@@ -34,10 +34,9 @@ function Events() {
       setLoading(true)
       await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
-            .then((data) => {
-                    setData(data.events)
+            .then((response) => {
+                    setData(response.data)
                     setLoading(false)
-                    console.log(data)
                   }).catch((error) => {
                     setLoading(false); 
                     console.log(error)

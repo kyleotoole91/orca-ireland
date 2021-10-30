@@ -34,7 +34,7 @@ app.get('/events', (req, res) => eventsController.getEvents(req, res))
 app.get('/events/:id', (req, res) => eventsController.getEvent(req, res))
 app.post('/events', validateJwt, (req, res) => eventsController.addEvent(req, res))
 app.put('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
-app.delete('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
+app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteEvent(req, res))
 
 app.listen(8000, () => {
   console.log('ORCA api server listening on port 8000')
