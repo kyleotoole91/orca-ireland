@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 var cors = require('cors')
-import { EventsController } from './controllers/events' 
+import { BaseController } from './controllers/BaseController' 
 require('dotenv').config()
 import validateJwt from './utils/validate-jwt'
 
@@ -28,13 +28,13 @@ app.get('/cors', (req, res) => {
   res.send({ "msg": "This has CORS enabled" })
 })
 
-const eventsController = new EventsController()
+const eventsController = new BaseController('events')
 
-app.get('/events', (req, res) => eventsController.getEvents(req, res))
-app.get('/events/:id', (req, res) => eventsController.getEvent(req, res))
-app.post('/events', validateJwt, (req, res) => eventsController.addEvent(req, res))
-app.put('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
-app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteEvent(req, res))
+app.get('/events', (req, res) => eventsController.getAllDocuments(req, res))
+app.get('/events/:id', (req, res) => eventsController.getDocument(req, res))
+app.post('/events', validateJwt, (req, res) => eventsController.addDocument(req, res))
+app.put('/events/:id', validateJwt, (req, res) => eventsController.updateDocument(req, res))
+app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteDocument(req, res))
 
 app.listen(8000, () => {
   console.log('ORCA api server listening on port 8000')
