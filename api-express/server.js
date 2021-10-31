@@ -8,17 +8,13 @@ import mongoClient from './mongo-client'
 
 const corsOpts = {
   origin: 'http://localhost:3000',
-  methods: [
-    'GET',
-    'POST',
-    'PUT',
-    'DELETE',
-  ],
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'Bearer'
-  ],
+  methods: ['GET',
+            'POST',
+            'PUT',
+            'DELETE'],
+  allowedHeaders: ['Content-Type',
+                   'Authorization',
+                   'Bearer']
 }
 
 app.use(express.urlencoded({extended: true})); 
@@ -30,19 +26,20 @@ app.get('/cors', (req, res) => {
 })
 
 async function generateEndpoints() {
-  await mongoClient.db(process.env.MONGO_DB_NAME).listCollections()
-                                                 .toArray() 
-                                                 .then(collections => { 
-                                                   for (var collection of collections) {
-                                                     console.log(collection.name)
-                                                     //why does this not work? It always return the last endpoint in the collecions list
-                                                     //app.get('/'+collection.name, validateJwt, (req, res) => new BaseController(collection.name).getAllDocuments(req, res))
-                                                     //app.get('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).getDocument(req, res))
-                                                     //app.post('/'+collection.name, validateJwt, (req, res) => new BaseController(collection.name).addDocument(req, res))
-                                                     //app.put('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).updateDocument(req, res))
-                                                     //app.delete('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).deleteDocument(req, res))
-                                                   }
-                                                 })
+  console.log('Collections:')
+  await mongoClient.db(process.env.MONGO_DB_NAME)
+    .listCollections()
+    .toArray() 
+    .then(collections => { 
+      for (var collection of collections) {
+        console.log(collection.name)
+        //why does this not work? It always return the last endpoint in the collecions list
+        //app.get('/'+collection.name, validateJwt, (req, res) => new BaseController(collection.name).getAllDocuments(req, res))
+        //app.get('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).getDocument(req, res))
+        //app.post('/'+collection.name, validateJwt, (req, res) => new BaseController(collection.name).addDocument(req, res))
+        //app.put('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).updateDocument(req, res))
+        //app.delete('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).deleteDocument(req, res))
+      }})
 }
 
 generateEndpoints()
@@ -68,6 +65,12 @@ app.get('/memberships/:id', validateJwt, (req, res) => membershipsController.get
 app.post('/memberships', validateJwt, (req, res) => membershipsController.addDocument(req, res))
 app.put('/memberships/:id', validateJwt, (req, res) => membershipsController.updateDocument(req, res))
 app.delete('/memberships/:id', validateJwt, (req, res) => membershipsController.deleteDocument(req, res))
+
+app.use(function (err, req, res, next) {
+  if (err) {
+    res.status(err.status).send({'success': false, 'message': err.name+': '+err.message}) 
+  }
+})
 
 app.listen(8000, () => {
   console.log('ORCA api server listening on port 8000')
