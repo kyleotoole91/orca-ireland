@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 
 function Events() {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0()
-  const [data, setData] = useState()
+  const [data, setData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -20,15 +20,7 @@ function Events() {
     setApiToken(token)   
     console.log(token)
   }
-  
-  //Alternative to declaring loadData() in useEffect(). Memoize with useCallback()
-  /*const loadData= useCallback(() => {
-    //Request code here
-    }, [])
-    useEffect(() => {
-        loadData()
-    }, [loadData])
-  */
+
   useEffect(() => {
     async function loadData () {
       setLoading(true)
@@ -38,7 +30,7 @@ function Events() {
                     setData(response.data)
                     setLoading(false)
                   }).catch((error) => {
-                    setLoading(false); 
+                    setLoading(false);
                     console.log(error)
                   })
     }  
@@ -54,11 +46,11 @@ function Events() {
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
             {data.map((event, index) => (
             <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
-              <Card.Header>{event.event.name}</Card.Header>
+              <Card.Header>{event.name}</Card.Header>
               <Card.Body>
-                <Card.Title>{event.event.location}</Card.Title>
-                <Card.Text>Entry fee €{event.event.price}</Card.Text>
-                <Card.Text>{dayjs(event.event.date).format('DD/MM/YYYY') }</Card.Text>
+                <Card.Title>{event.location}</Card.Title>
+                <Card.Text>Entry fee €{event.price}</Card.Text>
+                <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
                 <Button variant="primary">Enter</Button>
               </Card.Body>
             </Card>
@@ -92,6 +84,14 @@ function MyComponent() {
       username = user.nickname;
     }
   }
+
+  //Alternative to declaring loadData() in useEffect(). Memoize with useCallback()
+  const loadData= useCallback(() => {
+    //Request code here
+    }, [])
+    useEffect(() => {
+        loadData()
+    }, [loadData])
  
   async function getApiToken() {
     return await getAccessTokenSilently();

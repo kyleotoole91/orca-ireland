@@ -30,16 +30,23 @@ app.get('/cors', (req, res) => {
 })
 
 async function generateEndpoints() {
-  await mongoClient.db(process.env.MONGO_DB_NAME) .listCollections()
-                                                  .toArray() //returns a promise 
-                                                  .then(collections => { 
-                                                    for (var collection of collections) {
-                                                      console.log(collection.name)
-                                                    }
-                                                  })
+  await mongoClient.db(process.env.MONGO_DB_NAME).listCollections()
+                                                 .toArray() 
+                                                 .then(collections => { 
+                                                   for (var collection of collections) {
+                                                     console.log(collection.name)
+                                                     //why does this not work? It always return the last endpoint in the collecions list
+                                                     //app.get('/'+collection.name, validateJwt, (req, res) => new BaseController(collection.name).getAllDocuments(req, res))
+                                                     //app.get('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).getDocument(req, res))
+                                                     //app.post('/'+collection.name, validateJwt, (req, res) => new BaseController(collection.name).addDocument(req, res))
+                                                     //app.put('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).updateDocument(req, res))
+                                                     //app.delete('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).deleteDocument(req, res))
+                                                   }
+                                                 })
 }
 
 generateEndpoints()
+
 const eventsController = new BaseController('events')
 const usersController = new BaseController('users')
 const membershipsController = new BaseController('memberships')

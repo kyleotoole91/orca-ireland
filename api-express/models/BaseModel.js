@@ -38,7 +38,6 @@ export class BaseModel {
   }
 
   async getDocument(id) {
-    this.message = 'Data'
     try {
       const objId = new ObjectId(id)
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOne({ '_id': objId })
@@ -55,7 +54,7 @@ export class BaseModel {
   async addDocument(document){
     this.message = 'Added'
     try {
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne({ document })
+      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne( document )
       if(!this.result) { this.message = 'Not added' }
     } catch (error) {
       this.result = null
@@ -86,7 +85,7 @@ export class BaseModel {
     this.message = 'Updated'
     try {
       const objId = new ObjectId(id)
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndUpdate({'_id': objId}, {$set:{ document }} )
+      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndUpdate({'_id': objId}, {$set:  document })
       this.result = this.result.value
       if(!this.result) {
         this.message = 'Error updating: ' + id
