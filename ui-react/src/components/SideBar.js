@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { slide as Menu } from "react-burger-menu";
-import Profile from './Profile';
+import Profile from './Profile'
+import styles from './styles'
 
 export default class SideBar extends Component {
   constructor (props) {
@@ -32,12 +33,12 @@ export default class SideBar extends Component {
 
   render() {
     return (
-      <Menu isOpen={this.state.menuOpen} onStateChange={(state) => this.handleStateChange(state)} /*styles={ styles }*/ >
+      <Menu isOpen={this.state.menuOpen} onStateChange={(state) => this.handleStateChange(state)} styles={ styles } >
         <Link onClick={() => this.closeMenu()} id="home" to="/">Home</Link>
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="events" className="menu-item" to="/events">Events</Link> }
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="garage" className="menu-item" to="/garage">Garage</Link> }
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} className="menu-item--small" to="/membership">Membership</Link> }
-        <ProfileContainer><Profile /></ProfileContainer>
+        <ProfileContainer><Profile forceUsername={true}/></ProfileContainer>
       </Menu>
     );
   }

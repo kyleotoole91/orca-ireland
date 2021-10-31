@@ -4,7 +4,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 //import LogoutButton from './LogoutButton';
 import DefaultProfilePng from './images/default-profile-image.png';
 
-function Profile () {
+function Profile ({ forceUsername }) {
   const { logout, loginWithRedirect,  user, isAuthenticated } = useAuth0()
   var profilePic = DefaultProfilePng
   var username = 'Sign In'
@@ -18,18 +18,32 @@ function Profile () {
     }
   }
 
+  function profileButton(){
+    return (
+      <Username>
+        {isAuthenticated && <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>{username}</button>}  
+        {!isAuthenticated && <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => loginWithRedirect()} href='./'>{username}</button>}
+      </Username>   
+    )
+  }
+
+  function profileButtonForce(){
+    return (
+      <UsernameForce>
+        {isAuthenticated && <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>{username}</button>}  
+        {!isAuthenticated && <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => loginWithRedirect()} href='./'>{username}</button>}
+      </UsernameForce>   
+    )
+  }
+
   return (
     <ProfileContainer>
       {isAuthenticated &&
         <ProfileImage src={profilePic} onClick={() => logout({ returnTo: window.location.origin })} href='./'></ProfileImage>} 
       {!isAuthenticated &&
         <ProfileImage src={profilePic} onClick={() => loginWithRedirect()} href='./'></ProfileImage>}
-      <Username>
-        {isAuthenticated &&
-          <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>{username}</button>}  
-        {!isAuthenticated &&
-          <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => loginWithRedirect()} href='./'>{username}</button>}
-      </Username>
+      {!forceUsername && profileButton()}
+      {forceUsername && profileButtonForce()}
     </ProfileContainer>
   )
 }
@@ -57,6 +71,13 @@ const Username = styled.div`
   @media (max-width: ${ ({ theme}) => theme.mobileL}) {
     display: none;
   }
+`;
+
+const UsernameForce = styled.div`
+  float: right;
+  position: 'absolute';
+  height: 100%;
+  padding: 8px;
 `;
 
 const ProfileImage = styled.img` 
