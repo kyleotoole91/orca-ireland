@@ -33,7 +33,7 @@ async function generateEndpoints() {
     .then(collections => { 
       for (var collection of collections) {
         console.log(collection.name)
-        //why does this not work? It always return the last endpoint in the collecions list
+        //why does this not work? It always returns the last endpoint in the collecions list
         //app.get('/'+collection.name, validateJwt, (req, res) => new BaseController(collection.name).getAllDocuments(req, res))
         //app.get('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).getDocument(req, res))
         //app.post('/'+collection.name, validateJwt, (req, res) => new BaseController(collection.name).addDocument(req, res))
@@ -72,7 +72,8 @@ app.get('/cars', validateJwt, (req, res) => carsController.getAllDocuments(req, 
 app.get('/users/:userId/cars', validateJwt, (req, res) => carsController.getUserDocuments(req, res))
 app.get('/users/:userId/cars/:docId', validateJwt, (req, res) => carsController.getUserDocument(req, res))
 app.get('/cars/:id', validateJwt, (req, res) => carsController.getDocument(req, res))
-app.post('/cars', validateJwt, (req, res) => carsController.addDocument(req, res))
+//app.post('/cars', validateJwt, (req, res) => carsController.addDocument(req, res))
+app.post('/users/:userId/cars', validateJwt, (req, res) => carsController.addUserDocument(req, res))
 app.put('/cars/:id', validateJwt, (req, res) => carsController.updateDocument(req, res))
 app.delete('/cars/:id', validateJwt, (req, res) => carsController.deleteDocument(req, res))
 //classes

@@ -39,10 +39,13 @@ export class BaseModel {
     }
   }
 
-  async getDocumentByExtId(extId) { 
+  async getDocumentByExtId(extId, force) { 
     try {
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOne({ 'extId': extId })
-      if(!this.result) {
+      if (!this.result && force) {
+        this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne({ 'extId': extId })  
+      }
+      if (!this.result) {
         this.message = 'Not found'
       } else {
         this.message = "User's "+this.collectionName
