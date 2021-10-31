@@ -30,8 +30,8 @@ function Events() {
   const [data, setData] = useState()
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
-  const [httpMethod, setHttpMethod] = useState('POST')
   const [allowAddEvents, setAllowAddEvents] = useState(false)
+  const [allowDelEvents, setAllowDelEvents] = useState(false)
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
@@ -46,6 +46,7 @@ function Events() {
                     setData(response.data)
                     setLoading(false)
                     setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+                    setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
                   }).catch((error) => {
                     setData([])
                     setLoading(false);
@@ -65,14 +66,52 @@ function Events() {
     console.log(token)
   }
 
+  async function deleteEvent(e) {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      const eventId = '/'+e.target.id.toString()
+      await fetch( process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS + eventId, {
+                  method: 'DELETE', 
+                  headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
+            })
+      .then(response => response.json())
+      .then((response) => {
+              if (!response.success) {
+                window.alert(response.message)   
+              }
+              setLoading(false)
+              handleClose()
+            }).catch((error) => {
+              setData([])
+              setLoading(false);
+              window.alert(error)
+              console.log(error)
+            });
+      //refresh
+      setLoading(true)
+      const permissions = new Permissions()
+      await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
+            .then(response => response.json())
+            .then((response) => {
+                    setData(response.data)
+                    setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+                    setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+                    setLoading(false)
+                  }).catch((error) => {
+                    setData([])
+                    setLoading(false);
+                    window.alert(error)
+                    console.log(error)
+                  });
+    }
+  }
+
   async function postEvent() {
-    setHttpMethod('POST')
     if (name === '' || location === '') {
       window.alert('Please fill in all fields')
     } else {
       const event = {name, location, date, fee}
       await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {
-              method: httpMethod, 
+              method: 'POST', 
               headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
               body: JSON.stringify(event)
             })
@@ -96,11 +135,13 @@ function Events() {
             .then(response => response.json())
             .then((response) => {
                     setData(response.data)
-                    setLoading(false)
                     setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+                    setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+                    setLoading(false)
                   }).catch((error) => {
                     setData([])
                     setLoading(false);
+                    window.alert(error)
                     console.log(error)
                   })
     }
@@ -154,13 +195,14 @@ function Events() {
           {modalForm()}
           <div style={{display: 'flex', flexFlow: 'wrap'}}>
             {data.map((event, index) => (
-              <Card id={event._id} style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
+              <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
                 <Card.Header>{event.name}</Card.Header>
                 <Card.Body>
                   <Card.Title>{event.location}</Card.Title>
                 <Card.Text>Entry fee €{event.price}</Card.Text>
                   <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
-                  <Button variant="outline-primary">Enter</Button>
+                  <Button id={event._id} variant="outline-primary">Enter</Button>
+                  {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }
                 </Card.Body>
               </Card>
             ))}    
