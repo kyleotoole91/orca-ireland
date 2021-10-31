@@ -47,6 +47,8 @@ generateEndpoints()
 const eventsController = new BaseController('events')
 const usersController = new BaseController('users')
 const membershipsController = new BaseController('memberships')
+const classesController = new BaseController('classes')
+const carsController = new BaseController('cars')
 //events
 app.get('/events', validateJwt, (req, res) => eventsController.getAllDocuments(req, res))
 app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(req, res))
@@ -65,6 +67,20 @@ app.get('/memberships/:id', validateJwt, (req, res) => membershipsController.get
 app.post('/memberships', validateJwt, (req, res) => membershipsController.addDocument(req, res))
 app.put('/memberships/:id', validateJwt, (req, res) => membershipsController.updateDocument(req, res))
 app.delete('/memberships/:id', validateJwt, (req, res) => membershipsController.deleteDocument(req, res))
+//cars
+app.get('/cars', validateJwt, (req, res) => carsController.getAllDocuments(req, res))
+app.get('/users/:id/cars', validateJwt, (req, res) => carsController.getUserDocuments(req, res))
+app.get('/cars/:id', validateJwt, (req, res) => carsController.getDocument(req, res))
+app.post('/cars', validateJwt, (req, res) => carsController.addDocument(req, res))
+app.put('/cars/:id', validateJwt, (req, res) => carsController.updateDocument(req, res))
+app.delete('/cars/:id', validateJwt, (req, res) => carsController.deleteDocument(req, res))
+//classes
+app.get('/classes', validateJwt, (req, res) => classesController.getAllDocuments(req, res))
+app.get('/classes/:id', validateJwt, (req, res) => classesController.getDocument(req, res))
+app.post('/classes', validateJwt, (req, res) => classesController.addDocument(req, res))
+app.put('/classes/:id', validateJwt, (req, res) => classesController.updateDocument(req, res))
+app.delete('/classes/:id', validateJwt, (req, res) => classesController.deleteDocument(req, res))
+
 
 app.use(function (err, req, res, next) {
   if (err) {

@@ -37,6 +37,22 @@ export class BaseModel {
     }
   }
 
+  async getUserDocuments(userId) {
+    try {
+      const objId = new ObjectId(userId) 
+      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).find({'user_id': objId}).toArray()
+      if(!this.result) {
+        this.message = 'Not found'
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    }
+  }
+
   async getDocument(id) {
     try {
       const objId = new ObjectId(id)
