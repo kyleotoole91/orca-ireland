@@ -10,6 +10,7 @@ export class BaseController {
     this.data = null
     this.collectionName = collectionName
     this.DB = new BaseModel(collectionName)
+    this.UserDB = new BaseModel('users') 
     this.permissions = new Permissions()
   }
   
@@ -31,6 +32,52 @@ export class BaseController {
 
   async getDocument(req, res, next) {
     this.data = await this.DB.getDocument(req.params.id) 
+    if (this.data) {
+      return res.status(200).send({
+        success: true,
+        messsage: this.DB.message,
+        data: this.data
+      })
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: this.DB.message
+      });  
+    } 
+  }
+
+  async getUserDocuments(req, res, next) {
+    let userId
+    if (req.query.extId === '1') {
+      userId = await this.UserDB.getDocumentByExtId(req.params.userId)
+      if (userId) {
+        userId = userId._id
+      } else {
+        return res.status(404).send({
+          success: false,
+          message: this.UserDB.message
+        })   
+      }
+    } else {
+      userId = req.params.userId
+    }
+    this.data = await this.DB.getUserDocuments(userId) 
+    if (this.data) {
+      return res.status(200).send({
+        success: true,
+        messsage: this.DB.message,
+        data: this.data
+      })
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: this.DB.message
+      });  
+    } 
+  }
+
+  async getUserDocument(req, res, next) {
+    this.data = await this.DB.getUserDocument(req.params.userId, req.params.docId) 
     if (this.data) {
       return res.status(200).send({
         success: true,
@@ -69,9 +116,7 @@ export class BaseController {
   }
 
   async updateDocument(req, res, next){
-    console.log('updateDocument')
     if (this.permissions.check(getToken(req), 'put', this.collectionName)) {
-      console.log('updateDocument')
       this.data = await this.DB.updateDocument(req.params.id, req.body)
       if (this.data) {
         return res.status(201).send({
