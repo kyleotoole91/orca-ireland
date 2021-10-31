@@ -4,6 +4,7 @@ var cors = require('cors')
 import { BaseController } from './controllers/BaseController' 
 require('dotenv').config()
 import validateJwt from './utils/validate-jwt'
+import mongoClient from './mongo-client' 
 
 const corsOpts = {
   origin: 'http://localhost:3000',
@@ -28,6 +29,17 @@ app.get('/cors', (req, res) => {
   res.send({ "msg": "This has CORS enabled" })
 })
 
+async function generateEndpoints() {
+  await mongoClient.db(process.env.MONGO_DB_NAME) .listCollections()
+                                                  .toArray() //returns a promise 
+                                                  .then(collections => { 
+                                                    for (var collection of collections) {
+                                                      console.log(collection.name)
+                                                    }
+                                                  })
+}
+
+generateEndpoints()
 const eventsController = new BaseController('events')
 const usersController = new BaseController('users')
 const membershipsController = new BaseController('memberships')
