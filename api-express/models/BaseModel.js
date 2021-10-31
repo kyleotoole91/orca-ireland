@@ -41,7 +41,9 @@ export class BaseModel {
     try {
       const objId = new ObjectId(id)
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOne({ '_id': objId })
-      if(!this.result) { this.message = 'Not found: ' + id }
+      if(!this.result) { 
+        this.message = 'Not found: ' + id 
+      }
     } catch (error) {
       this.result = null
       this.message = error.message
@@ -55,7 +57,9 @@ export class BaseModel {
     this.message = 'Added'
     try {
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne( document )
-      if(!this.result) { this.message = 'Not added' }
+      if(!this.result) {
+        this.message = 'Not added' 
+      }
     } catch (error) {
       this.result = null
       this.message = error.message
@@ -70,8 +74,11 @@ export class BaseModel {
     try {
       const objId = new ObjectId(id)
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndDelete({'_id': objId})
-      this.result = this.result.value
-      if(!this.result) { this.message = 'Error deleting: ' + id }
+      if(!this.result) { 
+        this.message = 'Error deleting: ' + id 
+      } else {
+        this.result = this.result.value
+      }
     } catch (error) {
       this.result = null
       this.message = error.message
@@ -86,9 +93,10 @@ export class BaseModel {
     try {
       const objId = new ObjectId(id)
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndUpdate({'_id': objId}, {$set:  document })
-      this.result = this.result.value
       if(!this.result) {
         this.message = 'Error updating: ' + id
+      } else {
+        this.result = this.result.value
       }
     } catch (error) {
       this.result = null

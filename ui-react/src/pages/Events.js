@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 
 function Events() {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0()
-  const [data, setData] = useState([])
+  const [data, setData] = useState()
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -30,6 +30,7 @@ function Events() {
                     setData(response.data)
                     setLoading(false)
                   }).catch((error) => {
+                    setData([])
                     setLoading(false);
                     console.log(error)
                   })
@@ -37,7 +38,7 @@ function Events() {
     loadData()
   }, [apiToken]);
 
-  if (loading) {
+  if (!data || loading) {
     return ( <Loading /> )
   } else if (data.length === 0) {
     return ( <div>No events</div> )
