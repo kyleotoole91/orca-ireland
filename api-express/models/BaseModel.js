@@ -27,6 +27,8 @@ export class BaseModel {
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).find({}).toArray()
       if(!this.result) {
         this.message = 'Not found'
+      } else {
+        this.message = this.collectionName
       }
     } catch (error) {
       this.result = null
@@ -37,12 +39,50 @@ export class BaseModel {
     }
   }
 
+  async getDocumentByExtId(extId) { 
+    try {
+      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOne({ 'extId': extId })
+      if(!this.result) {
+        this.message = 'Not found'
+      } else {
+        this.message = "User's "+this.collectionName
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    }  
+  }
+
   async getUserDocuments(userId) {
     try {
       const objId = new ObjectId(userId) 
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).find({'user_id': objId}).toArray()
       if(!this.result) {
         this.message = 'Not found'
+      } else {
+        this.message = "User's "+this.collectionName
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    }
+  }
+
+  async getUserDocument(userId, docId) {
+    try {
+      const objUserId = new ObjectId(userId) 
+      const objDocId = new ObjectId(docId) 
+      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).find({'user_id': objUserId, '_id': objDocId}).toArray()
+      if(!this.result) {
+        this.message = 'Not found'
+      } else {
+        this.message = "User's "+this.collectionName
       }
     } catch (error) {
       this.result = null
@@ -59,6 +99,8 @@ export class BaseModel {
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOne({ '_id': objId })
       if(!this.result) { 
         this.message = 'Not found: ' + id 
+      } else {
+        this.message = this.collectionName
       }
     } catch (error) {
       this.result = null
@@ -75,6 +117,8 @@ export class BaseModel {
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne( document )
       if(!this.result) {
         this.message = 'Not added' 
+      } else {
+        this.message = this.collectionName
       }
     } catch (error) {
       this.result = null
@@ -93,6 +137,7 @@ export class BaseModel {
       if(!this.result) { 
         this.message = 'Error deleting: ' + id 
       } else {
+        this.message = this.collectionName
         this.result = this.result.value
       }
     } catch (error) {
