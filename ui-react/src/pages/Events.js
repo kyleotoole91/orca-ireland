@@ -1,15 +1,17 @@
-import { React, useState, useEffect }from 'react';
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
-import Loading from '../components/Loading';
-import dayjs from 'dayjs';
+import { React, useState, useEffect }from 'react'
+import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react"
+import Card from 'react-bootstrap/Card'
+import Button from 'react-bootstrap/Button'
+import Loading from '../components/Loading'
+import dayjs from 'dayjs'
+import { Permissions } from '../utils/permissions'
 
 function Events() {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0()
   const [data, setData] = useState()
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
+  const [allowAddEvents, setAllowAddEvents] = useState(false)
 
   if (isAuthenticated && apiToken === '') {
     getApiToken()
@@ -23,12 +25,14 @@ function Events() {
 
   useEffect(() => {
     async function loadData () {
+      const permissions = new Permissions()
       setLoading(true)
       await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((response) => {
                     setData(response.data)
                     setLoading(false)
+                    setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
                   }).catch((error) => {
                     setData([])
                     setLoading(false);
@@ -36,7 +40,7 @@ function Events() {
                   })
     }  
     loadData()
-  }, [apiToken]);
+  }, [apiToken])
 
   if (!data || loading) {
     return ( <Loading /> )
@@ -44,19 +48,22 @@ function Events() {
     return ( <div>No events</div> )
   } else {
     return (
-        <div style={{display: 'flex', flexFlow: 'wrap'}}>
-            {data.map((event, index) => (
-            <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
-              <Card.Header>{event.name}</Card.Header>
-              <Card.Body>
-                <Card.Title>{event.location}</Card.Title>
-                <Card.Text>Entry fee €{event.price}</Card.Text>
-                <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
-                <Button variant="primary">Enter</Button>
-              </Card.Body>
-            </Card>
-          ))}    
-        </div> 
+        <div>
+           {allowAddEvents && <Button style={{marginLeft: '3px', marginBottom: '3px'}} variant="primary">Add Event</Button> }
+           <div style={{display: 'flex', flexFlow: 'wrap'}}>
+              {data.map((event, index) => (
+              <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
+                <Card.Header>{event.name}</Card.Header>
+                <Card.Body>
+                  <Card.Title>{event.location}</Card.Title>
+                  <Card.Text>Entry fee €{event.price}</Card.Text>
+                  <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
+                  <Button variant="primary">Enter</Button>
+                </Card.Body>
+              </Card>
+            ))}    
+          </div> 
+        </div>
       )
   }
 };
