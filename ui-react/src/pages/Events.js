@@ -30,10 +30,30 @@ function Events() {
   const [data, setData] = useState()
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
+  const [httpMethod, setHttpMethod] = useState('POST')
   const [allowAddEvents, setAllowAddEvents] = useState(false)
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
+
+  useEffect(() => {
+    async function loadData () {
+      const permissions = new Permissions()
+      setLoading(true)
+      await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
+            .then(response => response.json())
+            .then((response) => {
+                    setData(response.data)
+                    setLoading(false)
+                    setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+                  }).catch((error) => {
+                    setData([])
+                    setLoading(false);
+                    console.log(error)
+                  })
+    }  
+    loadData()
+  }, [apiToken])
 
   if (isAuthenticated && apiToken === '') {
     getApiToken()
@@ -46,12 +66,13 @@ function Events() {
   }
 
   async function postEvent() {
+    setHttpMethod('POST')
     if (name === '' || location === '') {
       window.alert('Please fill in all fields')
     } else {
       const event = {name, location, date, fee}
       await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {
-              method:'POST', 
+              method: httpMethod, 
               headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
               body: JSON.stringify(event)
             })
@@ -85,36 +106,9 @@ function Events() {
     }
   }
   
-
-
-  useEffect(() => {
-    async function loadData () {
-      const permissions = new Permissions()
-      setLoading(true)
-      await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
-            .then(response => response.json())
-            .then((response) => {
-                    setData(response.data)
-                    setLoading(false)
-                    setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-                  }).catch((error) => {
-                    setData([])
-                    setLoading(false);
-                    console.log(error)
-                  })
-    }  
-    loadData()
-  }, [apiToken])
-
-  if (!data || loading) {
-    return ( <Loading /> )
-  } else if (data.length === 0) {
-    return ( <div>No events</div> )
-  } else {
-    return (
-        <div>
-          {allowAddEvents && <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="primary">Add Event</Button> }
-          <Modal show={show} onHide={handleClose}>
+  function modalForm(){
+    return ( 
+        <Modal show={show} onHide={handleClose}>
             <Modal.Header closeButton>
               <Modal.Title>New Event</Modal.Title>
             </Modal.Header>
@@ -140,17 +134,33 @@ function Events() {
                  Save
                </Button>
             </Modal.Footer>
-          </Modal> 
-          
+          </Modal>   
+    )
+  }
+
+  if (!data || loading) {
+    return ( <Loading /> )
+  } else if (data.length === 0) {
+    return ( 
+      <div>
+        {allowAddEvents && modalForm()}
+        {allowAddEvents && <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
+        {!allowAddEvents && <span>No Events</span>}
+      </div> )
+  } else {
+    return (
+        <div>
+          {allowAddEvents && <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
+          {modalForm()}
           <div style={{display: 'flex', flexFlow: 'wrap'}}>
             {data.map((event, index) => (
-              <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
+              <Card id={event._id} style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
                 <Card.Header>{event.name}</Card.Header>
                 <Card.Body>
                   <Card.Title>{event.location}</Card.Title>
                 <Card.Text>Entry fee €{event.price}</Card.Text>
                   <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
-                  <Button variant="primary">Enter</Button>
+                  <Button variant="outline-primary">Enter</Button>
                 </Card.Body>
               </Card>
             ))}    

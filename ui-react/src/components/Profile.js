@@ -26,9 +26,9 @@ function Profile () {
         <ProfileImage src={profilePic} onClick={() => loginWithRedirect()} href='./'></ProfileImage>}
       <Username>
         {isAuthenticated &&
-          <button className="btn btn-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>{username}</button>}  
+          <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>{username}</button>}  
         {!isAuthenticated &&
-          <button className="btn btn-primary btn-block btn-sm" onClick={() => loginWithRedirect()} href='./'>{username}</button>}
+          <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => loginWithRedirect()} href='./'>{username}</button>}
       </Username>
     </ProfileContainer>
   )
