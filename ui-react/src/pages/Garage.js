@@ -18,7 +18,7 @@ function Garage() {
   const [transponder, setTransponder] = useState('')
   const [classId, setClassId] = useState('')
   
-  const [data, setData] = useState()
+  const [data, setData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
   const [show, setShow] = useState(false)
@@ -34,14 +34,14 @@ function Garage() {
                   process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((response) => {
-                    setData(response.data)
-                    setLoading(false)
-                  }).catch((error) => {
-                    setData([])
-                    setLoading(false);
-                    window.alert(error)
-                    console.log(error)
-                  })
+              setData(response.data)
+              setLoading(false)
+            }).catch((error) => {
+              setData([])
+              setLoading(false);
+              window.alert(error)
+              console.log(error)
+            })
     }  
     loadData()
   }, [apiToken, user.sub])
@@ -86,14 +86,14 @@ function Garage() {
                   process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((response) => {
-                    setData(response.data)
-                    setLoading(false)
-                  }).catch((error) => {
-                    setData([])
-                    setLoading(false);
-                    window.alert(error)
-                    console.log(error)
-                  });
+              setData(response.data)
+              setLoading(false)
+            }).catch((error) => {
+              setData([])
+              setLoading(false);
+              window.alert(error)
+              console.log(error)
+            });
     }
   }
 
@@ -112,17 +112,17 @@ function Garage() {
             })
       .then(response => response.json())
       .then((response) => {
-              if (!response.success) {
-                window.alert(response.message)   
-              }
-              setLoading(false)
-              handleClose()
-            }).catch((error) => {
-              setData([])
-              setLoading(false);
-              window.alert(error)
-              console.log(error)
-            })
+        if (!response.success) {
+          window.alert(response.message)   
+        }
+        setLoading(false)
+        handleClose()
+      }).catch((error) => {
+        setData([])
+        setLoading(false);
+        window.alert(error)
+        console.log(error)
+      })
       //refresh
       setLoading(true)
       await fetch(process.env.REACT_APP_API_URL+ 
@@ -130,14 +130,14 @@ function Garage() {
                   process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((response) => {
-                    setData(response.data)
-                    setLoading(false)
-                  }).catch((error) => {
-                    setData([])
-                    setLoading(false);
-                    window.alert(error)
-                    console.log(error)
-                  })
+              setData(response.data)
+              setLoading(false)
+            }).catch((error) => {
+              setData([])
+              setLoading(false);
+              window.alert(error)
+              console.log(error)
+            })
     }
   }
   
@@ -176,9 +176,9 @@ function Garage() {
     )
   }
 
-  if (!data || loading) {
+  if (loading) {
     return ( <Loading /> )
-  } else if (data.length === 0) {
+  } else if (!data || data.length === 0) {
     return ( 
       <div>
         {modalForm()}

@@ -38,12 +38,16 @@ export class BaseModel {
       return this.result  
     }
   }
-
+  
   async getDocumentByExtId(extId, force) { 
     try {
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOne({ 'extId': extId })
       if (!this.result && force) {
-        this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne({ 'extId': extId })  
+        this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne({ 'extId': extId }) 
+        if (this.result.insertedId !== '') {
+          this.result._id = this.result.insertedId
+          this.result.extId = extId
+        } 
       }
       if (!this.result) {
         this.message = 'Not found'

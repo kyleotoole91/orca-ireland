@@ -27,7 +27,7 @@ function Events() {
   const [date, setDate] = useState(today)
   const [fee, setFee] = useState(10.00)
   
-  const [data, setData] = useState()
+  const [data, setData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
   const [allowAddEvents, setAllowAddEvents] = useState(false)
@@ -43,15 +43,15 @@ function Events() {
       await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((response) => {
-                    setData(response.data)
-                    setLoading(false)
-                    setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-                    setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-                  }).catch((error) => {
-                    setData([])
-                    setLoading(false);
-                    console.log(error)
-                  })
+              setData(response.data)
+              setLoading(false)
+              setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+              setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+            }).catch((error) => {
+              setData([])
+              setLoading(false);
+              console.log(error)
+            })
     }  
     loadData()
   }, [apiToken])
@@ -75,33 +75,33 @@ function Events() {
             })
       .then(response => response.json())
       .then((response) => {
-              if (!response.success) {
-                window.alert(response.message)   
-              }
-              setLoading(false)
-              handleClose()
-            }).catch((error) => {
-              setData([])
-              setLoading(false);
-              window.alert(error)
-              console.log(error)
-            });
+        if (!response.success) {
+          window.alert(response.message)   
+        }
+        setLoading(false)
+        handleClose()
+      }).catch((error) => {
+        setData([])
+        setLoading(false);
+        window.alert(error)
+        console.log(error)
+      });
       //refresh
       setLoading(true)
       const permissions = new Permissions()
       await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((response) => {
-                    setData(response.data)
-                    setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-                    setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-                    setLoading(false)
-                  }).catch((error) => {
-                    setData([])
-                    setLoading(false);
-                    window.alert(error)
-                    console.log(error)
-                  });
+              setData(response.data)
+              setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+              setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+              setLoading(false)
+            }).catch((error) => {
+              setData([])
+              setLoading(false);
+              window.alert(error)
+              console.log(error)
+            });
     }
   }
 
@@ -117,33 +117,33 @@ function Events() {
             })
       .then(response => response.json())
       .then((response) => {
-              if (!response.success) {
-                window.alert(response.message)   
-              }
-              setLoading(false)
-              handleClose()
-            }).catch((error) => {
-              setData([])
-              setLoading(false);
-              window.alert(error)
-              console.log(error)
-            })
+        if (!response.success) {
+          window.alert(response.message)   
+        }
+        setLoading(false)
+        handleClose()
+      }).catch((error) => {
+        setData([])
+        setLoading(false);
+        window.alert(error)
+        console.log(error)
+      })
       //refresh
       setLoading(true)
       const permissions = new Permissions()
       await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((response) => {
-                    setData(response.data)
-                    setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-                    setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-                    setLoading(false)
-                  }).catch((error) => {
-                    setData([])
-                    setLoading(false);
-                    window.alert(error)
-                    console.log(error)
-                  })
+              setData(response.data)
+              setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+              setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+              setLoading(false)
+            }).catch((error) => {
+              setData([])
+              setLoading(false);
+              window.alert(error)
+              console.log(error)
+            })
     }
   }
   
@@ -182,9 +182,9 @@ function Events() {
     )
   }
 
-  if (!data || loading) {
+  if (loading) {
     return ( <Loading /> )
-  } else if (data.length === 0) {
+  } else if (!data || data.length === 0) {
     return ( 
       <div>
         {allowAddEvents && modalForm()}
@@ -217,7 +217,8 @@ function Events() {
 
 export default withAuthenticationRequired(Events, { onRedirecting: () => (<Loading />) });
 
-/*
+//Alternative to declaring functions such as loadData() in useEffect(). Memoize with useCallback()
+/* 
 function MyComponent() {
 
   const [data, setData] = useState();
@@ -240,7 +241,7 @@ function MyComponent() {
     }
   }
 
-  //Alternative to declaring loadData() in useEffect(). Memoize with useCallback()
+  //Memoize with useCallback()
   const loadData= useCallback(() => {
     //Request code here
     }, [])
