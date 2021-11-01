@@ -64,92 +64,6 @@ export class BaseController {
     } 
   }
 
-  async getUserDocuments(req, res, next) {
-    let userId = await this.getUserId(req, res, false)
-    this.data = await this.DB.getUserDocuments(userId) 
-    if (this.data) {
-      return res.status(200).send({
-        success: true,
-        messsage: this.DB.message,
-        data: this.data
-      })
-    } else {
-      return res.status(404).send({
-        success: false,
-        message: this.DB.message
-      });  
-    } 
-  }
-
-  async getUserDocument(req, res, next) {
-    let userId = await this.getUserId(req, res, false)
-    this.data = await this.DB.getUserDocument(userId, req.params.docId) 
-    if (this.data) {
-      return res.status(200).send({
-        success: true,
-        messsage: this.DB.message,
-        data: this.data
-      })
-    } else {
-      return res.status(404).send({
-        success: false,
-        message: this.DB.message
-      });  
-    } 
-  }
-
-  async deleteUserDocument(req, res, next) {
-    let userId = await this.getUserId(req, res, false)
-    this.data = await this.DB.deleteUserDocument(userId, req.params.docId) 
-    if (this.data) {
-      return res.status(200).send({
-        success: true,
-        messsage: this.DB.message,
-        data: this.data
-      })
-    } else {
-      return res.status(404).send({
-        success: false,
-        message: this.DB.message
-      });  
-    } 
-  }
-
-  async addUserDocument(req, res, next) {  
-    //add the mongodb.users._id to the object
-    req.body.user_id = await this.getUserId(req, res, true)
-    this.data = await this.DB.addDocument(req.body) 
-    if (this.data) {
-      return res.status(200).send({
-        success: true,
-        messsage: this.DB.message,
-        data: this.data
-      })
-    } else {
-      return res.status(404).send({
-        success: false,
-        message: this.DB.message
-      });  
-    } 
-  }
-
-  async updateUserDocument(req, res, next) {  
-    req.body.user_id = await this.getUserId(req, res, false)
-    this.data = await this.DB.updateUserDocument(userId, req.params.docId, req.body) 
-    if (this.data) {
-      return res.status(200).send({
-        success: true,
-        messsage: this.DB.message,
-        data: this.data
-      })
-    } else {
-      return res.status(404).send({
-        success: false,
-        message: this.DB.message
-      });  
-    } 
-  }
-
   async addDocument(req, res, next) {
     if (this.permissions.check(getToken(req), 'post', this.collectionName)) {
       this.data = await this.DB.addDocument(req.body)
@@ -218,6 +132,95 @@ export class BaseController {
       })
     }     
   }
+
+  async getUserDocuments(req, res, next) {
+    let userId = await this.getUserId(req, res, false)
+    this.data = await this.DB.getUserDocuments(userId) 
+    if (this.data) {
+      return res.status(200).send({
+        success: true,
+        messsage: this.DB.message,
+        data: this.data
+      })
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: this.DB.message
+      });  
+    } 
+  }
+
+  async getUserDocument(req, res, next) {
+    let userId = await this.getUserId(req, res, false)
+    this.data = await this.DB.getUserDocument(userId, req.params.docId) 
+    if (this.data) {
+      return res.status(200).send({
+        success: true,
+        messsage: this.DB.message,
+        data: this.data
+      })
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: this.DB.message
+      });  
+    } 
+  }
+
+  async deleteUserDocument(req, res, next) {
+    let userId = await this.getUserId(req, res, false)
+    this.data = await this.DB.deleteUserDocument(userId, req.params.docId) 
+    if (this.data) {
+      return res.status(200).send({
+        success: true,
+        messsage: this.DB.message,
+        data: this.data
+      })
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: this.DB.message
+      });  
+    } 
+  }
+  // User document functions
+  // Could be refactered into a decentdant class
+  // TODO: Protect by checking that the token's sub matches our user.extId, or else raise 403 error
+  async addUserDocument(req, res, next) {  
+    //add the mongodb.users._id to the object
+    req.body.user_id = await this.getUserId(req, res, true)
+    this.data = await this.DB.addDocument(req.body) 
+    if (this.data) {
+      return res.status(200).send({
+        success: true,
+        messsage: this.DB.message,
+        data: this.data
+      })
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: this.DB.message
+      });  
+    } 
+  }
+
+  async updateUserDocument(req, res, next) {  
+    req.body.user_id = await this.getUserId(req, res, false)
+    this.data = await this.DB.updateUserDocument(userId, req.params.docId, req.body) 
+    if (this.data) {
+      return res.status(200).send({
+        success: true,
+        messsage: this.DB.message,
+        data: this.data
+      })
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: this.DB.message
+      });  
+    } 
+  }
+  
 }
 
 /*
