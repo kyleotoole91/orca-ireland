@@ -1,4 +1,4 @@
-import { React, useState, useEffect }from 'react'
+import { React, useState, useEffect } from 'react'
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react"
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
@@ -149,36 +149,36 @@ function Events() {
   
   function modalForm(){
     return ( 
-        <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title>New Event</Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={{ display: 'grid' }} >
-              <label style={{ margin: '3px' }} >
-                Name: &nbsp;&nbsp;&nbsp;&nbsp; 
-                <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
-              </label>
-              <label style={{ margin: '3px' }} >
-                Location: <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" id="eventLocation" name="event-location" />
-              </label>
-              <label style={{ margin: '3px' }} >
-                Date: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input value={date} onChange={(e) => setDate(e.target.value)} type="date" id="eventDate" name="event-date" min="2021-01-01" />
-              </label>
-              <label style={{ margin: '3px' }} >
-                Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
-              </label>
-            </Modal.Body>
-            <Modal.Footer>
-               <Button variant="outline-secondary" onClick={handleClose}>
-                 Close
-               </Button>
-               <Button variant="outline-primary" onClick={postEvent}>
-                 Save
-               </Button>
-            </Modal.Footer>
-          </Modal>   
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>New Event</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ display: 'grid' }} >
+          <label style={{ margin: '3px' }} >
+            Name: &nbsp;&nbsp;&nbsp;&nbsp; 
+            <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
+          </label>
+          <label style={{ margin: '3px' }} >
+            Location: <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" id="eventLocation" name="event-location" />
+          </label>
+          <label style={{ margin: '3px' }} >
+            Date: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input value={date} onChange={(e) => setDate(e.target.value)} type="date" id="eventDate" name="event-date" min="2021-01-01" />
+          </label>
+          <label style={{ margin: '3px' }} >
+            Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+            <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
+          </label>
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="outline-secondary" onClick={handleClose}>
+              Close
+            </Button>
+            <Button variant="outline-primary" onClick={postEvent}>
+              Save
+            </Button>
+        </Modal.Footer>
+      </Modal>   
     )
   }
 
@@ -189,29 +189,28 @@ function Events() {
       <div>
         {allowAddEvents && modalForm()}
         {allowAddEvents && <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
-        {!allowAddEvents && <span>No Events</span>}
       </div> )
   } else {
     return (
-        <div>
-          {allowAddEvents && <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
-          {modalForm()}
-          <div style={{display: 'flex', flexFlow: 'wrap'}}>
-            {data.map((event, index) => (
-              <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
-                <Card.Header>{event.name}</Card.Header>
-                <Card.Body>
-                  <Card.Title>{event.location}</Card.Title>
-                <Card.Text>Entry fee €{event.price}</Card.Text>
-                  <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
-                  <Button id={event._id} variant="outline-primary">Enter</Button>
-                  {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }
-                </Card.Body>
-              </Card>
-            ))}    
-          </div> 
-        </div>
-      )
+      <div>
+        {allowAddEvents && <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
+        {modalForm()}
+        <div style={{display: 'flex', flexFlow: 'wrap'}}>
+          {data.map((event, index) => (
+            <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
+              <Card.Header>{event.name}</Card.Header>
+              <Card.Body>
+                <Card.Title>{event.location}</Card.Title>
+              <Card.Text>Entry fee €{event.price}</Card.Text>
+                <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
+                <Button id={event._id} variant="outline-primary">Enter</Button>
+                {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }
+              </Card.Body>
+            </Card>
+          ))}    
+        </div> 
+      </div>
+    )
   }
 };
 

@@ -186,26 +186,26 @@ function Garage() {
       </div> )
   } else {
     return (
-        <div>
-          <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
-          {modalForm()}
-          <div style={{display: 'flex', flexFlow: 'wrap'}}>
-            {data.map((car, index) => (
-              <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
-                <Card.Header>{car.manufacturer}</Card.Header>
-                <Card.Body>
-                  <Card.Title>{car.model}</Card.Title>
-                  <Card.Text>Frequency: {car.freq}</Card.Text>
-                  <Card.Text>Transponder ID: {car.transponder}</Card.Text>
-                  <Button id={car._id} variant="outline-warning">Edit</Button>
-                  <Button id={car._id} onClick={deleteCar} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> 
-                </Card.Body>
-              </Card>
-            ))}    
-          </div> 
-        </div>
-      )
+      <div>
+        <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
+        {modalForm()}
+        <div style={{display: 'flex', flexFlow: 'wrap'}}>
+          {data.map((car, index) => (
+            <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
+              <Card.Header>{car.manufacturer}</Card.Header>
+              <Card.Body>
+                <Card.Title>{car.model}</Card.Title>
+                <Card.Text>Frequency: {car.freq}</Card.Text>
+                <Card.Text>Transponder ID: {car.transponder}</Card.Text>
+                <Button id={car._id} variant="outline-warning">Edit</Button>
+                <Button id={car._id} onClick={deleteCar} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> 
+              </Card.Body>
+            </Card>
+          ))}    
+        </div> 
+      </div>
+    )
   }
-};
+}
 
 export default withAuthenticationRequired(Garage, { onRedirecting: () => (<Loading />) });

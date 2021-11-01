@@ -25,110 +25,32 @@ export class BaseController {
   }
   
   async getAllDocuments(req, res, next) {
-    this.data = await this.DB.getAllDocuments() 
-    if (this.data) {
-      return res.status(200).send({
-        success: true,
-        messsage: this.DB.message,
-        data: this.data
-      })
-    } else {
-      return res.status(404).send({
+    try {
+      this.data = await this.DB.getAllDocuments() 
+      if (this.data) {
+        return res.status(200).send({
+          success: true,
+          messsage: this.DB.message,
+          data: this.data
+        })
+      } else {
+        return res.status(404).send({
+          success: false,
+          message: this.DB.message
+        });  
+      }
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
         success: false,
-        message: this.DB.message
-      });  
+        message: e.message
+      }) 
     }
   }
 
   async getDocument(req, res, next) {
-    this.data = await this.DB.getDocument(req.params.id) 
-    if (this.data) {
-      return res.status(200).send({
-        success: true,
-        messsage: this.DB.message,
-        data: this.data
-      })
-    } else {
-      return res.status(404).send({
-        success: false,
-        message: this.DB.message
-      });  
-    } 
-  }
-
-  async addDocument(req, res, next) {
-    if (this.permissions.check(getToken(req), 'post', this.collectionName)) {
-      this.data = await this.DB.addDocument(req.body)
-      if (this.data) {
-        return res.status(201).send({
-          success: true,
-          message: this.DB.message,
-          data: this.data
-        })
-      } else {
-        return res.status(404).send({
-          success: false,
-          message: this.DB.message
-        });  
-      }
-    } else {
-      return res.status(403).send({
-        success: false,
-        message: 'forbidden'
-      })
-    } 
-  }
-
-  async updateDocument(req, res, next){
-    if (this.permissions.check(getToken(req), 'put', this.collectionName)) {
-      this.data = await this.DB.updateDocument(req.params.id, req.body)
-      if (this.data) {
-        return res.status(201).send({
-          success: true,
-          message: this.DB.message,
-          data: this.data
-        })
-      } else {
-        return res.status(404).send({
-          success: false,
-          message: this.DB.message
-        });  
-      }
-    } else {
-      return res.status(403).send({
-        success: false,
-        message: 'forbidden'
-      })
-    } 
-  }
-  
-  async deleteDocument(req, res, next){ 
-    if (this.permissions.check(getToken(req), 'delete', this.collectionName)) {
-      this.data = await this.DB.deleteDocument(req.params.id)
-      if (this.data) {
-        return res.status(410).send({
-          success: true,
-          message: this.DB.message,
-          data: this.data
-          });
-      }else {
-        return res.status(404).send({
-          success: false,
-          message: this.DB.message
-        });
-      }  
-    } else {
-      return res.status(403).send({
-        success: false,
-        message: 'forbidden'
-      })
-    }     
-  }
-
-  async getUserDocuments(req, res, next) {
-    let user = await this.getUser(req, res, false)
-    if (user && user._id !== '') {
-      this.data = await this.DB.getUserDocuments(user._id) 
+    try {
+      this.data = await this.DB.getDocument(req.params.id) 
       if (this.data) {
         return res.status(200).send({
           success: true,
@@ -141,11 +63,137 @@ export class BaseController {
           message: this.DB.message
         });  
       } 
-    } else {
-      return res.status(404).send({
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
         success: false,
-        message: this.DB.message
-      });  
+        message: e.message
+      }) 
+    }
+  }
+
+  async addDocument(req, res, next) {
+    try {
+      if (this.permissions.check(getToken(req), 'post', this.collectionName)) {
+        this.data = await this.DB.addDocument(req.body)
+        if (this.data) {
+          return res.status(201).send({
+            success: true,
+            message: this.DB.message,
+            data: this.data
+          })
+        } else {
+          return res.status(404).send({
+            success: false,
+            message: this.DB.message
+          });  
+        }
+      } else {
+        return res.status(403).send({
+          success: false,
+          message: 'forbidden'
+        })
+      } 
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
+        success: false,
+        message: e.message
+      }) 
+    }
+  }
+
+  async updateDocument(req, res, next){
+    try {
+      if (this.permissions.check(getToken(req), 'put', this.collectionName)) {
+        this.data = await this.DB.updateDocument(req.params.id, req.body)
+        if (this.data) {
+          return res.status(201).send({
+            success: true,
+            message: this.DB.message,
+            data: this.data
+          })
+        } else {
+          return res.status(404).send({
+            success: false,
+            message: this.DB.message
+          });  
+        }
+      } else {
+        return res.status(403).send({
+          success: false,
+          message: 'forbidden'
+        })
+      } 
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
+        success: false,
+        message: e.message
+      }) 
+    }
+  }
+  
+  async deleteDocument(req, res, next){ 
+    try {
+      if (this.permissions.check(getToken(req), 'delete', this.collectionName)) {
+        this.data = await this.DB.deleteDocument(req.params.id)
+        if (this.data) {
+          return res.status(410).send({
+            success: true,
+            message: this.DB.message,
+            data: this.data
+            });
+        }else {
+          return res.status(404).send({
+            success: false,
+            message: this.DB.message
+          });
+        }  
+      } else {
+        return res.status(403).send({
+          success: false,
+          message: 'forbidden'
+        })
+      }     
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
+        success: false,
+        message: e.message
+      }) 
+    }
+  }
+
+  async getUserDocuments(req, res, next) {
+    try {
+      let user = await this.getUser(req, res, false)
+      if (user && user._id !== '') {
+        this.data = await this.DB.getUserDocuments(user._id) 
+        if (this.data) {
+          return res.status(200).send({
+            success: true,
+            messsage: this.DB.message,
+            data: this.data
+          })
+        } else {
+          return res.status(404).send({
+            success: false,
+            message: this.DB.message
+          });  
+        } 
+      } else {
+        return res.status(404).send({
+          success: false,
+          message: this.DB.message
+        });  
+      }
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
+        success: false,
+        message: e.message
+      }) 
     }
   }
 
@@ -165,92 +213,115 @@ export class BaseController {
           message: this.DB.message
         });  
       }  
-    } 
-    catch(e) {
+    } catch(e) {
+      console.log(e)
       return res.status(500).send({
         success: false,
         message: e.message
-      });  
+      }) 
     }
   }
 
   async deleteUserDocument(req, res, next) {
-    let user = await this.getUser(req, res, false)
-    if (user) {
-      this.data = await this.DB.deleteUserDocument(user._id, req.params.docId) 
-      if (this.data) {
-        return res.status(200).send({
-          success: true,
-          messsage: this.DB.message,
-          data: this.data
-        })
+    try {
+      let user = await this.getUser(req, res, false)
+      if (user) {
+        this.data = await this.DB.deleteUserDocument(user._id, req.params.docId) 
+        if (this.data) {
+          return res.status(200).send({
+            success: true,
+            messsage: this.DB.message,
+            data: this.data
+          })
+        } else {
+          return res.status(404).send({
+            success: false,
+            message: this.DB.message
+          });  
+        } 
       } else {
         return res.status(404).send({
           success: false,
           message: this.DB.message
         });  
       } 
-    } else {
-      return res.status(404).send({
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
         success: false,
-        message: this.DB.message
-      });  
-    } 
+        message: e.message
+      }) 
+    }
   }
   // User document functions
   // Could be refactered into a decentdant class
   // TODO: Protect by checking that the token's sub matches our user.extId, or else raise 403 error
   async addUserDocument(req, res, next) {  
-    //add the mongodb.users._id to the object
-    let user = await this.getUser(req, res, true)
-    if (user) {
-      req.body.user_id = user._id
-      this.data = await this.DB.addDocument(req.body) 
-      if (this.data) {
-        return res.status(200).send({
-          success: true,
-          messsage: this.DB.message,
-          data: this.data
-        })
-      } else {
-        return res.status(404).send({
-          success: false,
-          message: this.DB.message
-        });  
-      }
-    } else {
-      return res.status(404).send({
-        success: false,
-        message: this.DB.message
-      });  
-    } 
-  }
-
-  async updateUserDocument(req, res, next) {  
-    let user = await this.getUser(req, res, false)
-    if (user) { 
-      this.data = await this.DB.updateUserDocument(user._id, req.params.docId, req.body) 
-      if (this.data) {
-        return res.status(200).send({
-          success: true,
-          messsage: this.DB.message,
-          data: this.data
-        })
+    try {
+      //add the mongodb.users._id to the object
+      let user = await this.getUser(req, res, true)
+      if (user) {
+        req.body.user_id = user._id
+        this.data = await this.DB.addDocument(req.body) 
+        if (this.data) {
+          return res.status(200).send({
+            success: true,
+            messsage: this.DB.message,
+            data: this.data
+          })
+        } else {
+          return res.status(404).send({
+            success: false,
+            message: this.DB.message
+          });  
+        }
       } else {
         return res.status(404).send({
           success: false,
           message: this.DB.message
         });  
       } 
-    } else {
-      return res.status(404).send({
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
         success: false,
-        message: this.DB.message
-      });  
+        message: e.message
+      }) 
     }
-  } 
-}
+  }
 
+  async updateUserDocument(req, res, next) {  
+    try {
+      let user = await this.getUser(req, res, false)
+      if (user) { 
+        this.data = await this.DB.updateUserDocument(user._id, req.params.docId, req.body) 
+        if (this.data) {
+          return res.status(200).send({
+            success: true,
+            messsage: this.DB.message,
+            data: this.data
+          })
+        } else {
+          return res.status(404).send({
+            success: false,
+            message: this.DB.message
+          });  
+        } 
+      } else {
+        return res.status(404).send({
+          success: false,
+          message: this.DB.message
+        }) 
+      } 
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
+        success: false,
+        message: e.message
+      }) 
+    }
+  }
+}
 /*
 event specific validation
 return res.status(403).send({
