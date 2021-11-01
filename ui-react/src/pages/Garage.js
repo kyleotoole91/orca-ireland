@@ -11,13 +11,12 @@ const urlParam = '?extLookup=1'
 
 function Garage() {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0()
-
+  const [classes, setClasses] = useState([])
+  const [classId, setClassId] = useState('')
   const [manufacturer, setManufacturer] = useState('')
   const [model, setModel] = useState('')
   const [freq, setFreq] = useState('')
   const [transponder, setTransponder] = useState('')
-  const [classId, setClassId] = useState('')
-  
   const [data, setData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
@@ -29,19 +28,38 @@ function Garage() {
     async function loadData () {
       setLoading(true)
       const extId = '/'+user.sub
-      await fetch(process.env.REACT_APP_API_URL+ 
-                  process.env.REACT_APP_API_USERS+extId +
-                  process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
-            .then(response => response.json())
-            .then((response) => {
-              setData(response.data)
-              setLoading(false)
-            }).catch((error) => {
-              setData([])
-              setLoading(false);
-              window.alert(error)
-              console.log(error)
-            })
+      try {
+        //load user's cars
+        await fetch(process.env.REACT_APP_API_URL+ 
+                    process.env.REACT_APP_API_USERS+extId+
+                    process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
+              .then(response => response.json())
+              .then((response) => {
+                setData(response.data)
+                setLoading(false)
+              }).catch((error) => {
+                setData([])
+                setLoading(false);
+                window.alert(error)
+                console.log(error)
+              })
+        //load car classes for new car submission
+        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_CLASSES, {headers: {Authorization: `Bearer ${apiToken}`}})
+              .then(response => response.json())
+              .then((response) => {
+                setClasses(response.data)
+                console.log('classes: ')
+                console.log(response.data)
+                setLoading(false)
+              }).catch((error) => {
+                setClasses([])
+                setLoading(false);
+                window.alert(error)
+                console.log(error)
+              })
+      } catch(e) {
+        window.alert(e)
+      }
     }  
     loadData()
   }, [apiToken, user.sub])
@@ -140,39 +158,52 @@ function Garage() {
             })
     }
   }
-  
+
+  function classesdDropDown () {
+    return (
+      <select style={{width: '197px', height: '30px'}}>
+        {classes.map((carClass, index) => 
+          <option id={carClass._id} key={index} onChange={(e) => setClassId(e.target.id)}>{carClass.name}</option> ) }
+      </select>  
+    )
+  }
+
   function modalForm(){
-    return ( 
-        <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title>New Car</Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={{ display: 'grid' }} >
-              <label style={{ margin: '3px' }} >
-                Manufacturer: &nbsp;&nbsp;&nbsp; 
-                <input value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} type="text" id="eventName" name="event-name" />
-              </label>
-              <label style={{ margin: '3px' }} >
-                Model: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-                <input value={model} onChange={(e) => setModel(e.target.value)} type="text" />
-              </label>
-              <label style={{ margin: '3px' }} >
-                Frequency: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input value={freq} onChange={(e) => setFreq(e.target.value)} type="text" />
-              </label>
-              <label style={{ margin: '3px' }} >
-                Transponder ID: <input value={transponder} onChange={(e) => setTransponder(e.target.value)} type="text" />
-              </label>
-            </Modal.Body>
-            <Modal.Footer>
-               <Button variant="outline-secondary" onClick={handleClose}>
-                 Close
-               </Button>
-               <Button variant="outline-primary" onClick={postCar}>
-                 Save
-               </Button>
-            </Modal.Footer>
-          </Modal>   
+    return (  //style={{fontFamily: "Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;"}}
+      <Modal show={show} onHide={handleClose} >
+        <Modal.Header closeButton>
+          <Modal.Title>New Car</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ display: 'grid', fontFamily: "monospace"} } >
+          <label style={{ margin: '3px' }} >
+            Manufacturer: &nbsp;&nbsp;
+            <input value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} type="text" id="eventName" name="event-name" />
+          </label> 
+          <label style={{ margin: '3px' }} >
+            Model: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input value={model} onChange={(e) => setModel(e.target.value)} type="text" />
+          </label>
+          <label style={{ margin: '3px' }} >
+            Frequency: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input value={freq} onChange={(e) => setFreq(e.target.value)} type="text" />
+          </label>        
+          <label style={{ margin: '3px' }} >
+            Transponder ID: <input value={transponder} onChange={(e) => setTransponder(e.target.value)} type="text" />
+          </label>   
+          <label style={{ margin: '3px' }} >
+            Class: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            {classes && classes.length !== 0 && classesdDropDown()}  
+          </label>      
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="outline-secondary" onClick={handleClose}>
+              Close
+            </Button>
+            <Button variant="outline-primary" onClick={postCar}>
+              Save
+            </Button>
+        </Modal.Footer>
+      </Modal>   
     )
   }
 
@@ -181,14 +212,14 @@ function Garage() {
   } else if (!data || data.length === 0) {
     return ( 
       <div>
-        {modalForm()}
+        {modalForm(false)}
         <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
       </div> )
   } else {
     return (
       <div>
         <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
-        {modalForm()}
+        {modalForm(true)}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data.map((car, index) => (
             <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
