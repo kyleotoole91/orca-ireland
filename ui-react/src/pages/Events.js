@@ -155,23 +155,26 @@ function Events() {
             </Modal.Header>
             <Modal.Body style={{ display: 'grid' }} >
               <label style={{ margin: '3px' }} >
-                Name: &nbsp;&nbsp;&nbsp; <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
+                Name: &nbsp;&nbsp;&nbsp; 
+                <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
               </label>
               <label style={{ margin: '3px' }} >
                 Location: <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" id="eventLocation" name="event-location" />
               </label>
               <label style={{ margin: '3px' }} >
-                Date: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <input value={date} onChange={(e) => setDate(e.target.value)} type="date" id="eventDate" name="event-date" min="2021-01-01" />
+                Date: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                <input value={date} onChange={(e) => setDate(e.target.value)} type="date" id="eventDate" name="event-date" min="2021-01-01" />
               </label>
               <label style={{ margin: '3px' }} >
-                Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
+                Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
               </label>
             </Modal.Body>
             <Modal.Footer>
-               <Button variant="secondary" onClick={handleClose}>
+               <Button variant="outline-secondary" onClick={handleClose}>
                  Close
                </Button>
-               <Button variant="primary" onClick={postEvent}>
+               <Button variant="outline-primary" onClick={postEvent}>
                  Save
                </Button>
             </Modal.Footer>

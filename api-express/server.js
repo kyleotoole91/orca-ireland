@@ -74,8 +74,10 @@ app.get('/users/:userId/cars/:docId', validateJwt, (req, res) => carsController.
 app.get('/cars/:id', validateJwt, (req, res) => carsController.getDocument(req, res))
 //app.post('/cars', validateJwt, (req, res) => carsController.addDocument(req, res))
 app.post('/users/:userId/cars', validateJwt, (req, res) => carsController.addUserDocument(req, res))
+app.post('/users/:userId/cars', validateJwt, (req, res) => carsController.updateUserDocument(req, res))
 app.put('/cars/:id', validateJwt, (req, res) => carsController.updateDocument(req, res))
 app.delete('/cars/:id', validateJwt, (req, res) => carsController.deleteDocument(req, res))
+app.delete('/users/:userId/cars/:docId', validateJwt, (req, res) => carsController.deleteUserDocument(req, res))
 //classes
 app.get('/classes', validateJwt, (req, res) => classesController.getAllDocuments(req, res))
 app.get('/classes/:id', validateJwt, (req, res) => classesController.getDocument(req, res))

@@ -152,11 +152,49 @@ export class BaseModel {
     } 
   }
 
+  async deleteUserDocument(userId, id){
+    this.message = 'Deleted '+id
+    try {
+      const objId = new ObjectId(id)
+      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndDelete({'_id': objId, 'user_id': userId})
+      if(!this.result.value) { 
+        this.message = 'Error deleting: ' + id 
+      } else {
+        this.result = this.result.value
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    } 
+  }
+
   async updateDocument(id, document){
     this.message = 'Updated'
     try {
       const objId = new ObjectId(id)
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndUpdate({'_id': objId}, {$set:  document })
+      if(!this.result) {
+        this.message = 'Error updating: ' + id
+      } else {
+        this.result = this.result.value
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    } 
+  }
+
+  async updateUserDocument(userId, id, document){
+    this.message = 'Updated'
+    try {
+      const objId = new ObjectId(id)
+      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set:  document })
       if(!this.result) {
         this.message = 'Error updating: ' + id
       } else {
