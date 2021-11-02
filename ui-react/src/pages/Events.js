@@ -201,7 +201,7 @@ function Events() {
               <Card.Header>{event.name}</Card.Header>
               <Card.Body>
                 <Card.Title>{event.location}</Card.Title>
-              <Card.Text>Entry fee €{event.price}</Card.Text>
+              <Card.Text>Entry fee €{event.fee}</Card.Text>
                 <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
                 <Button id={event._id} variant="outline-primary">Enter</Button>
                 {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }

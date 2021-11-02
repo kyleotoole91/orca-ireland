@@ -22,6 +22,18 @@ export class BaseModel {
     }
   } 
 
+  addObject_ids(obj){
+    //TODO: needs to loop nested objects
+    Object.keys(obj).forEach(function(key) {
+      const idField = key
+      const idValue = obj[idField]
+      if (idField.includes('_id')) {
+        console.log('Found object id field '+idField+' '+idValue)
+        obj[idField] = new ObjectId(idValue) 
+      }
+    })
+  }
+
   async getAllDocuments() {
     try {
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).find({}).toArray()
@@ -121,6 +133,7 @@ export class BaseModel {
   async addDocument(document){
     this.message = 'Added'
     try {
+      this.addObject_ids(document)
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne( document )
       if(!this.result) {
         this.message = 'Not added' 
@@ -178,6 +191,7 @@ export class BaseModel {
   async updateDocument(id, document){
     this.message = 'Updated'
     try {
+      this.addObject_ids(document)
       const objId = new ObjectId(id)
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndUpdate({'_id': objId}, {$set:  document })
       if(!this.result) {
@@ -197,6 +211,7 @@ export class BaseModel {
   async updateUserDocument(userId, id, document){
     this.message = 'Updated'
     try {
+      this.addObject_ids(document)
       const objId = new ObjectId(id)
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set:  document })
       if(!this.result) {

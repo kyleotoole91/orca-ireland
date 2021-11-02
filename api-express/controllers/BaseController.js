@@ -259,7 +259,7 @@ export class BaseController {
   async addUserDocument(req, res, next) {  
     try {
       //add the mongodb.users._id to the object
-      let user = await this.getUser(req, res, true)
+      const user = await this.getUser(req, res, true)
       if (user) {
         req.body.user_id = user._id
         this.data = await this.DB.addDocument(req.body) 
@@ -292,7 +292,7 @@ export class BaseController {
 
   async updateUserDocument(req, res, next) {  
     try {
-      let user = await this.getUser(req, res, false)
+      const user = await this.getUser(req, res, false)
       if (user) { 
         this.data = await this.DB.updateUserDocument(user._id, req.params.docId, req.body) 
         if (this.data) {

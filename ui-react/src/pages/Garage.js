@@ -44,12 +44,11 @@ function Garage() {
                 console.log(error)
               })
         //load car classes for new car submission
-        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_CLASSES, {headers: {Authorization: `Bearer ${apiToken}`}})
+        await fetch(process.env.REACT_APP_API_URL + 
+                    process.env.REACT_APP_API_CLASSES, {headers: {Authorization: `Bearer ${apiToken}`}})
               .then(response => response.json())
               .then((response) => {
                 setClasses(response.data)
-                console.log('classes: ')
-                console.log(response.data)
                 setLoading(false)
               }).catch((error) => {
                 setClasses([])
@@ -117,10 +116,11 @@ function Garage() {
 
   async function postCar() {
     const extId = '/'+user.sub
+    console.log(classId)
     if (manufacturer === '' || model === '' || transponder === ''|| freq === '') {
       window.alert('Please fill in all fields')
     } else {
-      const car = {manufacturer, model, freq, transponder, classId}
+      const car = {manufacturer, model, freq, transponder, 'class_id': classId}
       await fetch(process.env.REACT_APP_API_URL+ 
                   process.env.REACT_APP_API_USERS+extId +
                   process.env.REACT_APP_API_CARS+urlParam, {
@@ -159,17 +159,35 @@ function Garage() {
     }
   }
 
+  function handleChange(e){
+    const option = e.target.childNodes[e.target.selectedIndex]
+    const class_id =  option.getAttribute('id'); 
+    setClassId(class_id)
+  }
+
   function classesdDropDown () {
     return (
-      <select style={{width: '197px', height: '30px'}}>
+      <select id={classId} style={{width: '197px', height: '30px'}} onChange={(e) => handleChange(e)} >
         {classes.map((carClass, index) => 
-          <option id={carClass._id} key={index} onChange={(e) => setClassId(e.target.id)}>{carClass.name}</option> ) }
+          <option id={carClass._id} key={index} >{carClass.name}</option> ) }
       </select>  
     )
   }
 
+  function getClassName(id) {
+    let carClass
+    if (classes && classes.length !== 0) {
+      carClass = classes.find(c => c._id === id)
+    } 
+    if (carClass) {
+      return carClass.name
+    } else {
+      return ''
+    } 
+  }
+
   function modalForm(){
-    return (  //style={{fontFamily: "Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;"}}
+    return (  
       <Modal show={show} onHide={handleClose} >
         <Modal.Header closeButton>
           <Modal.Title>New Car</Modal.Title>
@@ -228,6 +246,7 @@ function Garage() {
                 <Card.Title>{car.model}</Card.Title>
                 <Card.Text>Frequency: {car.freq}</Card.Text>
                 <Card.Text>Transponder ID: {car.transponder}</Card.Text>
+                <Card.Text>Class: {getClassName(car.class_id)}</Card.Text>
                 <Button id={car._id} variant="outline-warning">Edit</Button>
                 <Button id={car._id} onClick={deleteCar} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> 
               </Card.Body>
