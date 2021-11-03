@@ -23,12 +23,19 @@ export class BaseModel {
   } 
 
   addObject_ids(obj){
-    //TODO: needs to loop nested objects
     Object.keys(obj).forEach(function(key) {
-      const idField = key
-      const idValue = obj[idField]
-      if (idField.includes('_id')) {
-        obj[idField] = new ObjectId(idValue) 
+      const field = key
+      const value = obj[field]
+      if (field.includes('_id')) {
+        obj[field] = new ObjectId(value) 
+      } else if (value === 'object' && !Array.isArray(value) && value !== null) {
+        addObject_ids(value);
+      } else if (Array.isArray(value)) {
+        value.forEach(function (item) {
+          if (item === 'object' && !Array.isArray(item) && item !== null) {
+            addObject_ids(item);
+          }  
+        });
       }
     })
   }
