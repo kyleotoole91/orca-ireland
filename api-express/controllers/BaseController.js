@@ -16,11 +16,15 @@ export class BaseController {
 
   async getUser(req, res, force) {
     let user = null
-    if (req.query.extLookup === '1') {
-      user = await this.UserDB.getDocumentByExtId(req.params.userId, force)
+    if (this.permissions.userInToken(getToken(req), req.params.userId)) {
+      if (req.query.extLookup === '1') {
+        user = await this.UserDB.getDocumentByExtId(req.params.userId, force)
+      } else {
+        user = await this.UserDB.getDocumentId(req.params.userId, force)
+      }
     } else {
-      user = await this.UserDB.getDocumentId(req.params.userId, force)
-    }
+      user = {code: 403, err: 'Forbidden: invalid user'}
+    } 
     return user
   }
   
@@ -166,10 +170,52 @@ export class BaseController {
   }
 
   async getUserDocuments(req, res, next) {
+    try {  
+      let user = await this.getUser(req, res, false)
+      if (user.hasOwnProperty('err') && user.hasOwnProperty('code')) {
+        return res.status(user.code).send({
+          success: false,
+          message: user.err
+        }) 
+      } else if (user && user._id !== '') {
+        this.data = await this.DB.getUserDocuments(user._id) 
+        if (this.data) {
+          return res.status(200).send({
+            success: true,
+            messsage: this.DB.message,
+            data: this.data
+          })
+        } else {
+          return res.status(404).send({
+            success: false,
+            message: this.DB.message
+          })  
+        } 
+      } else {
+        return res.status(404).send({
+          success: false,
+          message: this.DB.message
+        })  
+      }
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
+        success: false,
+        message: e.message
+      }) 
+    }
+  }
+
+  async getUserDocument(req, res, next) {
     try {
       let user = await this.getUser(req, res, false)
-      if (user && user._id !== '') {
-        this.data = await this.DB.getUserDocuments(user._id) 
+      if (user.hasOwnProperty('err') && user.hasOwnProperty('code') ){
+        return res.status(user.code).send({
+          success: false,
+          message: user.err
+        }) 
+      } else {
+        this.data = await this.DB.getUserDocument(user._id, req.params.docId) 
         if (this.data) {
           return res.status(200).send({
             success: true,
@@ -182,6 +228,38 @@ export class BaseController {
             message: this.DB.message
           });  
         } 
+      }
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
+        success: false,
+        message: e.message
+      }) 
+    }
+  }
+
+  async deleteUserDocument(req, res, next) {
+    try {
+      let user = await this.getUser(req, res, false)
+      if (user.hasOwnProperty('code') && user.hasOwnProperty('err')){
+        return res.status(user.code).send({
+          success: false,
+          message: user.err
+        }) 
+      } else if (user && user._id !== '') { 
+        this.data = await this.DB.deleteUserDocument(user._id, req.params.docId) 
+        if (this.data) {
+          return res.status(200).send({
+            success: true,
+            messsage: this.DB.message,
+            data: this.data
+          })
+        } else {
+          return res.status(404).send({
+            success: false,
+            message: this.DB.message
+          });  
+        }
       } else {
         return res.status(404).send({
           success: false,
@@ -196,71 +274,18 @@ export class BaseController {
       }) 
     }
   }
-
-  async getUserDocument(req, res, next) {
-    try {
-      let user = await this.getUser(req, res, false)
-      this.data = await this.DB.getUserDocument(user._id, req.params.docId) 
-      if (this.data) {
-        return res.status(200).send({
-          success: true,
-          messsage: this.DB.message,
-          data: this.data
-        })
-      } else {
-        return res.status(404).send({
-          success: false,
-          message: this.DB.message
-        });  
-      }  
-    } catch(e) {
-      console.log(e)
-      return res.status(500).send({
-        success: false,
-        message: e.message
-      }) 
-    }
-  }
-
-  async deleteUserDocument(req, res, next) {
-    try {
-      let user = await this.getUser(req, res, false)
-      if (user) {
-        this.data = await this.DB.deleteUserDocument(user._id, req.params.docId) 
-        if (this.data) {
-          return res.status(200).send({
-            success: true,
-            messsage: this.DB.message,
-            data: this.data
-          })
-        } else {
-          return res.status(404).send({
-            success: false,
-            message: this.DB.message
-          });  
-        } 
-      } else {
-        return res.status(404).send({
-          success: false,
-          message: this.DB.message
-        });  
-      } 
-    } catch(e) {
-      console.log(e)
-      return res.status(500).send({
-        success: false,
-        message: e.message
-      }) 
-    }
-  }
   // User document functions
   // Could be refactered into a decentdant class
-  // TODO: Protect by checking that the token's sub matches our user.extId, or else raise 403 error
   async addUserDocument(req, res, next) {  
     try {
       //add the mongodb.users._id to the object
       const user = await this.getUser(req, res, true)
-      if (user) {
+      if (user.hasOwnProperty('code') && user.hasOwnProperty('err')){
+        return res.status(user.code).send({
+          success: false,
+          message: user.err
+        }) 
+      } else if (user && user._id !== '') {
         req.body.user_id = user._id
         this.data = await this.DB.addDocument(req.body) 
         if (this.data) {

@@ -28,7 +28,6 @@ export class BaseModel {
       const idField = key
       const idValue = obj[idField]
       if (idField.includes('_id')) {
-        console.log('Found object id field '+idField+' '+idValue)
         obj[idField] = new ObjectId(idValue) 
       }
     })

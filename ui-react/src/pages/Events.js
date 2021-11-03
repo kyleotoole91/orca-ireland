@@ -10,21 +10,21 @@ import NumberFormat from 'react-number-format';
 
 function formatDate(date, format) {
   const map = {
-      mm: date.getMonth() + 1,
-      dd: date.getDate(),
-      yy: date.getFullYear().toString().slice(-2),
-      yyyy: date.getFullYear()
+    mm: (date.getMonth()+1).toString().padStart(2, '0'),
+    dd: date.getDate().toString().padStart(2, '0'),
+    yy: date.getFullYear().toString().slice(-2),
+    yyyy: date.getFullYear()
   }
   return format.replace(/mm|dd|yyyy/gi, matched => map[matched])
 }
 
 function Events() {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0()
-
-  let today = formatDate(new Date(Date.now()), 'yyyy-mm-dd')
+  let todayDate = new Date(Date.now())
+  todayDate = formatDate(todayDate, 'yyyy-mm-dd')
   const [name, setName] = useState('')
   const [location, setLocation] = useState("Saint Anne's Park")
-  const [date, setDate] = useState(today)
+  const [date, setDate] = useState(todayDate)
   const [fee, setFee] = useState(10.00)
   
   const [data, setData] = useState([])
@@ -43,6 +43,7 @@ function Events() {
       await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((response) => {
+              //console.log(response.data)
               setData(response.data)
               setLoading(false)
               setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
@@ -71,8 +72,7 @@ function Events() {
       const eventId = '/'+e.target.id.toString()
       await fetch( process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS + eventId, {
                   method: 'DELETE', 
-                  headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
-            })
+                  headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},})
       .then(response => response.json())
       .then((response) => {
         if (!response.success) {
@@ -163,7 +163,7 @@ function Events() {
           </label>
           <label style={{ margin: '3px' }} >
             Date: &nbsp;&nbsp;&nbsp;&nbsp;
-            <input value={date} onChange={(e) => setDate(e.target.value)} type="date" id="eventDate" name="event-date" min="2021-01-01" />
+            <input value={date} onChange={(e) => setDate(e.target.value)} type="date" id="eventDate" name="event-date" min={todayDate} />
           </label>
           <label style={{ margin: '3px' }} >
             Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -181,7 +181,7 @@ function Events() {
       </Modal>   
     )
   }
-
+  //for split second, data is still undefined although loading state was set to true after data set was set 
   if (loading) {
     return ( <Loading /> )
   } else if (!data || data.length === 0) {

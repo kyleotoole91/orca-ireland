@@ -19,4 +19,8 @@ export class Permissions {
     }    
     return allow
   }
+  userInToken (encodedToken, extId) {
+    let tokenDecoded = jwt_decode(encodedToken)
+    return tokenDecoded.sub === extId
+  }
 }

@@ -49,6 +49,9 @@ function Garage() {
               .then(response => response.json())
               .then((response) => {
                 setClasses(response.data)
+                if (response.data && response.data.length >= 1) {
+                  setClassId(response.data[0]._id) //set default to first class in array
+                }
                 setLoading(false)
               }).catch((error) => {
                 setClasses([])
@@ -116,6 +119,7 @@ function Garage() {
 
   async function postCar() {
     const extId = '/'+user.sub
+    console.log('posting car')
     console.log(classId)
     if (manufacturer === '' || model === '' || transponder === ''|| freq === '') {
       window.alert('Please fill in all fields')
