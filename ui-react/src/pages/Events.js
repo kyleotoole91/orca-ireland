@@ -36,27 +36,6 @@ function Events() {
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
 
-  useEffect(() => {
-    async function loadData () {
-      const permissions = new Permissions()
-      setLoading(true)
-      await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
-            .then(response => response.json())
-            .then((response) => {
-              //console.log(response.data)
-              setData(response.data)
-              setLoading(false)
-              setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-              setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-            }).catch((error) => {
-              setData([])
-              setLoading(false);
-              console.log(error)
-            })
-    }  
-    loadData()
-  }, [apiToken])
-
   if (isAuthenticated && apiToken === '') {
     getApiToken()
   }
@@ -66,6 +45,27 @@ function Events() {
     setApiToken(token)   
     console.log(token)
   }
+
+  useEffect(() => {
+    async function loadData () {
+      const permissions = new Permissions()
+      setLoading(true)
+      await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
+            .then(response => response.json())
+            .then((response) => {
+              setData(response.data)
+              setLoading(false)
+              setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+              setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+            }).catch((error) => {
+              setData([])
+              setLoading(false);
+              window.alert(error)
+              console.log(error)
+            })
+    }  
+    loadData()
+  }, [apiToken])
 
   async function deleteEvent(e) {
     if (window.confirm('Are you sure you want to delete this event?')) {

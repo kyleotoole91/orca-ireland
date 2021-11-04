@@ -10,6 +10,7 @@ function Profile ({ forceUsername }) {
   var username = 'Sign In'
 
   if (user != null) {
+    console.log(user)
     profilePic = user.picture
     if (user.name != null) {
       username = user.name;

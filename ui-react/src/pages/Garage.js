@@ -1,4 +1,4 @@
-import { React, useState, useEffect }from 'react'
+import { React, useState, useEffect } from 'react'
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react"
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
@@ -218,12 +218,8 @@ function Garage() {
           </label>      
         </Modal.Body>
         <Modal.Footer>
-            <Button variant="outline-secondary" onClick={handleClose}>
-              Close
-            </Button>
-            <Button variant="outline-primary" onClick={postCar}>
-              Save
-            </Button>
+            <Button variant="outline-secondary" onClick={handleClose}>Close</Button>
+            <Button variant="outline-primary" onClick={postCar}>Save </Button>
         </Modal.Footer>
       </Modal>   
     )

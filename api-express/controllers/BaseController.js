@@ -16,11 +16,11 @@ export class BaseController {
 
   async getUser(req, res, force) {
     let user = null
-    if (this.permissions.userInToken(getToken(req), req.params.userId)) {
+    if (this.permissions.userInToken(getToken(req), req.params.id)) {
       if (req.query.extLookup === '1') {
-        user = await this.UserDB.getDocumentByExtId(req.params.userId, force)
+        user = await this.UserDB.getDocumentByExtId(req.params.id, force)
       } else {
-        user = await this.UserDB.getDocumentId(req.params.userId, force)
+        user = await this.UserDB.getDocumentId(req.params.id, force)
       }
     } else {
       user = {code: 403, err: 'Forbidden: invalid user'}
@@ -169,6 +169,8 @@ export class BaseController {
     }
   }
 
+  // User document functions
+  // To be refactered into a decentdant class
   async getUserDocuments(req, res, next) {
     try {  
       let user = await this.getUser(req, res, false)
@@ -208,14 +210,20 @@ export class BaseController {
 
   async getUserDocument(req, res, next) {
     try {
+      console.log('get user doc')
       let user = await this.getUser(req, res, false)
+      console.log(user)
       if (user.hasOwnProperty('err') && user.hasOwnProperty('code') ){
         return res.status(user.code).send({
           success: false,
           message: user.err
         }) 
       } else {
-        this.data = await this.DB.getUserDocument(user._id, req.params.docId) 
+        if (!req.params.docId || req.params.docId === '') { //requesting /user if no other param given
+          this.data = await this.DB.getDocument(user._id) 
+        } else {
+          this.data = await this.DB.getUserDocument(user._id, req.params.docId) 
+        }
         if (this.data) {
           return res.status(200).send({
             success: true,
@@ -274,8 +282,7 @@ export class BaseController {
       }) 
     }
   }
-  // User document functions
-  // Could be refactered into a decentdant class
+  
   async addUserDocument(req, res, next) {  
     try {
       //add the mongodb.users._id to the object
