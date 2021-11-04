@@ -60,6 +60,7 @@ export class BaseModel {
   async getDocumentByExtId(extId, force) { 
     try {
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOne({ 'extId': extId })
+      //console.log('getDocumentByExtId res: '+ JSON.stringify(this.result))
       if (!this.result && force) {
         this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne({ 'extId': extId }) 
         if (this.result.insertedId !== '') {
@@ -197,7 +198,9 @@ export class BaseModel {
   async updateDocument(id, document){
     this.message = 'Updated'
     try {
-      this.addObject_ids(document)
+      if(document){
+        this.addObject_ids(document)  
+      }
       const objId = new ObjectId(id)
       this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndUpdate({'_id': objId}, {$set:  document })
       if(!this.result) {

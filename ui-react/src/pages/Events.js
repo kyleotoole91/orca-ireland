@@ -19,7 +19,7 @@ function formatDate(date, format) {
 }
 
 function Events() {
-  const { isAuthenticated, getAccessTokenSilently } = useAuth0()
+  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   let todayDate = new Date(Date.now())
   todayDate = formatDate(todayDate, 'yyyy-mm-dd')
   const [name, setName] = useState('')
@@ -36,8 +36,10 @@ function Events() {
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
 
-  if (isAuthenticated && apiToken === '') {
+  if (user && isAuthenticated && apiToken === '') {
     getApiToken()
+  } else if (apiToken === '') { //TODO also check if the token expired. Errors are raised if you leave the app open for some time and navigate pages (maybe token has expired)
+    loginWithRedirect()
   }
 
   async function getApiToken() {

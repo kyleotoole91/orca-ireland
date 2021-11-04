@@ -124,6 +124,7 @@ export class BaseController {
           });  
         }
       } else {
+        
         return res.status(403).send({
           success: false,
           message: 'forbidden'
@@ -210,9 +211,7 @@ export class BaseController {
 
   async getUserDocument(req, res, next) {
     try {
-      console.log('get user doc')
       let user = await this.getUser(req, res, false)
-      console.log(user)
       if (user.hasOwnProperty('err') && user.hasOwnProperty('code') ){
         return res.status(user.code).send({
           success: false,
@@ -326,7 +325,11 @@ export class BaseController {
     try {
       const user = await this.getUser(req, res, false)
       if (user) { 
-        this.data = await this.DB.updateUserDocument(user._id, req.params.docId, req.body) 
+        if (!req.params.docId && req.query.extLookup === '1') { //requesting /user if no other param given
+          this.data = await this.DB.updateDocument(user._id, req.body) 
+        } else {  
+           this.data = await this.DB.updateUserDocument(user._id, req.params.docId, req.body)
+        } 
         if (this.data) {
           return res.status(200).send({
             success: true,

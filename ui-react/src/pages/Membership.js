@@ -9,29 +9,21 @@ const urlParam = '?extLookup=1'
 
 function Membership() {  
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0()
-
   const [data, setData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
-
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
 
-  if (isAuthenticated && apiToken === '') {
-    getApiToken()
-  }
-
-  async function getApiToken() {
-    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
-    setApiToken(token)   
-    console.log(token)
-  }
   useEffect(() => {
     async function loadData () {
       const extId = '/'+user.sub
+      if (apiToken === '' && isAuthenticated) {
+        setApiToken(await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE }))
+      }
       let memberData 
       setLoading(true)
       await fetch(process.env.REACT_APP_API_URL+ 
@@ -40,28 +32,31 @@ function Membership() {
             .then((response) => {
               if (response.hasOwnProperty('data')) {
                 setData(response.data)  
-                console.log(response) 
-                console.log(user) 
-                memberData = response.data                    
+                memberData = response.data     
+                setPhone(memberData.phone)               
                 if (memberData.firstName) {
                   setFirstName(memberData.firstName)  
-                } else {
+                } else if (user.given_name) {
                   setFirstName(user.given_name)
                 }
                 if (memberData.lastName) {
                   setLastName(memberData.lastName)  
-                } else {
+                } else if (user.family_name) {
                   setLastName(user.family_name)
                 } 
                 if (memberData.username) {
                   setUsername(memberData.username)  
-                } else {
+                } else if (user.nickname) {
                   setUsername(user.nickname)
                 }
                 if (memberData.email) {
                   setEmail(memberData.email)  
-                } else {
+                } else if (user.email) {
                   setEmail(user.email)
+                if (memberData.phone) {
+                  setPhone(memberData.phone)  
+                } else 
+                  setPhone('')
                 }
               } else if (response.hasOwnProperty('success') && !response.success && response.hasOwnProperty('message')) {
                 console.log(response.message)    
@@ -75,13 +70,42 @@ function Membership() {
             })
     }  
     loadData()
-  }, [apiToken, user, firstName])
+  }, [apiToken, user, isAuthenticated, getAccessTokenSilently])
+
+  async function updateMemberDetails() {
+    if (firstName === '' || lastName === '' || phone === '') {
+      window.alert('Please fill in all fields')
+    } else {
+      const extId = '/'+user.sub
+      const member = {firstName, lastName, phone, username, email}
+      await fetch(process.env.REACT_APP_API_URL+ 
+                  process.env.REACT_APP_API_USERS+extId+urlParam, {
+              method: 'PUT', 
+              headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
+              body: JSON.stringify(member)
+            })
+      .then(response => response.json())
+      .then((response) => {
+        if (!response.success) {
+          window.alert(response.message)   
+        } else {
+          window.alert('Membership details updated succesfully')    
+        }
+        setLoading(false)
+      }).catch((error) => {
+        setData([])
+        setLoading(false);
+        window.alert(error)
+        console.log(error)
+      })
+    }
+  }
 
   if (loading) {
     return ( <Loading /> )
   } else if (data) {
     return (
-      <div div style={{display: 'flex', flexFlow: 'wrap'}}> 
+      <div style={{display: 'flex', flexFlow: 'wrap'}}> 
         <Card style={{margin: '3px'}}>
           <Card.Header>Member details</Card.Header>
           <Card.Body>
@@ -100,17 +124,17 @@ function Membership() {
               </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupEmail">
                 <Form.Label>Username</Form.Label>
-                <Form.Control type="text" placeholder="Enter username" value={username} onChange={(e) => setUsername(e.target.value)}/>
+                <Form.Control readOnly type="text" placeholder="Enter username" value={username} onChange={(e) => setUsername(e.target.value)}/>
               </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupEmail">
                 <Form.Label>Email address</Form.Label>
-                <Form.Control type="test" placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <Form.Control readOnly type="test" placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </Form.Group>
             </Form> 
-            <Button variant="outline-primary" >Save </Button>
+            <Button variant="outline-primary" onClick={updateMemberDetails}>Save </Button>
           </Card.Body>
         </Card>
-        <Card style={{margin: '3px', width: '45rm', maxHeight: '125px', width: '284px'}}>
+        <Card style={{margin: '3px', maxHeight: '125px', width: '284px'}}>
           <Card.Header>Membership</Card.Header>
           <Card.Body>
             <Card.Title>€50 every 3 months </Card.Title>

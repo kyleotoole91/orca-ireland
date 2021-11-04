@@ -8,13 +8,8 @@ import mongoClient from './mongo-client'
 
 const corsOpts = {
   origin: 'http://localhost:3000',
-  methods: ['GET',
-            'POST',
-            'PUT',
-            'DELETE'],
-  allowedHeaders: ['Content-Type',
-                   'Authorization',
-                   'Bearer']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Bearer']
 }
 
 app.use(express.urlencoded({extended: true})); 
@@ -84,7 +79,6 @@ app.post('/classes', validateJwt, (req, res) => classesController.addDocument(re
 app.put('/classes/:id', validateJwt, (req, res) => classesController.updateDocument(req, res))
 app.delete('/classes/:id', validateJwt, (req, res) => classesController.deleteDocument(req, res))
 
-
 app.use(function (err, req, res, next) {
   if (err) {
     res.status(err.status).send({'success': false, 'message': err.name+': '+err.message}) 
@@ -92,5 +86,5 @@ app.use(function (err, req, res, next) {
 })
 
 app.listen(8000, () => {
-  console.log('ORCA api server listening on port 8000')
+  console.log('ORCA REST API server listening on port 8000')
 })
