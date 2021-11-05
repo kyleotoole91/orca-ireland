@@ -31,7 +31,7 @@ const CompanyImage = styled.img`
   position: 'absolute';
   height: 100%;
   padding: 6px;
-  @media (max-width: ${({ theme}) => theme.mobileM}) {
+  @media (max-width: ${({ theme}) => '305px'}) {
     display: none;
   }
 `;

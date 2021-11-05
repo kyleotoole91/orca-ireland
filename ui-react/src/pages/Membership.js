@@ -17,8 +17,7 @@ function Membership() {
   const [phone, setPhone] = useState('')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
-
-
+  
   useEffect(() => {
     async function loadData () {
       const extId = '/'+user.sub
