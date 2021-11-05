@@ -17,7 +17,7 @@ function Membership() {
   const [phone, setPhone] = useState('')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
-  
+
   useEffect(() => {
     async function loadData () {
       const extId = '/'+user.sub
@@ -49,8 +49,14 @@ function Membership() {
                 }
                 console.log(response.message)  
               } else if (!response.success && response.hasOwnProperty('message')) {
-                console.log('Error: '+response.message)  
                 //window.alert(response.message) //shows unauthorized error from the cors preflight options req, so disabled for now  
+                console.log('Error: '+response.message)  
+                if (user.hasOwnProperty('given_name')) {
+                  setFirstName(user.given_name) 
+                }
+                if (user.hasOwnProperty('family_name')) {
+                  setLastName(user.family_name) 
+                }
               }
               setLoading(false)
             }).catch((error) => {
