@@ -175,7 +175,7 @@ export class BaseController {
   async getUserDocuments(req, res, next) {
     try {  
       let user = await this.getUser(req, res, false)
-      if (user.hasOwnProperty('err') && user.hasOwnProperty('code')) {
+      if (user && user.hasOwnProperty('err') && user.hasOwnProperty('code')) {
         return res.status(user.code).send({
           success: false,
           message: user.err
@@ -212,12 +212,20 @@ export class BaseController {
   async getUserDocument(req, res, next) {
     try {
       let user = await this.getUser(req, res, false)
+      console.log('get user doc: '+user)
+      if (!user){
+        return res.status(404).send({
+          success: false,
+          message: 'user not found'
+        });
+      }
       if (user.hasOwnProperty('err') && user.hasOwnProperty('code') ){
         return res.status(user.code).send({
           success: false,
           message: user.err
         }) 
-      } else {
+      } 
+      if (user) {
         if (!req.params.docId || req.params.docId === '') { //requesting /user if no other param given
           this.data = await this.DB.getDocument(user._id) 
         } else {
@@ -324,9 +332,15 @@ export class BaseController {
   async updateUserDocument(req, res, next) {  
     try {
       const user = await this.getUser(req, res, false)
-      if (user) { 
+      //console.log(req.originalUrl) //how to get url 
+      if (user || this.permissions.userInToken(getToken(req), req.params.id)) { 
         if (!req.params.docId && req.query.extLookup === '1') { //requesting /user if no other param given
-          this.data = await this.DB.updateDocument(user._id, req.body) 
+          if (user) {
+            this.data = await this.DB.updateDocument(user._id, req.body) 
+          } else { //allow inserting of user record if not found on put request
+            this.data = await this.DB.addDocument(req.body)     
+          }
+          console.log(JSON.stringify(this.data))   
         } else {  
            this.data = await this.DB.updateUserDocument(user._id, req.params.docId, req.body)
         } 
@@ -345,7 +359,7 @@ export class BaseController {
       } else {
         return res.status(404).send({
           success: false,
-          message: this.DB.message
+          message: 'user not found or does not match token claims'
         }) 
       } 
     } catch(e) {

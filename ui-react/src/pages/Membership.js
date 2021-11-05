@@ -18,6 +18,7 @@ function Membership() {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
 
+
   useEffect(() => {
     async function loadData () {
       const extId = '/'+user.sub
@@ -30,36 +31,27 @@ function Membership() {
                   process.env.REACT_APP_API_USERS+extId+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((response) => {
-              if (response.hasOwnProperty('data')) {
-                setData(response.data)  
-                memberData = response.data     
-                setPhone(memberData.phone)               
-                if (memberData.firstName) {
-                  setFirstName(memberData.firstName)  
-                } else if (user.given_name) {
-                  setFirstName(user.given_name)
+              console.log(response) 
+              user.nickname && setUsername(user.nickname) 
+              user.email && setEmail(user.email) 
+              if (response.success && response.hasOwnProperty('data')) {
+                memberData = response.data 
+                setUsername(memberData.username)   
+                setPhone(memberData.phone) 
+                if (memberData.hasOwnProperty('firstName')) {
+                  setFirstName(memberData.firstName)
+                } else if (user.hasOwnProperty('given_name')) {
+                  setFirstName(user.given_name)  
                 }
-                if (memberData.lastName) {
-                  setLastName(memberData.lastName)  
-                } else if (user.family_name) {
-                  setLastName(user.family_name)
-                } 
-                if (memberData.username) {
-                  setUsername(memberData.username)  
-                } else if (user.nickname) {
-                  setUsername(user.nickname)
+                if (memberData.hasOwnProperty('lastName')) {
+                  setLastName(memberData.lastName)
+                } else if (user.hasOwnProperty('family_name')) {
+                  setLastName(user.family_name)  
                 }
-                if (memberData.email) {
-                  setEmail(memberData.email)  
-                } else if (user.email) {
-                  setEmail(user.email)
-                if (memberData.phone) {
-                  setPhone(memberData.phone)  
-                } else 
-                  setPhone('')
-                }
-              } else if (response.hasOwnProperty('success') && !response.success && response.hasOwnProperty('message')) {
-                console.log(response.message)    
+                console.log(response.message)  
+              } else if (!response.success && response.hasOwnProperty('message')) {
+                console.log('Error: '+response.message)  
+                //window.alert(response.message) //shows unauthorized error from the cors preflight options req, so disabled for now  
               }
               setLoading(false)
             }).catch((error) => {
@@ -76,10 +68,11 @@ function Membership() {
     if (firstName === '' || lastName === '' || phone === '') {
       window.alert('Please fill in all fields')
     } else {
-      const extId = '/'+user.sub
-      const member = {firstName, lastName, phone, username, email}
+      const extId = user.sub 
+      const extIdUrl = '/'+extId
+      const member = {firstName, lastName, phone, username, email, extId}
       await fetch(process.env.REACT_APP_API_URL+ 
-                  process.env.REACT_APP_API_USERS+extId+urlParam, {
+                  process.env.REACT_APP_API_USERS+extIdUrl+urlParam, {
               method: 'PUT', 
               headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
               body: JSON.stringify(member)
