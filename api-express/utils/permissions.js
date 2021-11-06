@@ -6,8 +6,7 @@ export class Permissions {
     try {   
       if (token !== '') {
         let tokenDecoded = jwt_decode(token)
-        allow = tokenDecoded.permissions !== undefined
-        if (allow) {
+        if (tokenDecoded.permissions !== undefined) {
           for (var permission of tokenDecoded.permissions) {
             allow = permission === action+':'+resource
             if (allow) { break }
