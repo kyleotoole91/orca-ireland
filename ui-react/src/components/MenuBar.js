@@ -55,7 +55,6 @@ const MenuBarContainer = styled.div`
   background: ${({ theme}) => theme.primaryDark};
   height: 48px;primaryDark
   color: ${({ theme}) => theme.primaryLight};
-
   a {
     text-decoration: none;
     outline-style: none;   
