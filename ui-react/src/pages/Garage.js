@@ -36,10 +36,8 @@ function Garage() {
               .then(response => response.json())
               .then((response) => {
                 setData(response.data)
-                setLoading(false)
               }).catch((error) => {
                 setData([])
-                setLoading(false);
                 window.alert(error)
                 console.log(error)
               })
@@ -52,15 +50,15 @@ function Garage() {
                 if (response.data && response.data.length >= 1) {
                   setClassId(response.data[0]._id) //set default to first class in array
                 }
-                setLoading(false)
               }).catch((error) => {
                 setClasses([])
-                setLoading(false);
                 window.alert(error)
                 console.log(error)
               })
       } catch(e) {
         window.alert(e)
+      } finally {
+        setLoading(false)
       }
     }  
     loadData()
@@ -78,6 +76,7 @@ function Garage() {
 
   async function deleteCar(e) {
     if (window.confirm('Are you sure you want to delete this car?')) {
+      setLoading(true);
       const id = '/'+e.target.id.toString()
       const extId = '/'+user.sub
       await fetch(process.env.REACT_APP_API_URL+ 
@@ -95,7 +94,6 @@ function Garage() {
               handleClose()
             }).catch((error) => {
               setData([])
-              setLoading(false);
               window.alert(error)
               console.log(error)
             });
@@ -110,10 +108,10 @@ function Garage() {
               setLoading(false)
             }).catch((error) => {
               setData([])
-              setLoading(false);
               window.alert(error)
               console.log(error)
             });
+      setLoading(false);
     }
   }
 
@@ -169,15 +167,6 @@ function Garage() {
     setClassId(class_id)
   }
 
-  function classesdDropDown () {
-    return (
-      <select id={classId} style={{width: '197px', height: '30px'}} onChange={(e) => handleChange(e)} >
-        {classes.map((carClass, index) => 
-          <option id={carClass._id} key={index} >{carClass.name}</option> ) }
-      </select>  
-    )
-  }
-
   function getClassName(id) {
     let carClass
     if (classes && classes.length !== 0) {
@@ -191,6 +180,14 @@ function Garage() {
   }
 
   function modalForm(){
+    function classesdDropDown () {
+      return (
+        <select id={classId} style={{width: '197px', height: '30px'}} onChange={(e) => handleChange(e)} >
+          {classes.map((carClass, index) => 
+            <option id={carClass._id} key={index} >{carClass.name}</option> ) }
+        </select>  
+      )
+    }
     return (  
       <Modal show={show} onHide={handleClose} >
         <Modal.Header closeButton>

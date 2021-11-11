@@ -3,10 +3,14 @@ import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react"
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
+import InputGroup from 'react-bootstrap/InputGroup'
+import FormControl from 'react-bootstrap/FormControl'
 import Loading from '../components/Loading'
 import dayjs from 'dayjs'
 import { Permissions } from '../utils/permissions'
 import NumberFormat from 'react-number-format';
+
+const urlParam = '?extLookup=1' 
 
 function formatDate(date, format) {
   const map = {
@@ -28,6 +32,7 @@ function Events() {
   const [fee, setFee] = useState(10.00)
   
   const [data, setData] = useState([])
+  const [carData, setCarData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
   const [allowAddEvents, setAllowAddEvents] = useState(false)
@@ -35,10 +40,13 @@ function Events() {
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
+  const [showEnter, setShowEnter] = useState(false)
+  const handleCloseEnter = () => setShowEnter(false)
+  const handleShowEnter = () => setShowEnter(true)
 
   if (user && isAuthenticated && apiToken === '') {
     getApiToken()
-  } else if (apiToken === '') { //TODO also check if the token expired. Errors are raised if you leave the app open for some time and navigate pages (maybe token has expired)
+  } else if (apiToken === '') { 
     loginWithRedirect()
   }
 
@@ -50,102 +58,128 @@ function Events() {
 
   useEffect(() => {
     async function loadData () {
+      setLoading(true);
       const permissions = new Permissions()
-      setLoading(true)
-      await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
+      try {
+        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
             .then(response => response.json())
             .then((response) => {
               setData(response.data)
-              setLoading(false)
               setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
               setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
             }).catch((error) => {
               setData([])
-              setLoading(false);
               window.alert(error)
               console.log(error)
             })
+      //load user's cars
+      const extId = '/'+user.sub
+      await fetch(process.env.REACT_APP_API_URL+ 
+                  process.env.REACT_APP_API_USERS+extId+
+                  process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
+            .then(response => response.json())
+            .then((response) => {
+              setCarData(response.data)
+              console.log(carData)
+            }).catch((error) => {
+              setCarData([])
+              window.alert(error)
+              console.log(error)
+            })    
+      } catch(e) {
+        window.alert(e)
+      } finally {
+        setLoading(false)
+      }
     }  
     loadData()
   }, [apiToken])
 
   async function deleteEvent(e) {
-    if (window.confirm('Are you sure you want to delete this event?')) {
-      const eventId = '/'+e.target.id.toString()
-      await fetch( process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS + eventId, {
-                  method: 'DELETE', 
-                  headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},})
-      .then(response => response.json())
-      .then((response) => {
-        if (!response.success) {
-          window.alert(response.message)   
-        }
-        setLoading(false)
-        handleClose()
-      }).catch((error) => {
-        setData([])
-        setLoading(false);
-        window.alert(error)
-        console.log(error)
-      });
-      //refresh
-      setLoading(true)
-      const permissions = new Permissions()
-      await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
-            .then(response => response.json())
-            .then((response) => {
-              setData(response.data)
-              setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-              setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-              setLoading(false)
-            }).catch((error) => {
-              setData([])
-              setLoading(false);
-              window.alert(error)
-              console.log(error)
-            });
+    try {
+      if (window.confirm('Are you sure you want to delete this event?')) {
+        const eventId = '/'+e.target.id.toString()
+        await fetch( process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS + eventId, {
+                    method: 'DELETE', 
+                    headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},})
+        .then(response => response.json())
+        .then((response) => {
+          if (!response.success) {
+            window.alert(response.message)   
+          }
+          setLoading(false)
+          handleClose()
+        }).catch((error) => {
+          setData([])
+          window.alert(error)
+          console.log(error)
+        });
+        //refresh
+        setLoading(true)
+        const permissions = new Permissions()
+        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
+              .then(response => response.json())
+              .then((response) => {
+                setData(response.data)
+                setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+                setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+                setLoading(false)
+              }).catch((error) => {
+                setData([])
+                window.alert(error)
+                console.log(error)
+              });
+      }
+    } catch(e) {
+      window.alert(e)
+    } finally {
+      setLoading(false)
     }
   }
 
   async function postEvent() {
-    if (name === '' || location === '') {
-      window.alert('Please fill in all fields')
-    } else {
-      const event = {name, location, date, fee}
-      await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {
-              method: 'POST', 
-              headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
-              body: JSON.stringify(event)
-            })
-      .then(response => response.json())
-      .then((response) => {
-        if (!response.success) {
-          window.alert(response.message)   
-        }
-        setLoading(false)
-        handleClose()
-      }).catch((error) => {
-        setData([])
-        setLoading(false);
-        window.alert(error)
-        console.log(error)
-      })
-      //refresh
-      setLoading(true)
-      const permissions = new Permissions()
-      await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
-            .then(response => response.json())
-            .then((response) => {
-              setData(response.data)
-              setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-              setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-              setLoading(false)
-            }).catch((error) => {
-              setData([])
-              setLoading(false);
-              window.alert(error)
-              console.log(error)
-            })
+    try {
+      if (name === '' || location === '') {
+        window.alert('Please fill in all fields')
+      } else {
+        const event = {name, location, date, fee}
+        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {
+                method: 'POST', 
+                headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
+                body: JSON.stringify(event)
+              })
+        .then(response => response.json())
+        .then((response) => {
+          if (!response.success) {
+            window.alert(response.message)   
+          }
+          setLoading(false)
+          handleClose()
+        }).catch((error) => {
+          setData([])
+          window.alert(error)
+          console.log(error)
+        })
+        //refresh
+        setLoading(true)
+        const permissions = new Permissions()
+        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
+              .then(response => response.json())
+              .then((response) => {
+                setData(response.data)
+                setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+                setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+                setLoading(false)
+              }).catch((error) => {
+                setData([])
+                window.alert(error)
+                console.log(error)
+              })
+      }
+    } catch(e) {
+      window.alert(e)
+    } finally {
+      setLoading(false)
     }
   }
   
@@ -183,6 +217,45 @@ function Events() {
       </Modal>   
     )
   }
+
+  function modalEnterEvent(){
+    function carCheckList () {
+      function carItem( car, index ) {
+        return (
+          <>
+            <InputGroup id={car.model} index={index} className="mb-3">
+              <InputGroup.Checkbox id={car.model} aria-label="Checkbox for following text input" />
+              <FormControl id={car.model} value={car.manufacturer+' - '+car.model } aria-label="Text input with checkbox" />
+            </InputGroup>
+          </> 
+        )
+      }    
+      return (
+        <>
+          {carData && carData.map((car, index) => carItem(car, index) ) }
+        </>  
+      )
+    }
+    return ( 
+      <Modal show={showEnter} onHide={handleCloseEnter}>
+        <Modal.Header closeButton>
+          <Modal.Title>Enter Event</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
+          <p>Select your car(s)</p>
+          {carCheckList()}
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="outline-secondary" onClick={handleClose}>
+              Close
+            </Button>
+            <Button variant="outline-primary" onClick={postEvent}>
+              Save
+            </Button>
+        </Modal.Footer>
+      </Modal>   
+    )
+  }
   //for split second, data is still undefined although loading state was set to true after data set was set 
   if (loading) {
     return ( <Loading /> )
@@ -197,6 +270,7 @@ function Events() {
       <div>
         {allowAddEvents && <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
         {modalForm()}
+        {modalEnterEvent()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data.map((event, index) => (
             <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
@@ -205,7 +279,7 @@ function Events() {
                 <Card.Title>{event.location}</Card.Title>
               <Card.Text>Entry fee €{event.fee}</Card.Text>
                 <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
-                <Button id={event._id} variant="outline-primary">Enter</Button>
+                <Button onClick={handleShowEnter} id={event._id} variant="outline-primary">Enter</Button>
                 {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }
               </Card.Body>
             </Card>
@@ -242,13 +316,13 @@ function MyComponent() {
     }
   }
 
-  //Memoize with useCallback()
+  //Alternative to declaring function in useEffect: Memoize with useCallback()
   const loadData= useCallback(() => {
     //Request code here
     }, [])
-    useEffect(() => {
-        loadData()
-    }, [loadData])
+  useEffect(() => {
+      loadData()
+  }, [loadData])
  
   async function getApiToken() {
     return await getAccessTokenSilently();

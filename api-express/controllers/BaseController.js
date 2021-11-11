@@ -1,35 +1,53 @@
 import { BaseModel } from '../models/BaseModel'
 import { Permissions } from '../utils/permissions.js'
 
-function getToken(req) {
-  return req.get('Authorization').replace('Bearer', '').trim() 
-}
-
 export class BaseController {
   constructor (collectionName) {
     this.data = null
-    this.collectionName = collectionName
-    this.DB = new BaseModel(collectionName)
+    if (collectionName && collectionName !== '') {
+      this.collectionName = collectionName
+      this.DB = new BaseModel(collectionName)
+    } else {
+      this.collectionName = ''
+      this.DB = null
+    }
     this.UserDB = new BaseModel('users') 
     this.permissions = new Permissions()
   }
 
+  objectIdExists(array, targetVal) {
+    for (const item of array){
+      if (item.toString() === targetVal.toString()){
+        return true 
+      }
+    }
+    return false
+  }
+
+  setCollectionName(name) {
+    this.collectionName = name
+    this.DB = new BaseModel(this.collectionName)
+  }
+
+  getToken(req) {
+    return req.get('Authorization').replace('Bearer', '').trim() 
+  }  
+
   async getUser(req, res, force) {
     let user = null
-    if (this.permissions.userInToken(getToken(req), req.params.id)) {
+    if (this.permissions.userInToken(this.getToken(req), req.params.userId)) {
       if (req.query.extLookup === '1') {
-        user = await this.UserDB.getDocumentByExtId(req.params.id, force)
+        user = await this.UserDB.getDocumentByExtId(req.params.userId, force)
       } else {
-        user = await this.UserDB.getDocumentId(req.params.id, force)
+        user = await this.UserDB.getDocument(req.params.userId, force)
       }
-    } else {
-      user = {code: 403, err: 'Forbidden: invalid user'}
-    } 
+    }
     return user
   }
   
   async getAllDocuments(req, res, next) {
     try {
+      console.log('get all docs: '+this.collectionName)
       this.data = await this.DB.getAllDocuments() 
       if (this.data) {
         return res.status(200).send({
@@ -78,7 +96,7 @@ export class BaseController {
 
   async addDocument(req, res, next) {
     try {
-      if (this.permissions.check(getToken(req), 'post', this.collectionName)) {
+      if (this.permissions.check(this.getToken(req), 'post', this.collectionName)) {
         this.data = await this.DB.addDocument(req.body)
         if (this.data) {
           return res.status(201).send({
@@ -109,7 +127,7 @@ export class BaseController {
 
   async updateDocument(req, res, next){
     try {
-      if (this.permissions.check(getToken(req), 'put', this.collectionName)) {
+      if (this.permissions.check(this.getToken(req), 'put', this.collectionName)) {
         this.data = await this.DB.updateDocument(req.params.id, req.body)
         if (this.data) {
           return res.status(201).send({
@@ -141,7 +159,7 @@ export class BaseController {
   
   async deleteDocument(req, res, next){ 
     try {
-      if (this.permissions.check(getToken(req), 'delete', this.collectionName)) {
+      if (this.permissions.check(this.getToken(req), 'delete', this.collectionName)) {
         this.data = await this.DB.deleteDocument(req.params.id)
         if (this.data) {
           return res.status(410).send({
@@ -294,7 +312,7 @@ export class BaseController {
     try {
       //add the mongodb.users._id to the object
       const user = await this.getUser(req, res, true)
-      if (user.hasOwnProperty('code') && user.hasOwnProperty('err')){
+      if (user && user.hasOwnProperty('code') && user.hasOwnProperty('err')){
         return res.status(user.code).send({
           success: false,
           message: user.err
@@ -333,7 +351,7 @@ export class BaseController {
     try {
       const user = await this.getUser(req, res, false)
       //console.log(req.originalUrl) //how to get url 
-      if (user || this.permissions.userInToken(getToken(req), req.params.id)) { 
+      if (user || this.permissions.userInToken(this.getToken(req), req.params.id)) { 
         if (!req.params.docId && req.query.extLookup === '1') { //requesting /user if no other param given
           if (user) {
             this.data = await this.DB.updateDocument(user._id, req.body) 

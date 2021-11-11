@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 var cors = require('cors')
 import { BaseController } from './controllers/BaseController' 
+import { MembershipController } from './controllers/MembershipController' 
 require('dotenv').config()
 import validateJwt from './utils/validate-jwt'
 import mongoClient from './mongo-client' 
@@ -20,28 +21,22 @@ app.get('/cors', (req, res) => {
   res.send({ "msg": "This has CORS enabled" })
 })
 
-async function generateEndpoints() {
-  console.log('Collections:')
+async function listMongoCollections() {
   await mongoClient.db(process.env.MONGO_DB_NAME)
     .listCollections()
     .toArray() 
     .then(collections => { 
+      console.log('MongoDB Collections:')
       for (var collection of collections) {
         console.log(collection.name)
-        //why does this not work? It always returns the last endpoint in the collecions list
-        //app.get('/'+collection.name, validateJwt, (req, res) => new BaseController(collection.name).getAllDocuments(req, res))
-        //app.get('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).getDocument(req, res))
-        //app.post('/'+collection.name, validateJwt, (req, res) => new BaseController(collection.name).addDocument(req, res))
-        //app.put('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).updateDocument(req, res))
-        //app.delete('/'+collection.name+'/:id', validateJwt, (req, res) => new BaseController(collection.name).deleteDocument(req, res))
       }})
 }
 
-generateEndpoints()
+listMongoCollections()
 
 const eventsController = new BaseController('events')
 const usersController = new BaseController('users')
-const membershipsController = new BaseController('memberships')
+const membershipsController = new MembershipController()
 const classesController = new BaseController('classes')
 const carsController = new BaseController('cars')
 //events
@@ -52,26 +47,27 @@ app.put('/events/:id', validateJwt, (req, res) => eventsController.updateDocumen
 app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteDocument(req, res))
 //users /users needs protection
 //app.get('/users', validateJwt, (req, res) => usersController.getAllDocuments(req, res))
-app.get('/users/:id', validateJwt, (req, res) => usersController.getUserDocument(req, res))
+app.get('/users/:userId', validateJwt, (req, res) => usersController.getUserDocument(req, res))
 app.post('/users', validateJwt, (req, res) => usersController.addUserDocument(req, res))
-app.put('/users/:id', validateJwt, (req, res) => usersController.updateUserDocument(req, res))
-app.delete('/users/:id', validateJwt, (req, res) => usersController.deleteUserDocument(req, res))
+app.put('/users/:userId', validateJwt, (req, res) => usersController.updateUserDocument(req, res))
+app.delete('/users/:userId', validateJwt, (req, res) => usersController.deleteUserDocument(req, res))
 //memberships
 app.get('/memberships', validateJwt, (req, res) => membershipsController.getAllDocuments(req, res))
 app.get('/memberships/:id', validateJwt, (req, res) => membershipsController.getDocument(req, res))
 app.post('/memberships', validateJwt, (req, res) => membershipsController.addDocument(req, res))
+app.put('/users/:userId/memberships/:membershipId', validateJwt, (req, res) => membershipsController.putUserMembership(req, res))
 app.put('/memberships/:id', validateJwt, (req, res) => membershipsController.updateDocument(req, res))
 app.delete('/memberships/:id', validateJwt, (req, res) => membershipsController.deleteDocument(req, res))
 //cars
 app.get('/cars', validateJwt, (req, res) => carsController.getAllDocuments(req, res))
-app.get('/users/:id/cars', validateJwt, (req, res) => carsController.getUserDocuments(req, res))
-app.get('/users/:id/cars/:docId', validateJwt, (req, res) => carsController.getUserDocument(req, res))
-app.get('/cars/:id', validateJwt, (req, res) => carsController.getDocument(req, res))
-app.post('/users/:id/cars', validateJwt, (req, res) => carsController.addUserDocument(req, res))
-app.post('/users/:id/cars', validateJwt, (req, res) => carsController.updateUserDocument(req, res))
+app.get('/users/:userId/cars', validateJwt, (req, res) => carsController.getUserDocuments(req, res))
+app.get('/users/:userId/cars/:docId', validateJwt, (req, res) => carsController.getUserDocument(req, res))
+app.get('/cars/:userId', validateJwt, (req, res) => carsController.getDocument(req, res))
+app.post('/users/:userId/cars', validateJwt, (req, res) => carsController.addUserDocument(req, res))
+app.post('/users/:userId/cars', validateJwt, (req, res) => carsController.updateUserDocument(req, res))
 app.put('/cars/:id', validateJwt, (req, res) => carsController.updateDocument(req, res))
 app.delete('/cars/:id', validateJwt, (req, res) => carsController.deleteDocument(req, res))
-app.delete('/users/:id/cars/:docId', validateJwt, (req, res) => carsController.deleteUserDocument(req, res))
+app.delete('/users/:userId/cars/:docId', validateJwt, (req, res) => carsController.deleteUserDocument(req, res))
 //classes
 app.get('/classes', validateJwt, (req, res) => classesController.getAllDocuments(req, res))
 app.get('/classes/:id', validateJwt, (req, res) => classesController.getDocument(req, res))
@@ -81,7 +77,7 @@ app.delete('/classes/:id', validateJwt, (req, res) => classesController.deleteDo
 
 app.use(function (err, req, res, next) {
   if (err) {
-    res.status(err.status).send({'success': false, 'message': err.name+': '+err.message}) 
+    res.status(404).send({'success': false, 'message': 'not found'}) 
   }
 })
 
