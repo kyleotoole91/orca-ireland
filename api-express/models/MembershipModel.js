@@ -14,7 +14,7 @@ export class MembershipModel extends BaseModel {
       const fields = { secret: 0, users: 0 }
       const sort = {'startDate': 1}
       const join = [{$lookup:{ from: 'users', 
-                               localField: 'users', //todo: try to get working with array of objectids (users field)
+                               localField: 'users',
                                foreignField: '_id',
                                as: 'userList' }}]
       this.result = await this.db.aggregate(join).project(fields).sort(sort).limit(1).toArray()
