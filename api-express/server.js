@@ -45,8 +45,8 @@ app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(r
 app.post('/events', validateJwt, (req, res) => eventsController.addDocument(req, res))
 app.put('/events/:id', validateJwt, (req, res) => eventsController.updateDocument(req, res))
 app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteDocument(req, res))
-//users /users needs protection
-//app.get('/users', validateJwt, (req, res) => usersController.getAllDocuments(req, res))
+//users 
+app.get('/users', validateJwt, (req, res) => usersController.getAllDocuments(req, res))
 app.get('/users/:userId', validateJwt, (req, res) => usersController.getUserDocument(req, res))
 app.post('/users', validateJwt, (req, res) => usersController.addUserDocument(req, res))
 app.put('/users/:userId', validateJwt, (req, res) => usersController.updateUserDocument(req, res))
@@ -77,7 +77,7 @@ app.delete('/classes/:id', validateJwt, (req, res) => classesController.deleteDo
 
 app.use(function (err, req, res, next) {
   if (err) {
-    res.status(404).send({'success': false, 'message': 'not found'}) 
+    res.status(err.status).send({'success': false, 'message': err.message}) 
   }
 })
 

@@ -4,13 +4,8 @@ import { Permissions } from '../utils/permissions.js'
 export class BaseController {
   constructor (collectionName) {
     this.data = null
-    if (collectionName && collectionName !== '') {
-      this.collectionName = collectionName
-      this.DB = new BaseModel(collectionName)
-    } else {
-      this.collectionName = ''
-      this.DB = null
-    }
+    this.db = null
+    this.setCollectionName(collectionName)
     this.UserDB = new BaseModel('users') 
     this.permissions = new Permissions()
   }
@@ -25,8 +20,10 @@ export class BaseController {
   }
 
   setCollectionName(name) {
-    this.collectionName = name
-    this.DB = new BaseModel(this.collectionName)
+    if (name && name !== '') {
+      this.collectionName = name
+      this.db = new BaseModel(this.collectionName)
+    }
   }
 
   getToken(req) {
@@ -47,18 +44,18 @@ export class BaseController {
   
   async getAllDocuments(req, res, next) {
     try {
-      console.log('get all docs: '+this.collectionName)
-      this.data = await this.DB.getAllDocuments() 
+      console.log('get all docs')
+      this.data = await this.db.getAllDocuments() 
       if (this.data) {
         return res.status(200).send({
           success: true,
-          messsage: this.DB.message,
+          messsage: this.db.message,
           data: this.data
         })
       } else {
         return res.status(404).send({
           success: false,
-          message: this.DB.message
+          message: this.db.message
         });  
       }
     } catch(e) {
@@ -72,7 +69,7 @@ export class BaseController {
 
   async getDocument(req, res, next) {
     try {
-      this.data = await this.DB.getDocument(req.params.id) 
+      this.data = await this.db.getDocument(req.params.id) 
       if (this.data) {
         return res.status(200).send({
           success: true,
@@ -97,17 +94,17 @@ export class BaseController {
   async addDocument(req, res, next) {
     try {
       if (this.permissions.check(this.getToken(req), 'post', this.collectionName)) {
-        this.data = await this.DB.addDocument(req.body)
+        this.data = await this.db.addDocument(req.body)
         if (this.data) {
           return res.status(201).send({
             success: true,
-            message: this.DB.message,
+            message: this.db.message,
             data: this.data
           })
         } else {
           return res.status(404).send({
             success: false,
-            message: this.DB.message
+            message: this.db.message
           });  
         }
       } else {
@@ -128,17 +125,17 @@ export class BaseController {
   async updateDocument(req, res, next){
     try {
       if (this.permissions.check(this.getToken(req), 'put', this.collectionName)) {
-        this.data = await this.DB.updateDocument(req.params.id, req.body)
+        this.data = await this.db.updateDocument(req.params.id, req.body)
         if (this.data) {
           return res.status(201).send({
             success: true,
-            message: this.DB.message,
+            message: this.db.message,
             data: this.data
           })
         } else {
           return res.status(404).send({
             success: false,
-            message: this.DB.message
+            message: this.db.message
           });  
         }
       } else {
@@ -160,17 +157,17 @@ export class BaseController {
   async deleteDocument(req, res, next){ 
     try {
       if (this.permissions.check(this.getToken(req), 'delete', this.collectionName)) {
-        this.data = await this.DB.deleteDocument(req.params.id)
+        this.data = await this.db.deleteDocument(req.params.id)
         if (this.data) {
           return res.status(410).send({
             success: true,
-            message: this.DB.message,
+            message: this.db.message,
             data: this.data
             });
         }else {
           return res.status(404).send({
             success: false,
-            message: this.DB.message
+            message: this.db.message
           });
         }  
       } else {
@@ -199,23 +196,23 @@ export class BaseController {
           message: user.err
         }) 
       } else if (user && user._id !== '') {
-        this.data = await this.DB.getUserDocuments(user._id) 
+        this.data = await this.db.getUserDocuments(user._id) 
         if (this.data) {
           return res.status(200).send({
             success: true,
-            messsage: this.DB.message,
+            messsage: this.db.message,
             data: this.data
           })
         } else {
           return res.status(404).send({
             success: false,
-            message: this.DB.message
+            message: this.db.message
           })  
         } 
       } else {
         return res.status(404).send({
           success: false,
-          message: this.DB.message
+          message: this.db.message
         })  
       }
     } catch(e) {
@@ -245,14 +242,14 @@ export class BaseController {
       } 
       if (user) {
         if (!req.params.docId || req.params.docId === '') { //requesting /user if no other param given
-          this.data = await this.DB.getDocument(user._id) 
+          this.data = await this.db.getDocument(user._id) 
         } else {
-          this.data = await this.DB.getUserDocument(user._id, req.params.docId) 
+          this.data = await this.db.getUserDocument(user._id, req.params.docId) 
         }
         if (this.data) {
           return res.status(200).send({
             success: true,
-            messsage: this.DB.message,
+            messsage: this.db.message,
             data: this.data
           })
         } else {
@@ -280,23 +277,23 @@ export class BaseController {
           message: user.err
         }) 
       } else if (user && user._id !== '') { 
-        this.data = await this.DB.deleteUserDocument(user._id, req.params.docId) 
+        this.data = await this.dv.deleteUserDocument(user._id, req.params.docId) 
         if (this.data) {
           return res.status(200).send({
             success: true,
-            messsage: this.DB.message,
+            messsage: this.dv.message,
             data: this.data
           })
         } else {
           return res.status(404).send({
             success: false,
-            message: this.DB.message
+            message: this.dv.message
           });  
         }
       } else {
         return res.status(404).send({
           success: false,
-          message: this.DB.message
+          message: this.db.message
         });  
       }
     } catch(e) {
@@ -319,17 +316,17 @@ export class BaseController {
         }) 
       } else if (user && user._id !== '') {
         req.body.user_id = user._id
-        this.data = await this.DB.addDocument(req.body) 
+        this.data = await this.db.addDocument(req.body) 
         if (this.data) {
           return res.status(200).send({
             success: true,
-            messsage: this.DB.message,
+            messsage: this.db.message,
             data: this.data
           })
         } else {
           return res.status(404).send({
             success: false,
-            message: this.DB.message
+            message: this.db.message
           });  
         }
       } else {

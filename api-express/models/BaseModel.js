@@ -1,26 +1,21 @@
 require('dotenv').config()
 import mongoClient from '../mongo-client'
-import jwt_decode from 'jwt-decode'
 const ObjectId = require('mongodb').ObjectId
 
 export class BaseModel {
 
   constructor(collectionName) {
     this.result = null
-    this.token = ''
-    this.message = collectionName
-    this.collectionName = collectionName
+    this.db = null
+    this.setCollectionName(collectionName)
   }
 
-  async setToken(tokenParam){
-    try { 
-      this.token = tokenParam 
-      let decoded = jwt_decode(tokenParam)
-      console.log(decoded)
-    } catch (error) {
-      console.error(error);
+  setCollectionName(name) {
+    if (name && name !== '') {
+      this.collectionName = name
+      this.db = mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName) 
     }
-  } 
+  }
 
   addObject_ids(obj){
     Object.keys(obj).forEach(function(key) {
@@ -42,7 +37,8 @@ export class BaseModel {
 
   async getAllDocuments() {
     try {
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).find({}).toArray()
+      console.log('getAllDocuments: '+this.collectionName) 
+      this.result = await this.db.find({}).toArray()
       if(!this.result) {
         this.message = 'Not found'
       } else {
@@ -59,10 +55,10 @@ export class BaseModel {
   
   async getDocumentByExtId(extId, force) { 
     try {
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOne({ 'extId': extId })
+      this.result = await this.db.findOne({ 'extId': extId })
       //console.log('getDocumentByExtId res: '+ JSON.stringify(this.result))
       if (!this.result && force) {
-        this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne({ 'extId': extId }) 
+        this.result = await this.db.insertOne({ 'extId': extId }) 
         if (this.result.insertedId !== '') {
           this.result._id = this.result.insertedId
           this.result.extId = extId
@@ -85,7 +81,7 @@ export class BaseModel {
   async getUserDocuments(userId) {
     try {
       const objId = new ObjectId(userId) 
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).find({'user_id': objId}).toArray()
+      this.result = await this.db.find({'user_id': objId}).toArray()
       if(!this.result) {
         this.message = 'Not found'
       } else {
@@ -104,7 +100,7 @@ export class BaseModel {
     try {
       const objUserId = new ObjectId(userId) 
       const objDocId = new ObjectId(docId) 
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).find({'user_id': objUserId, '_id': objDocId}).toArray()
+      this.result = await this.db.find({'user_id': objUserId, '_id': objDocId}).toArray()
       if(!this.result) {
         this.message = 'Not found'
       } else {
@@ -122,7 +118,7 @@ export class BaseModel {
   async getDocument(id) {
     try {
       const objId = new ObjectId(id)
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOne({ '_id': objId })
+      this.result = await this.db.findOne({ '_id': objId })
       if(!this.result) { 
         this.message = 'Not found: ' + id 
       } else {
@@ -141,7 +137,7 @@ export class BaseModel {
     this.message = 'Added'
     try {
       this.addObject_ids(document)
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).insertOne( document )
+      this.result = await this.db.insertOne( document )
       if(!this.result) {
         this.message = 'Not added' 
       } else {
@@ -160,7 +156,7 @@ export class BaseModel {
     this.message = 'Deleted'
     try {
       const objId = new ObjectId(id)
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndDelete({'_id': objId})
+      this.result = await this.db.findOneAndDelete({'_id': objId})
       if(!this.result) { 
         this.message = 'Error deleting: ' + id 
       } else {
@@ -180,7 +176,7 @@ export class BaseModel {
     this.message = 'Deleted '+id
     try {
       const objId = new ObjectId(id)
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndDelete({'_id': objId, 'user_id': userId})
+      this.result = await this.db.findOneAndDelete({'_id': objId, 'user_id': userId})
       if(!this.result.value) { 
         this.message = 'Error deleting: ' + id 
       } else {
@@ -202,7 +198,7 @@ export class BaseModel {
         this.addObject_ids(document)  
       }
       const objId = new ObjectId(id)
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndUpdate({'_id': objId}, {$set:  document })
+      this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set:  document })
       if(!this.result) {
         this.message = 'Error updating: ' + id
       } else {
@@ -222,7 +218,7 @@ export class BaseModel {
     try {
       this.addObject_ids(document)
       const objId = new ObjectId(id)
-      this.result = await mongoClient.db(process.env.MONGO_DB_NAME).collection(this.collectionName).findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set:  document })
+      this.result = await this.db.findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set:  document })
       if(!this.result) {
         this.message = 'Error updating: ' + id
       } else {
