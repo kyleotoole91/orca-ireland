@@ -78,6 +78,11 @@ app.delete('/classes/:id', validateJwt, (req, res) => classesController.deleteDo
 app.use(function (err, req, res, next) {
   if (err) {
     res.status(err.status).send({'success': false, 'message': err.message}) 
+    if (err.status) {
+      res.status(err.status).send({'success': false, 'message': err.message}) 
+    } else {
+      res.status(500).send({'success': false, 'message': err.message}) 
+    }
   }
 })
 
