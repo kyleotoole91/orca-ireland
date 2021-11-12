@@ -32,6 +32,7 @@ function Events() {
   const [fee, setFee] = useState(10.00)
   
   const [data, setData] = useState([])
+  const [cars, setCars] = useState([])
   const [carData, setCarData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
@@ -54,6 +55,16 @@ function Events() {
     let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
     setApiToken(token)   
     console.log(token)
+  }
+
+  function addCar(id){
+    if (cars.indexOf(id) === -1) {
+      cars.push(id)   
+    } else {
+      cars.splice(cars.indexOf(id), 1);  
+    }
+    setCars(cars);
+    console.log(cars)
   }
 
   useEffect(() => {
@@ -80,7 +91,6 @@ function Events() {
             .then(response => response.json())
             .then((response) => {
               setCarData(response.data)
-              console.log(carData)
             }).catch((error) => {
               setCarData([])
               window.alert(error)
@@ -93,7 +103,7 @@ function Events() {
       }
     }  
     loadData()
-  }, [apiToken])
+  }, [apiToken, user.sub])
 
   async function deleteEvent(e) {
     try {
@@ -223,9 +233,9 @@ function Events() {
       function carItem( car, index ) {
         return (
           <>
-            <InputGroup id={car.model} index={index} className="mb-3">
-              <InputGroup.Checkbox id={car.model} aria-label="Checkbox for following text input" />
-              <FormControl id={car.model} value={car.manufacturer+' - '+car.model } aria-label="Text input with checkbox" />
+            <InputGroup key={index} className="mb-3">
+              <InputGroup.Checkbox id={car._id} onChange={(e) => addCar(e.target.id)} aria-label="Checkbox for following text input" />
+              <FormControl  onChange={(e) => addCar(e.target.id)} value={car.manufacturer+' - '+car.model } aria-label="Text input with checkbox" />
             </InputGroup>
           </> 
         )
