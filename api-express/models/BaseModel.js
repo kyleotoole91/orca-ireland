@@ -17,6 +17,20 @@ export class BaseModel {
     }
   }
 
+  mongoQuickJoin(foreignTable, localField) {
+    return [{$lookup:{ from: foreignTable, 
+                       localField: localField,
+                       foreignField: '_id',
+                       as: foreignTable+'Lookup' }}]
+  }
+
+  mongoJoin(foreignTable, localField) {
+    return {$lookup:{ from: foreignTable, 
+                      localField: localField,
+                      foreignField: '_id',
+                      as: foreignTable+'Lookup' }}
+  }
+
   addObject_ids(obj){
     Object.keys(obj).forEach(function(key) {
       const field = key

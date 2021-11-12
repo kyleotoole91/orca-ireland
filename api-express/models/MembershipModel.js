@@ -9,14 +9,11 @@ export class MembershipModel extends BaseModel {
     this.setCollectionName('memberships')
   }
    
-  async getLatestMembership(){
+  async getLatestMembership() {
     try {
       const fields = { secret: 0, users: 0 }
       const sort = {'startDate': 1}
-      const join = [{$lookup:{ from: 'users', 
-                               localField: 'users',
-                               foreignField: '_id',
-                               as: 'userList' }}]
+      const join = this.mongoQuickJoin('users', 'users')
       this.result = await this.db.aggregate(join).project(fields).sort(sort).limit(1).toArray()
       console.log(this.result)
       if(!this.result) { 
