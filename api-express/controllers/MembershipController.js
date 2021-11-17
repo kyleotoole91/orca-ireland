@@ -12,12 +12,12 @@ export class MembershipController extends BaseController {
   async getAllDocuments(req, res, next) {
     //TODO: add param for latest event, which is not protected and does not return the secret
     try {
-      if (req.query.latest === '1') {
-        let membership = await this.db.getLatestMembership()
+      if (req.query.current === '1') {
+        let membership = await this.db.getCurrentMembership()
         if (membership) {
           return res.status(200).send({
             success: true,
-            message: 'latest membership',
+            message: 'current membership',
             data: membership
           })    
         } else {

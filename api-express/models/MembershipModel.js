@@ -1,5 +1,4 @@
 import { BaseModel } from '../models/BaseModel'
-import mongoClient from '../mongo-client'
 
 export class MembershipModel extends BaseModel {
   
@@ -8,13 +7,14 @@ export class MembershipModel extends BaseModel {
     this.result = null
     this.setCollectionName('memberships')
   }
-   
-  async getLatestMembership() {
+  
+  async getCurrentMembership() {
     try {
       const fields = { secret: 0, users: 0 }
-      const sort = {'startDate': 1}
-      const join = this.mongoQuickJoin('users', 'users')
-      this.result = await this.db.aggregate(join).project(fields).sort(sort).limit(1).toArray()
+      const sort = {"endDate": 1}
+      const join = this.mongoQuickJoin("users", "users")
+      const where = {"endDate" : {"$gte": new Date()}}
+      this.result = await this.db.aggregate(join).match(where).project(fields).sort(sort).limit(1).toArray()
       console.log(this.result)
       if(!this.result) { 
         this.message = 'Not found: ' + id 
