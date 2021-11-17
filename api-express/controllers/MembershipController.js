@@ -59,12 +59,13 @@ export class MembershipController extends BaseController {
     }  
   }
 
-  async putUserMembership(req, res, force) {
+  async putMembership(req, res) {
     try {
       let user = await this.getUser(req, res, false)
       let membership = await this.db.getDocument(req.params.membershipId)
-
-      if (user.extId !== req.body.extId) {
+      let addingMember = Object.keys(req.body).length === 2 && req.body.hasOwnProperty('secret') && req.body.hasOwnProperty('extId')
+      let hasPermission = addingMember || this.permissions.check(this.getToken(req), 'put', this.collectionName)
+      if (!hasPermission || user.extId !== req.body.extId) {
         return res.status(403).send({
           success: false,
           message: 'unauthorized'
