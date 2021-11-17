@@ -30,14 +30,16 @@ export class BaseController {
     return req.get('Authorization').replace('Bearer', '').trim() 
   }  
 
-  async getUser(req, res, force) {
+  async getUser(req, res, forceNew) {
     let user = null
     if (this.permissions.userInToken(this.getToken(req), req.params.userId)) {
       if (req.query.extLookup === '1') {
-        user = await this.UserDB.getDocumentByExtId(req.params.userId, force)
+        user = await this.UserDB.getDocumentByExtId(req.params.userId, forceNew)
       } else {
-        user = await this.UserDB.getDocument(req.params.userId, force)
+        user = await this.UserDB.getDocument(req.params.userId, forceNew)
       }
+    } else {
+      user = await this.UserDB.getDocumentByExtId(this.permissions.extIdFromToken(this.getToken(req)), forceNew)
     }
     return user
   }
@@ -185,8 +187,7 @@ export class BaseController {
     }
   }
 
-  // User document functions
-  // To be refactered into a decentdant class
+  // User protected documents 
   async getUserDocuments(req, res, next) {
     try {  
       let user = await this.getUser(req, res, false)

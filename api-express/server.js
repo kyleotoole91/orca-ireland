@@ -55,7 +55,7 @@ app.delete('/users/:userId', validateJwt, (req, res) => usersController.deleteUs
 app.get('/memberships', validateJwt, (req, res) => membershipsController.getAllDocuments(req, res))
 app.get('/memberships/:id', validateJwt, (req, res) => membershipsController.getDocument(req, res))
 app.post('/memberships', validateJwt, (req, res) => membershipsController.addDocument(req, res))
-app.put('/users/:userId/memberships/:membershipId', validateJwt, (req, res) => membershipsController.putUserMembership(req, res))
+app.put('/memberships/:membershipId', validateJwt, (req, res) => membershipsController.putUserMembership(req, res))
 app.put('/memberships/:id', validateJwt, (req, res) => membershipsController.updateDocument(req, res))
 app.delete('/memberships/:id', validateJwt, (req, res) => membershipsController.deleteDocument(req, res))
 //cars

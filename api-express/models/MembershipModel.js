@@ -12,7 +12,7 @@ export class MembershipModel extends BaseModel {
     try {
       const fields = { secret: 0, users: 0 }
       const sort = {"endDate": 1}
-      const join = this.mongoQuickJoin("users", "users")
+      const join = this.mongoQuickJoin("users", "user_ids")
       const where = {"endDate" : {"$gte": new Date()}}
       this.result = await this.db.aggregate(join).match(where).project(fields).sort(sort).limit(1).toArray()
       console.log(this.result)

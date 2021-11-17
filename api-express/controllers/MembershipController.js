@@ -10,7 +10,6 @@ export class MembershipController extends BaseController {
   }
 
   async getAllDocuments(req, res, next) {
-    //TODO: add param for latest event, which is not protected and does not return the secret
     try {
       if (req.query.current === '1') {
         let membership = await this.db.getCurrentMembership()
@@ -59,26 +58,36 @@ export class MembershipController extends BaseController {
       }) 
     }  
   }
-  
-  //TODO override base methods for GET and ensire user has perms to ready memberships, we don't want people viewing the memberhsip secret
+
   async putUserMembership(req, res, force) {
     try {
       let user = await this.getUser(req, res, false)
       let membership = await this.db.getDocument(req.params.membershipId)
-      console.log(user)
+
+      if (user.extId !== req.body.extId) {
+        return res.status(403).send({
+          success: false,
+          message: 'unauthorized'
+        })  
+      }
       if (!user || !membership || !membership.hasOwnProperty('secret')) {
         return res.status(404).send({
           success: false,
           message: 'not found'
         })   
       }
-      if (!membership.hasOwnProperty('users')) {  
-        membership.users = []
+      if (!membership.hasOwnProperty('user_ids')) {  
+        membership.user_ids = []
       }
-      if (!this.objectIdExists(membership.users, user._id)) {
-        membership.users.push(user._id)
+      if (!this.objectIdExists(membership.user_ids, user._id)) {
+        membership.user_ids.push(user._id)
         membership = await this.db.updateDocument(req.params.membershipId, membership) 
-        console.log(membership)
+        if (!membership) {
+          return res.status(500).send({
+            success: false,
+            message: this.db.message
+          })
+        }
       }  
       return res.status(200).send({
         success: true,

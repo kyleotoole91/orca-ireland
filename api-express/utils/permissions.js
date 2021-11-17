@@ -1,6 +1,7 @@
 import jwt_decode from "jwt-decode"
 
 export class Permissions {
+  
   check (token, action, resource) {
     let allow = false
     try {   
@@ -18,8 +19,14 @@ export class Permissions {
     }    
     return allow
   }
+
   userInToken (encodedToken, extId) {
     let tokenDecoded = jwt_decode(encodedToken)
     return tokenDecoded.sub === extId
+  }
+
+  extIdFromToken(encodedToken){
+    let tokenDecoded = jwt_decode(encodedToken)
+    return tokenDecoded.sub
   }
 }
