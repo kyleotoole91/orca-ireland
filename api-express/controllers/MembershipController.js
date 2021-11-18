@@ -9,6 +9,16 @@ export class MembershipController extends BaseController {
     this.db = new MembershipModel() 
   }
 
+  async extIdActiveMember(extId) {
+    let user = await this.UserDB.getDocumentByExtId(extId, false)
+    let membership = await this.db.getCurrentMembership()
+    if (user && membership[0] && membership[0].hasOwnProperty('user_ids')){
+      return this.objectIdExists(membership[0].user_ids, user._id) 
+    } else {
+      return false
+    }
+  }
+
   async getAllDocuments(req, res, next) {
     try {
       if (req.query.current === '1') {
@@ -59,6 +69,14 @@ export class MembershipController extends BaseController {
     }  
   }
 
+  /*
+   adding user
+    {
+        "secret": "membership-secret",
+        "extId": "external-user-id"
+    }  
+  */
+
   async putMembership(req, res) {
     try {
       let user = await this.getUser(req, res, false)
@@ -71,29 +89,34 @@ export class MembershipController extends BaseController {
           message: 'unauthorized'
         })  
       }
-      if (!user || !membership || !membership.hasOwnProperty('secret')) {
-        return res.status(404).send({
-          success: false,
-          message: 'not found'
-        })   
-      }
-      if (!membership.hasOwnProperty('user_ids')) {  
-        membership.user_ids = []
-      }
-      if (!this.objectIdExists(membership.user_ids, user._id)) {
-        membership.user_ids.push(user._id)
-        membership = await this.db.updateDocument(req.params.membershipId, membership) 
-        if (!membership) {
-          return res.status(500).send({
+      if (addingMember) {
+        if (!user || !membership || !membership.hasOwnProperty('secret')) {
+          return res.status(404).send({
             success: false,
-            message: this.db.message
-          })
+            message: 'not found'
+          })   
         }
-      }  
-      return res.status(200).send({
-        success: true,
-        message: 'membership activated'
-      })
+        if (!membership.hasOwnProperty('user_ids')) {  
+          membership.user_ids = []
+        }
+        if (!this.objectIdExists(membership.user_ids, user._id)) {
+          membership.user_ids.push(user._id)
+          membership = await this.db.updateDocument(req.params.membershipId, membership) 
+        }
+      } else {
+        membership = await this.db.updateDocument(req.params.membershipId, req.body)   
+      }
+      if (!membership) {
+        return res.status(500).send({
+          success: false,
+          message: this.db.message
+        })
+      } {
+        return res.status(200).send({
+          success: true,
+          message: 'membership activated'
+        })
+      }
     } catch(e) {
       return res.status(500).send({
         success: false,

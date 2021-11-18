@@ -1,5 +1,6 @@
 import { BaseModel } from '../models/BaseModel'
 import { BaseController } from './BaseController.js'
+import { MembershipController } from './MembershipController.js'
 
 export class EventsController extends BaseController { 
 
@@ -7,11 +8,19 @@ export class EventsController extends BaseController {
     super()
     this.setCollectionName('events')
     this.db = new MembershipModel() 
+    this.MembershipController = new MembershipController()
   }
 
   async putUserEvent(req, res, force) {
     try {
-     //TODO
+      if (!this.extIdActiveMember(this.getToken(req))) {
+        return res.status(403).send({
+          success: false,
+          message: 'unauthorized: user does not have an active membership'
+        })    
+      } else {
+        //todo
+      }
     } catch(e) {
       return res.status(500).send({
         success: false,

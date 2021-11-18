@@ -1,4 +1,5 @@
 require('dotenv').config()
+import e from 'express'
 import mongoClient from '../mongo-client'
 const ObjectId = require('mongodb').ObjectId
 
@@ -32,21 +33,25 @@ export class BaseModel {
   }
 
   addObject_ids(obj){
-    Object.keys(obj).forEach(function(key) {
-      const field = key
-      const value = obj[field]
-      if (field.includes('_id')) {
-        obj[field] = new ObjectId(value) 
-      } else if (value === 'object' && !Array.isArray(value) && value !== null) {
-        addObject_ids(value);
-      } else if (Array.isArray(value)) {
-        value.forEach(function (item) {
-          if (item === 'object' && !Array.isArray(item) && item !== null) {
-            addObject_ids(item);
-          }  
-        });
-      }
-    })
+    try {
+      Object.keys(obj).forEach(function(key) {
+        const field = key
+        const value = obj[field]
+        if (field.includes('_id')) {
+          obj[field] = new ObjectId(value) 
+        } else if (value === 'object' && !Array.isArray(value) && value !== null) {
+          addObject_ids(value);
+        } else if (Array.isArray(value)) {
+          value.forEach(function (item) {
+            if (item === 'object' && !Array.isArray(item) && item !== null) {
+              addObject_ids(item);
+            }  
+          });
+        }
+      })
+    } catch(e) {
+      console.log('Error addObject_ids(): '+e.message)
+    }
   }
 
   async getAllDocuments() {
@@ -211,6 +216,7 @@ export class BaseModel {
       if(document){
         this.addObject_ids(document)  
       }
+      console.log('updateDocument()')
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set:  document })
       if(!this.result) {
