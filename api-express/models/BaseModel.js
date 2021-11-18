@@ -19,17 +19,17 @@ export class BaseModel {
   }
 
   mongoQuickJoin(foreignTable, localField) {
-    return [{$lookup:{ from: foreignTable, 
-                       localField: localField,
-                       foreignField: '_id',
-                       as: foreignTable+'Lookup' }}]
+    return [{"$lookup":{"from": foreignTable, 
+                        "localField": localField,
+                        "foreignField": "_id",
+                        "as": foreignTable }}]
   }
 
   mongoJoin(foreignTable, localField) {
-    return {$lookup:{ from: foreignTable, 
-                      localField: localField,
-                      foreignField: '_id',
-                      as: foreignTable+'Lookup' }}
+    return {"$lookup":{"from": foreignTable, 
+                       "localField": localField,
+                       "foreignField": "_id",
+                       "as": foreignTable }}
   }
 
   //Auto converts string fields with _id suffix to mongo db object _ids. Sometimes throws undefined errors
@@ -95,43 +95,6 @@ export class BaseModel {
     } finally {
       return this.result  
     }  
-  }
-
-  async getUserDocuments(userId) {
-    try {
-      const objId = new ObjectId(userId) 
-      this.result = await this.db.find({'user_id': objId}).toArray()
-      if(!this.result) {
-        this.message = 'Not found'
-      } else {
-        this.message = "User's "+this.collectionName
-      }
-    } catch (error) {
-      this.result = null
-      this.message = error.message
-      console.log(error)
-    } finally {
-      return this.result  
-    }
-  }
-
-  async getUserDocument(userId, docId) {
-    try {
-      const objUserId = new ObjectId(userId) 
-      const objDocId = new ObjectId(docId) 
-      this.result = await this.db.find({'user_id': objUserId, '_id': objDocId}).toArray()
-      if(!this.result) {
-        this.message = 'Not found'
-      } else {
-        this.message = "User's "+this.collectionName
-      }
-    } catch (error) {
-      this.result = null
-      this.message = error.message
-      console.log(error)
-    } finally {
-      return this.result  
-    }
   }
 
   async getDocument(id) {
@@ -228,6 +191,44 @@ export class BaseModel {
     } finally {
       return this.result  
     } 
+  }
+
+  //User methods checks that the data belong to the user 
+  async getUserDocuments(userId) {
+    try {
+      const objId = new ObjectId(userId) 
+      this.result = await this.db.find({'user_id': objId}).toArray()
+      if(!this.result) {
+        this.message = 'Not found'
+      } else {
+        this.message = "User's "+this.collectionName
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    }
+  }
+
+  async getUserDocument(userId, docId) {
+    try {
+      const objUserId = new ObjectId(userId) 
+      const objDocId = new ObjectId(docId) 
+      this.result = await this.db.find({'user_id': objUserId, '_id': objDocId}).toArray()
+      if(!this.result) {
+        this.message = 'Not found'
+      } else {
+        this.message = "User's "+this.collectionName
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    }
   }
 
   async updateUserDocument(userId, id, document){

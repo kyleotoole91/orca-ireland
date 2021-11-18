@@ -3,7 +3,7 @@ const app = express()
 var cors = require('cors')
 import { BaseController } from './controllers/BaseController' 
 import { MembershipController } from './controllers/MembershipController' 
-import { EventsController } from './controllers/EventsController' 
+import { EventsController } from './controllers/EventController' 
 require('dotenv').config()
 import validateJwt from './utils/validate-jwt'
 import mongoClient from './mongo-client' 

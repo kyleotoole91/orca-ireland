@@ -1,12 +1,12 @@
 import { BaseController } from './BaseController.js'
-import { MembershipController } from './MembershipController.js'
+import { EventModel } from '../models/EventModel'
 
 export class EventsController extends BaseController { 
 
   constructor () {
     super()
     this.setCollectionName('events')
-    this.membershipController = new MembershipController()
+    this.db = new EventModel() 
   }
 
   async updateEvent(req, res) {
