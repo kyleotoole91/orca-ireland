@@ -46,7 +46,6 @@ export class BaseController {
   
   async getAllDocuments(req, res, next) {
     try {
-      console.log('get all docs')
       this.data = await this.db.getAllDocuments() 
       if (this.data) {
         return res.status(200).send({
@@ -75,13 +74,13 @@ export class BaseController {
       if (this.data) {
         return res.status(200).send({
           success: true,
-          messsage: this.DB.message,
+          messsage: this.db.message,
           data: this.data
         })
       } else {
         return res.status(404).send({
           success: false,
-          message: this.DB.message
+          message: this.db.message
         });  
       } 
     } catch(e) {

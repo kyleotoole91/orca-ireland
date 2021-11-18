@@ -77,25 +77,25 @@ export class MembershipController extends BaseController {
     }  
   */
 
-  async putMembership(req, res) {
+  async updateMembership(req, res) {
     try {
       let user = await this.getUser(req, res, false)
-      let membership = await this.db.getDocument(req.params.membershipId)
       let addingMember = Object.keys(req.body).length === 2 && req.body.hasOwnProperty('secret') && req.body.hasOwnProperty('extId')
-      let hasPermission = addingMember || this.permissions.check(this.getToken(req), 'put', this.collectionName)
-      if (!hasPermission || user.extId !== req.body.extId) {
+      let hasPermission = (addingMember && user && user.extId === req.body.extId) || this.permissions.check(this.getToken(req), 'put', this.collectionName)
+      if (!hasPermission) {
         return res.status(403).send({
           success: false,
           message: 'unauthorized'
         })  
       }
+      let membership = await this.db.getDocument(req.params.membershipId)
+      if (!membership && !membership.hasOwnProperty('secret')) {
+        return res.status(404).send({
+          success: false,
+          message: 'not found: ' + this.db.message
+        })   
+      }
       if (addingMember) {
-        if (!user || !membership || !membership.hasOwnProperty('secret')) {
-          return res.status(404).send({
-            success: false,
-            message: 'not found'
-          })   
-        }
         if (!membership.hasOwnProperty('user_ids')) {  
           membership.user_ids = []
         }
@@ -111,7 +111,7 @@ export class MembershipController extends BaseController {
           success: false,
           message: this.db.message
         })
-      } {
+      } else {
         return res.status(200).send({
           success: true,
           message: 'membership activated'

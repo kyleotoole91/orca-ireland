@@ -32,6 +32,7 @@ export class BaseModel {
                       as: foreignTable+'Lookup' }}
   }
 
+  //Auto converts string fields with _id suffix to mongo db object _ids. Sometimes throws undefined errors
   addObject_ids(obj){
     try {
       Object.keys(obj).forEach(function(key) {
@@ -75,7 +76,6 @@ export class BaseModel {
   async getDocumentByExtId(extId, force) { 
     try {
       this.result = await this.db.findOne({ 'extId': extId })
-      //console.log('getDocumentByExtId res: '+ JSON.stringify(this.result))
       if (!this.result && force) {
         this.result = await this.db.insertOne({ 'extId': extId }) 
         if (this.result.insertedId !== '') {
@@ -213,9 +213,6 @@ export class BaseModel {
   async updateDocument(id, document){
     this.message = 'Updated'
     try {
-      if(document){
-        this.addObject_ids(document)  
-      }
       console.log('updateDocument()')
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set:  document })

@@ -3,6 +3,7 @@ const app = express()
 var cors = require('cors')
 import { BaseController } from './controllers/BaseController' 
 import { MembershipController } from './controllers/MembershipController' 
+import { EventsController } from './controllers/EventsController' 
 require('dotenv').config()
 import validateJwt from './utils/validate-jwt'
 import mongoClient from './mongo-client' 
@@ -34,7 +35,7 @@ async function listMongoCollections() {
 
 listMongoCollections()
 
-const eventsController = new BaseController('events')
+const eventsController = new EventsController()
 const usersController = new BaseController('users')
 const membershipsController = new MembershipController()
 const classesController = new BaseController('classes')
@@ -43,7 +44,7 @@ const carsController = new BaseController('cars')
 app.get('/events', validateJwt, (req, res) => eventsController.getAllDocuments(req, res))
 app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(req, res))
 app.post('/events', validateJwt, (req, res) => eventsController.addDocument(req, res))
-app.put('/events/:id', validateJwt, (req, res) => eventsController.updateDocument(req, res))
+app.put('/events/:eventId', validateJwt, (req, res) => eventsController.updateEvent(req, res))
 app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteDocument(req, res))
 //users 
 app.get('/users', validateJwt, (req, res) => usersController.getAllDocuments(req, res))
@@ -55,7 +56,7 @@ app.delete('/users/:userId', validateJwt, (req, res) => usersController.deleteUs
 app.get('/memberships', validateJwt, (req, res) => membershipsController.getAllDocuments(req, res))
 app.get('/memberships/:id', validateJwt, (req, res) => membershipsController.getDocument(req, res))
 app.post('/memberships', validateJwt, (req, res) => membershipsController.addDocument(req, res))
-app.put('/memberships/:membershipId', validateJwt, (req, res) => membershipsController.putMembership(req, res))
+app.put('/memberships/:membershipId', validateJwt, (req, res) => membershipsController.updateMembership(req, res))
 app.put('/memberships/:id', validateJwt, (req, res) => membershipsController.updateDocument(req, res))
 app.delete('/memberships/:id', validateJwt, (req, res) => membershipsController.deleteDocument(req, res))
 //cars
