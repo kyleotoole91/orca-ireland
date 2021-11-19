@@ -1,5 +1,7 @@
 import { BaseController } from './BaseController.js'
 import { EventModel } from '../models/EventModel'
+import { ObjectId } from 'bson'
+import { MembershipController } from './MembershipController.js'
 
 export class EventsController extends BaseController { 
 
@@ -7,20 +9,27 @@ export class EventsController extends BaseController {
     super()
     this.setCollectionName('events')
     this.db = new EventModel() 
+    this.membershipController = new MembershipController()
   }
 
   async updateEvent(req, res) {
     try { 
       let user = await this.getUser(req, res, false)
-      let addingMember = Object.keys(req.body).length === 1 && req.body.hasOwnProperty('extId')
-      let hasPermission = (addingMember && user.extId !== req.body.extId) || this.permissions.check(this.getToken(req), 'put', this.collectionName)
+      let addingMember = Object.keys(req.body).length === 1 && req.body.hasOwnProperty('car_id')
+      let hasPermission = addingMember || this.permissions.check(this.getToken(req), 'put', this.collectionName)
       if (!hasPermission){
         return res.status(403).send({
           success: false,
           message: 'unauthorized'
         })
       }
-      let event = await this.db.getDocument(req.params.eventId)
+
+      let event
+      if (addingMember){
+        event = await this.db.getEventCarList(req.params.eventId)
+      } else {
+        event = await this.db.getDocument(req.params.eventId)  
+      }
       if (!event) {
         return res.status(404).send({
           success: false,
@@ -35,11 +44,12 @@ export class EventsController extends BaseController {
             message: 'unauthorized: user does not have an active membership'
           })    
         }
-        if (!event.hasOwnProperty('user_ids')) {  
+        if (!event.hasOwnProperty('car_ids')) {  
           event.user_ids = []
         }
-        if (!this.objectIdExists(event.user_ids, user._id)) {
-          event.user_ids.push(user._id)
+        const carId = new ObjectId(req.body.carId)
+        if (!this.objectIdExists(event.car_ids, carId)) {
+          event.car_ids.push(carId)
           event = await this.db.updateDocument(req.params.eventId, event) 
         }
       } else {
