@@ -227,7 +227,6 @@ export class BaseController {
   async getUserDocument(req, res, next) {
     try {
       let user = await this.getUser(req, res, false)
-      console.log('get user doc: '+user)
       if (!user){
         return res.status(404).send({
           success: false,
@@ -277,17 +276,17 @@ export class BaseController {
           message: user.err
         }) 
       } else if (user && user._id !== '') { 
-        this.data = await this.dv.deleteUserDocument(user._id, req.params.docId) 
+        this.data = await this.db.deleteUserDocument(user._id, req.params.docId) 
         if (this.data) {
           return res.status(200).send({
             success: true,
-            messsage: this.dv.message,
+            messsage: this.db.message,
             data: this.data
           })
         } else {
           return res.status(404).send({
             success: false,
-            message: this.dv.message
+            message: this.db.message
           });  
         }
       } else {

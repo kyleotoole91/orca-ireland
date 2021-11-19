@@ -13,7 +13,7 @@ export class MembershipModel extends BaseModel {
       const fields = { "secret": 0 }
       const sort = {"endDate": 1}
       const join = this.mongoQuickJoin("users", "user_ids")
-      const where = {"endDate" : {"$gte": new Date()}}
+      const where = {"endDate" : {"$gte": new Date()}, "deleted": {"$in": [null, false]}}
       this.result = await this.db.aggregate(join).match(where).project(fields).sort(sort).limit(1).toArray()
       if(!this.result) { 
         this.message = 'Not found: ' + id 

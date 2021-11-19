@@ -57,8 +57,7 @@ export class BaseModel {
 
   async getAllDocuments() {
     try {
-      console.log('getAllDocuments: '+this.collectionName) 
-      this.result = await this.db.find({}).toArray()
+      this.result = await this.db.find({"deleted": {"$in": [null, false]}}).toArray()
       if(!this.result) {
         this.message = 'Not found'
       } else {
@@ -75,7 +74,7 @@ export class BaseModel {
   
   async getDocumentByExtId(extId, force) { 
     try {
-      this.result = await this.db.findOne({ 'extId': extId })
+      this.result = await this.db.findOne({ 'extId': extId, "deleted": {"$in": [null, false]} })
       if (!this.result && force) {
         this.result = await this.db.insertOne({ 'extId': extId }) 
         if (this.result.insertedId !== '') {
@@ -100,7 +99,7 @@ export class BaseModel {
   async getDocument(id) {
     try {
       const objId = new ObjectId(id)
-      this.result = await this.db.findOne({ '_id': objId })
+      this.result = await this.db.findOne({ '_id': objId, "deleted": {"$in": [null, false]} })
       if(!this.result) { 
         this.message = 'Not found: ' + id 
       } else {
@@ -138,7 +137,7 @@ export class BaseModel {
     this.message = 'Deleted'
     try {
       const objId = new ObjectId(id)
-      this.result = await this.db.findOneAndDelete({'_id': objId})
+      this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set: {"deleted": true} })
       if(!this.result) { 
         this.message = 'Error deleting: ' + id 
       } else {
@@ -158,7 +157,7 @@ export class BaseModel {
     this.message = 'Deleted '+id
     try {
       const objId = new ObjectId(id)
-      this.result = await this.db.findOneAndDelete({'_id': objId, 'user_id': userId})
+      this.result = await this.db.findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set: {"deleted": true} })
       if(!this.result.value) { 
         this.message = 'Error deleting: ' + id 
       } else {
@@ -193,11 +192,10 @@ export class BaseModel {
     } 
   }
 
-  //User methods checks that the data belong to the user 
   async getUserDocuments(userId) {
     try {
       const objId = new ObjectId(userId) 
-      this.result = await this.db.find({'user_id': objId}).toArray()
+      this.result = await this.db.find({'user_id': objId, "deleted": {"$in": [null, false]}}).toArray()
       if(!this.result) {
         this.message = 'Not found'
       } else {
@@ -216,7 +214,7 @@ export class BaseModel {
     try {
       const objUserId = new ObjectId(userId) 
       const objDocId = new ObjectId(docId) 
-      this.result = await this.db.find({'user_id': objUserId, '_id': objDocId}).toArray()
+      this.result = await this.db.find({'user_id': objUserId, '_id': objDocId, "deleted": {"$in": [null, false]}}).toArray()
       if(!this.result) {
         this.message = 'Not found'
       } else {

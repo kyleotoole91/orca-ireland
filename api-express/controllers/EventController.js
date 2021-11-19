@@ -1,4 +1,5 @@
 import { BaseController } from './BaseController.js'
+import { BaseModel } from '../models/BaseModel'
 import { EventModel } from '../models/EventModel'
 import { ObjectId } from 'bson'
 import { MembershipController } from './MembershipController.js'
@@ -10,12 +11,16 @@ export class EventsController extends BaseController {
     this.setCollectionName('events')
     this.db = new EventModel() 
     this.membershipController = new MembershipController()
+    this.carDb = new BaseModel('cars') 
   }
+
+  //TODO override getDocuments so that the event come back sorted by newest first.
+  //Like membership, have a ?current=1 param that will return the next upcoming event
 
   async updateEvent(req, res) {
     try { 
       let user = await this.getUser(req, res, false)
-      let addingMember = Object.keys(req.body).length === 1 && req.body.hasOwnProperty('car_id')
+      let addingMember = Object.keys(req.body).length === 1 && req.body.hasOwnProperty('car_ids')
       let hasPermission = addingMember || this.permissions.check(this.getToken(req), 'put', this.collectionName)
       if (!hasPermission){
         return res.status(403).send({
@@ -23,7 +28,6 @@ export class EventsController extends BaseController {
           message: 'unauthorized'
         })
       }
-
       let event
       if (addingMember){
         event = await this.db.getEventCarList(req.params.eventId)
@@ -41,17 +45,34 @@ export class EventsController extends BaseController {
         if (!hasMembership) {
           return res.status(403).send({
             success: false,
-            message: 'unauthorized: user does not have an active membership'
+            message: 'unauthorized: user has no membership'
           })    
         }
+        
+        let car //check the car(s) belongs to the user
+        for (var carId of req.body.car_ids) {
+          objId = new ObjectId(carId)
+          car = this.carDb.getUserDocument(user._id, carId)
+          if (!car){
+            return res.status(404).send({
+              success: false,
+              message: 'user car not found: ' + this.carDb.message
+            })  
+          }
+        }
+
         if (!event.hasOwnProperty('car_ids')) {  
-          event.user_ids = []
+          event.car_ids = []
         }
-        const carId = new ObjectId(req.body.carId)
-        if (!this.objectIdExists(event.car_ids, carId)) {
-          event.car_ids.push(carId)
-          event = await this.db.updateDocument(req.params.eventId, event) 
+
+        let objId
+        for (var car_id of req.body.car_ids) {
+          objId = new ObjectId(car_id) //add cars that don't already exist to the car_ids array
+          if (!this.objectIdExists(event.car_ids, objId)) {
+            event.car_ids.push(objId)   
+          }
         }
+        event = await this.db.updateDocument(req.params.eventId, event)  
       } else {
         event = await this.db.updateDocument(req.params.eventId, req.body)   
       }

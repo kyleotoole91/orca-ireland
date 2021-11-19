@@ -11,30 +11,28 @@ export class EventModel extends BaseModel {
 
   async getDocument(id) {
     try {
-      let joins = [{$lookup:{from: "cars", 
+      let joins = [{$lookup:{from: "cars", // join many cars onto events using event.car_ids
                              localField: "car_ids",
                              foreignField: "_id",
                              as: "cars",
-                             let: {userId: "$_id"},
                              pipeline: [
-                               {$lookup:{from: "users", 
+                               {$lookup:{from: "users", // join a user onto the car (from the result of the prev lookup)
                                          localField: "user_id",
                                          foreignField: "_id",
                                          as: "user"}
                                },
-                               {$lookup:{from: "classes", 
+                               {$lookup:{from: "classes", // join a class onto the car (from the result of the prev lookup)
                                         localField: "class_id",
                                         foreignField: "_id",
                                         as: "class"}
                                },
-                               {$project: {
+                               {$project: { //exclude these fields from the tables joined
                                   "user.email": 0,
-                                  "user.phone": 0
-                                }
+                                  "user.phone": 0}
                               }
                              ]}}]
       const objId = new ObjectId(id)
-      const where = {"_id" : objId}
+      const where = {"_id" : objId, "deleted": {"$in": [null, false]}}
       this.result = await await this.db.aggregate(joins).match(where).toArray()
       if(!this.result || this.result.length === 0) { 
         this.result = null
@@ -57,7 +55,7 @@ export class EventModel extends BaseModel {
       let fields = { "car_ids": 1 } 
       const objId = new ObjectId(id)
       const where = {"_id" : objId}
-      this.result = await await this.db.aggregate(joins).match(where).project(fields).toArray()
+      this.result = await this.db.find(where).project(fields).toArray()
       if(!this.result || this.result.length === 0) { 
         this.result = null
         this.message = 'Not found: ' + id 
