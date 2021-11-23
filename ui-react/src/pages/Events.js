@@ -32,18 +32,26 @@ function Events() {
   const [fee, setFee] = useState(10.00)
   
   const [data, setData] = useState([])
-  const [cars, setCars] = useState([])
+  const [car_ids, setCar_ids] = useState([])
   const [carData, setCarData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
   const [allowAddEvents, setAllowAddEvents] = useState(false)
   const [allowDelEvents, setAllowDelEvents] = useState(false)
   const [show, setShow] = useState(false)
+  const [showEnter, setShowEnter] = useState(false)
+  const [currEventId, setCurrEventId] = useState('')
+
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
-  const [showEnter, setShowEnter] = useState(false)
-  const handleCloseEnter = () => setShowEnter(false)
-  const handleShowEnter = () => setShowEnter(true)
+  const handleCloseEnter = () => { 
+    setCar_ids([])
+    setShowEnter(false) 
+  }
+  const handleShowEnter = (e) => { 
+    setCurrEventId(e.target.id.toString())
+    setShowEnter(true) 
+  }
 
   if (user && isAuthenticated && apiToken === '') {
     getApiToken()
@@ -58,13 +66,13 @@ function Events() {
   }
 
   function addCar(id){
-    if (cars.indexOf(id) === -1) {
-      cars.push(id)   
+    if (car_ids.indexOf(id) === -1) {
+      car_ids.push(id)   
     } else {
-      cars.splice(cars.indexOf(id), 1);  
+      car_ids.splice(car_ids.indexOf(id), 1);  
     }
-    setCars(cars);
-    console.log(cars)
+    setCar_ids(car_ids);
+    console.log(car_ids)
   }
 
   useEffect(() => {
@@ -192,6 +200,35 @@ function Events() {
       setLoading(false)
     }
   }
+
+  async function submitCars() {
+    try {
+      if (car_ids.length === 0) {
+        window.alert('Please chose at least one car')
+      } else {
+        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS+ '/'+currEventId, { 
+                method: 'PUT', 
+                headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
+                body: JSON.stringify({car_ids: car_ids})
+              })
+        .then(response => response.json())
+        .then((response) => {
+          if (!response.success) {
+            window.alert(response.message)   
+          }
+          setLoading(false)
+          handleCloseEnter()
+        }).catch((error) => {
+          window.alert(error)
+          console.log(error)
+        })
+      }
+    } catch(e) {
+      window.alert(e)
+    } finally {
+      setLoading(false)
+    }
+  }
   
   function modalForm(){
     return ( 
@@ -230,14 +267,12 @@ function Events() {
 
   function modalEnterEvent(){
     function carCheckList () {
-      function carItem( car, index ) {
+      function carItem(car, index) {
         return (
-          <>
-            <InputGroup key={index} className="mb-3">
-              <InputGroup.Checkbox id={car._id} onChange={(e) => addCar(e.target.id)} aria-label="Checkbox for following text input" />
-              <FormControl  onChange={(e) => addCar(e.target.id)} value={car.manufacturer+' - '+car.model } aria-label="Text input with checkbox" />
-            </InputGroup>
-          </> 
+          <InputGroup key={car._id+index} className="mb-3">
+            <InputGroup.Checkbox key={car._id} id={car._id} onChange={(e) => addCar(e.target.id)} aria-label="Checkbox for following text input" />
+            <FormControl key={car._id+'-FormControl'} onChange={(e) => addCar(e.target.id)} value={car.manufacturer+' - '+car.model } aria-label="Text input with checkbox" />
+          </InputGroup>
         )
       }    
       return (
@@ -256,11 +291,11 @@ function Events() {
           {carCheckList()}
         </Modal.Body>
         <Modal.Footer>
-            <Button variant="outline-secondary" onClick={handleClose}>
+            <Button variant="outline-secondary" onClick={handleCloseEnter}>
               Close
             </Button>
-            <Button variant="outline-primary" onClick={postEvent}>
-              Save
+            <Button variant="outline-primary" onClick={submitCars}>
+              Enter Event
             </Button>
         </Modal.Footer>
       </Modal>   

@@ -14,11 +14,36 @@ export class EventsController extends BaseController {
     this.carDb = new BaseModel('cars') 
   }
 
-  //TODO override getDocuments so that the event come back sorted by newest first.
-  //Like membership, have a ?current=1 param that will return the next upcoming event
+  async getAllDocuments(req, res, next) {
+    try {
+      if (req.query.current === '1') {
+        let event = await this.db.getCurrentEvent()
+        if (event) {
+          return res.status(200).send({
+            success: true,
+            message: 'current event',
+            data: event
+          })    
+        } else {
+          return res.status(404).send({
+            success: false,
+            message: 'not found'
+          })
+        }
+      } else {
+        super.getAllDocuments(req, res, next)
+      }
+    } catch(e) {
+      return res.status(500).send({
+        success: false,
+        message: 'internal server error: '+e.message
+      }) 
+    }
+  }
 
   async updateEvent(req, res) {
     try { 
+      console.log(req.body)
       let user = await this.getUser(req, res, false)
       let addingMember = Object.keys(req.body).length === 1 && req.body.hasOwnProperty('car_ids')
       let hasPermission = addingMember || this.permissions.check(this.getToken(req), 'put', this.collectionName)
