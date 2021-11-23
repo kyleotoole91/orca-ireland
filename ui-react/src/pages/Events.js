@@ -79,35 +79,37 @@ function Events() {
     async function loadData () {
       setLoading(true);
       const permissions = new Permissions()
-      try {
-        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
-            .then(response => response.json())
-            .then((response) => {
-              setData(response.data)
-              setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-              setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-            }).catch((error) => {
-              setData([])
-              window.alert(error)
-              console.log(error)
-            })
-      //load user's cars
-      const extId = '/'+user.sub
-      await fetch(process.env.REACT_APP_API_URL+ 
-                  process.env.REACT_APP_API_USERS+extId+
-                  process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
-            .then(response => response.json())
-            .then((response) => {
-              setCarData(response.data)
-            }).catch((error) => {
-              setCarData([])
-              window.alert(error)
-              console.log(error)
-            })    
-      } catch(e) {
-        window.alert(e)
-      } finally {
-        setLoading(false)
+      if (apiToken !== '') {
+        try {
+          await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
+              .then(response => response.json())
+              .then((response) => {
+                setData(response.data)
+                setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+                setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+              }).catch((error) => {
+                setData([])
+                window.alert(error)
+                console.log(error)
+              })
+        //load user's cars
+        const extId = '/'+user.sub
+        await fetch(process.env.REACT_APP_API_URL+ 
+                    process.env.REACT_APP_API_USERS+extId+
+                    process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
+              .then(response => response.json())
+              .then((response) => {
+                setCarData(response.data)
+              }).catch((error) => {
+                setCarData([])
+                window.alert(error)
+                console.log(error)
+              })    
+        } catch(e) {
+          window.alert(e)
+        } finally {
+          setLoading(false)
+        }
       }
     }  
     loadData()
@@ -209,7 +211,7 @@ function Events() {
         await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS+ '/'+currEventId, { 
                 method: 'PUT', 
                 headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
-                body: JSON.stringify({car_ids: car_ids})
+                body: JSON.stringify({car_ids})
               })
         .then(response => response.json())
         .then((response) => {

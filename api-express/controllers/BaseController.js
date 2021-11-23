@@ -50,7 +50,7 @@ export class BaseController {
       if (this.data) {
         return res.status(200).send({
           success: true,
-          messsage: this.db.message,
+          message: this.db.message,
           data: this.data
         })
       } else {
@@ -74,7 +74,7 @@ export class BaseController {
       if (this.data) {
         return res.status(200).send({
           success: true,
-          messsage: this.db.message,
+          message: this.db.message,
           data: this.data
         })
       } else {
@@ -200,7 +200,7 @@ export class BaseController {
         if (this.data) {
           return res.status(200).send({
             success: true,
-            messsage: this.db.message,
+            message: this.db.message,
             data: this.data
           })
         } else {
@@ -248,7 +248,7 @@ export class BaseController {
         if (this.data) {
           return res.status(200).send({
             success: true,
-            messsage: this.db.message,
+            message: this.db.message,
             data: this.data
           })
         } else {
@@ -280,7 +280,7 @@ export class BaseController {
         if (this.data) {
           return res.status(200).send({
             success: true,
-            messsage: this.db.message,
+            message: this.db.message,
             data: this.data
           })
         } else {
@@ -319,7 +319,7 @@ export class BaseController {
         if (this.data) {
           return res.status(200).send({
             success: true,
-            messsage: this.db.message,
+            message: this.db.message,
             data: this.data
           })
         } else {
@@ -361,7 +361,7 @@ export class BaseController {
         if (this.data) {
           return res.status(200).send({
             success: true,
-            messsage: this.DB.message,
+            message: this.DB.message,
             data: this.data
           })
         } else {

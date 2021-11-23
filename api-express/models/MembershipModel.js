@@ -10,7 +10,7 @@ export class MembershipModel extends BaseModel {
   
   async getCurrentMembership() {
     try {
-      const fields = { "secret": 0 }
+      const fields = { "secret": 0, "users.email": 0, "users.phone": 0 }
       const sort = {"endDate": 1}
       const join = this.mongoQuickJoin("users", "user_ids")
       const where = {"endDate" : {"$gte": new Date()}, "deleted": {"$in": [null, false]}}

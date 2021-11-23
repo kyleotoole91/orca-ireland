@@ -21,53 +21,60 @@ function Membership() {
   useEffect(() => {
     async function loadData () {
       const extId = '/'+user.sub
-      if (apiToken === '' && isAuthenticated) {
-        setApiToken(await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE }))
-      }
       let memberData 
       setLoading(true)
-      await fetch(process.env.REACT_APP_API_URL+ 
-                  process.env.REACT_APP_API_USERS+extId+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
-            .then(response => response.json())
-            .then((response) => {
-              console.log(response) 
-              user.nickname && setUsername(user.nickname) 
-              user.email && setEmail(user.email) 
-              if (response.success && response.hasOwnProperty('data')) {
-                memberData = response.data 
-                setUsername(memberData.username)   
-                setPhone(memberData.phone) 
-                if (memberData.hasOwnProperty('firstName')) {
-                  setFirstName(memberData.firstName)
-                } else if (user.hasOwnProperty('given_name')) {
-                  setFirstName(user.given_name)  
+      if (apiToken !== '') {
+        await fetch(process.env.REACT_APP_API_URL+ 
+                    process.env.REACT_APP_API_USERS+extId+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
+              .then(response => response.json())
+              .then((response) => {
+                user.nickname && setUsername(user.nickname) 
+                user.email && setEmail(user.email) 
+                if (response.success && response.hasOwnProperty('data')) {
+                  memberData = response.data 
+                  setUsername(memberData.username)   
+                  setPhone(memberData.phone) 
+                  if (memberData.hasOwnProperty('firstName')) {
+                    setFirstName(memberData.firstName)
+                  } else if (user.hasOwnProperty('given_name')) {
+                    setFirstName(user.given_name)  
+                  }
+                  if (memberData.hasOwnProperty('lastName')) {
+                    setLastName(memberData.lastName)
+                  } else if (user.hasOwnProperty('family_name')) {
+                    setLastName(user.family_name)  
+                  }
+                } else if (!response.success && response.hasOwnProperty('message')) {
+                  //window.alert(response.message) //shows unauthorized error from the cors preflight options req, so disabled for now  
+                  console.log('Error: '+response.message)  
+                  if (user.hasOwnProperty('given_name')) {
+                    setFirstName(user.given_name) 
+                  }
+                  if (user.hasOwnProperty('family_name')) {
+                    setLastName(user.family_name) 
+                  }
                 }
-                if (memberData.hasOwnProperty('lastName')) {
-                  setLastName(memberData.lastName)
-                } else if (user.hasOwnProperty('family_name')) {
-                  setLastName(user.family_name)  
-                }
-                console.log(response.message)  
-              } else if (!response.success && response.hasOwnProperty('message')) {
-                //window.alert(response.message) //shows unauthorized error from the cors preflight options req, so disabled for now  
-                console.log('Error: '+response.message)  
-                if (user.hasOwnProperty('given_name')) {
-                  setFirstName(user.given_name) 
-                }
-                if (user.hasOwnProperty('family_name')) {
-                  setLastName(user.family_name) 
-                }
-              }
-              setLoading(false)
-            }).catch((error) => {
-              setData([])
-              setLoading(false);
-              window.alert(error)
-              console.log(error)
-            })
+                setLoading(false)
+              }).catch((error) => {
+                setData([])
+                setLoading(false);
+                window.alert(error)
+                console.log(error)
+              })
+      }
     }  
     loadData()
   }, [apiToken, user, isAuthenticated, getAccessTokenSilently])
+
+  if (isAuthenticated && apiToken === '') {
+    getApiToken()
+  }
+
+  async function getApiToken() {
+    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+    setApiToken(token)   
+    console.log(token)
+  }
 
   async function updateMemberDetails() {
     if (firstName === '' || lastName === '' || phone === '') {

@@ -27,38 +27,40 @@ function Garage() {
   useEffect(() => {
     async function loadData () {
       setLoading(true)
-      const extId = '/'+user.sub
-      try {
-        //load user's cars
-        await fetch(process.env.REACT_APP_API_URL+ 
-                    process.env.REACT_APP_API_USERS+extId+
-                    process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
-              .then(response => response.json())
-              .then((response) => {
-                setData(response.data)
-              }).catch((error) => {
-                setData([])
-                window.alert(error)
-                console.log(error)
-              })
-        //load car classes for new car submission
-        await fetch(process.env.REACT_APP_API_URL + 
-                    process.env.REACT_APP_API_CLASSES, {headers: {Authorization: `Bearer ${apiToken}`}})
-              .then(response => response.json())
-              .then((response) => {
-                setClasses(response.data)
-                if (response.data && response.data.length >= 1) {
-                  setClassId(response.data[0]._id) //set default to first class in array
-                }
-              }).catch((error) => {
-                setClasses([])
-                window.alert(error)
-                console.log(error)
-              })
-      } catch(e) {
-        window.alert(e)
-      } finally {
-        setLoading(false)
+      if (apiToken !== '') {
+        const extId = '/'+user.sub
+        try {
+          //load user's cars
+          await fetch(process.env.REACT_APP_API_URL+ 
+                      process.env.REACT_APP_API_USERS+extId+
+                      process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
+                .then(response => response.json())
+                .then((response) => {
+                  setData(response.data)
+                }).catch((error) => {
+                  setData([])
+                  window.alert(error)
+                  console.log(error)
+                })
+          //load car classes for new car submission
+          await fetch(process.env.REACT_APP_API_URL + 
+                      process.env.REACT_APP_API_CLASSES, {headers: {Authorization: `Bearer ${apiToken}`}})
+                .then(response => response.json())
+                .then((response) => {
+                  setClasses(response.data)
+                  if (response.data && response.data.length >= 1) {
+                    setClassId(response.data[0]._id) //set default to first class in array
+                  }
+                }).catch((error) => {
+                  setClasses([])
+                  window.alert(error)
+                  console.log(error)
+                })
+        } catch(e) {
+          window.alert(e)
+        } finally {
+          setLoading(false)
+        }
       }
     }  
     loadData()
