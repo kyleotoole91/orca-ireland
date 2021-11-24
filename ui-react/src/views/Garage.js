@@ -73,7 +73,6 @@ function Garage() {
   async function getApiToken() {
     let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
     setApiToken(token)   
-    console.log(token)
   }
 
   async function deleteCar(e) {

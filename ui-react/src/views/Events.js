@@ -8,9 +8,9 @@ import FormControl from 'react-bootstrap/FormControl'
 import Loading from '../components/Loading'
 import dayjs from 'dayjs'
 import { Permissions } from '../utils/permissions'
-import NumberFormat from 'react-number-format';
-
-const urlParam = '?extLookup=1' 
+import NumberFormat from 'react-number-format'
+import { EventModel } from '../models/EventModel'
+import { CarModel } from '../models/CarModel'
 
 function formatDate(date, format) {
   const map = {
@@ -23,6 +23,7 @@ function formatDate(date, format) {
 }
 
 function Events() {
+  const eventModel = new EventModel()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   let todayDate = new Date(Date.now())
   todayDate = formatDate(todayDate, 'yyyy-mm-dd')
@@ -30,7 +31,6 @@ function Events() {
   const [location, setLocation] = useState("Saint Anne's Park")
   const [date, setDate] = useState(todayDate)
   const [fee, setFee] = useState(10.00)
-  
   const [data, setData] = useState([])
   const [car_ids, setCar_ids] = useState([])
   const [carData, setCarData] = useState([])
@@ -61,50 +61,44 @@ function Events() {
 
   async function getApiToken() {
     let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+    eventModel.setApiToken(apiToken)
     setApiToken(token)   
-    console.log(token)
   }
 
   function addCar(id){
     if (car_ids.indexOf(id) === -1) {
       car_ids.push(id)   
     } else {
-      car_ids.splice(car_ids.indexOf(id), 1);  
+      car_ids.splice(car_ids.indexOf(id), 1) 
     }
-    setCar_ids(car_ids);
+    setCar_ids(car_ids)
     console.log(car_ids)
   }
 
   useEffect(() => {
     async function loadData () {
       setLoading(true);
-      const permissions = new Permissions()
       if (apiToken !== '') {
         try {
-          await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
-              .then(response => response.json())
-              .then((response) => {
-                setData(response.data)
-                setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-                setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-              }).catch((error) => {
-                setData([])
-                window.alert(error)
-                console.log(error)
-              })
-        //load user's cars
-        const extId = '/'+user.sub
-        await fetch(process.env.REACT_APP_API_URL+ 
-                    process.env.REACT_APP_API_USERS+extId+
-                    process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
-              .then(response => response.json())
-              .then((response) => {
-                setCarData(response.data)
-              }).catch((error) => {
-                setCarData([])
-                window.alert(error)
-                console.log(error)
-              })    
+          const eventModel = new EventModel()
+          const carModel = new CarModel()
+          const permissions = new Permissions()
+          carModel.setApiToken(apiToken)
+          eventModel.setApiToken(apiToken)
+          await eventModel.getEvents()
+          if (eventModel.success) {
+            setData(eventModel.responseData)
+            setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+            setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+          } else {
+            window.alert(eventModel.message)
+          }
+          await carModel.getUserCars(user.sub)
+          if (carModel.success) {
+            setCarData(carModel.responseData)
+          } else {
+            window.alert(carModel.message)
+          }   
         } catch(e) {
           window.alert(e)
         } finally {
@@ -119,36 +113,11 @@ function Events() {
     try {
       if (window.confirm('Are you sure you want to delete this event?')) {
         const eventId = '/'+e.target.id.toString()
-        await fetch( process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS + eventId, {
-                    method: 'DELETE', 
-                    headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},})
-        .then(response => response.json())
-        .then((response) => {
-          if (!response.success) {
-            window.alert(response.message)   
-          }
-          setLoading(false)
-          handleClose()
-        }).catch((error) => {
-          setData([])
-          window.alert(error)
-          console.log(error)
-        });
-        //refresh
-        setLoading(true)
-        const permissions = new Permissions()
-        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
-              .then(response => response.json())
-              .then((response) => {
-                setData(response.data)
-                setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-                setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-                setLoading(false)
-              }).catch((error) => {
-                setData([])
-                window.alert(error)
-                console.log(error)
-              });
+        await eventModel.deleteEvent(eventId)
+        if (!eventModel.success) {
+          window.alert(eventModel.message)
+        }
+        await eventModel.getEvents()
       }
     } catch(e) {
       window.alert(e)
@@ -162,39 +131,11 @@ function Events() {
       if (name === '' || location === '') {
         window.alert('Please fill in all fields')
       } else {
-        const event = {name, location, date, fee}
-        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {
-                method: 'POST', 
-                headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
-                body: JSON.stringify(event)
-              })
-        .then(response => response.json())
-        .then((response) => {
-          if (!response.success) {
-            window.alert(response.message)   
-          }
-          setLoading(false)
-          handleClose()
-        }).catch((error) => {
-          setData([])
-          window.alert(error)
-          console.log(error)
-        })
-        //refresh
-        setLoading(true)
-        const permissions = new Permissions()
-        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS, {headers: {Authorization: `Bearer ${apiToken}`}})
-              .then(response => response.json())
-              .then((response) => {
-                setData(response.data)
-                setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-                setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-                setLoading(false)
-              }).catch((error) => {
-                setData([])
-                window.alert(error)
-                console.log(error)
-              })
+        await eventModel.postEvent(name, location, date, fee)
+        if (!eventModel.success) {
+          window.alert(eventModel.message)
+        }
+        await eventModel.getEvents()
       }
     } catch(e) {
       window.alert(e)
@@ -207,23 +148,13 @@ function Events() {
     try {
       if (car_ids.length === 0) {
         window.alert('Please chose at least one car')
-      } else {
-        await fetch(process.env.REACT_APP_API_URL + process.env.REACT_APP_API_EVENTS+ '/'+currEventId, { 
-                method: 'PUT', 
-                headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
-                body: JSON.stringify({car_ids})
-              })
-        .then(response => response.json())
-        .then((response) => {
-          if (!response.success) {
-            window.alert(response.message)   
-          }
-          setLoading(false)
-          handleCloseEnter()
-        }).catch((error) => {
-          window.alert(error)
-          console.log(error)
-        })
+      } else {        
+        eventModel.setApiToken(apiToken)
+        await eventModel.enterEvent(currEventId, car_ids)
+        if (!eventModel.success) {
+          window.alert(eventModel.message)
+        }
+        handleCloseEnter()
       }
     } catch(e) {
       window.alert(e)

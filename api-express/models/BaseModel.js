@@ -1,5 +1,4 @@
 require('dotenv').config()
-import e from 'express'
 import mongoClient from '../mongo-client'
 const ObjectId = require('mongodb').ObjectId
 

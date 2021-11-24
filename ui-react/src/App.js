@@ -7,10 +7,10 @@ import { theme } from './theme'
 import { MenuBar} from './components'
 import styled from 'styled-components'
 //import ProtectedRoute from './auth/protected-route';
-import Home from './pages/Home'
-import Events from './pages/Events'
-import Garage from './pages/Garage'
-import Membership from './pages/Membership'
+import Home from './views/Home'
+import Events from './views/Events'
+import Garage from './views/Garage'
+import Membership from './views/Membership'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 //import { useAuth0 } from '@auth0/auth0-react';
 require('dotenv').config()
