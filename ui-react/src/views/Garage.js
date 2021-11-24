@@ -238,7 +238,7 @@ function Garage() {
         {modalForm(true)}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data.map((car, index) => (
-            <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
+            <Card style={{minWidth: '30vh', maxWidth: '30vh', margin: '3px', zIndex: 0}} key={index}>
               <Card.Header>{car.manufacturer}</Card.Header>
               <Card.Body>
                 <Card.Title>{car.model}</Card.Title>

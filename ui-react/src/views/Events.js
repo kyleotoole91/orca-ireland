@@ -251,7 +251,7 @@ function Events() {
         {modalEnterEvent()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data.map((event, index) => (
-            <Card style={{maxWidth: '40vh', margin: '3px', zIndex: 0}} key={index}>
+            <Card style={{minWidth: '25vh', maxWidth: '25vh', margin: '3px', zIndex: 0}} key={index}>
               <Card.Header>{event.name}</Card.Header>
               <Card.Body>
                 <Card.Title>{event.location}</Card.Title>
