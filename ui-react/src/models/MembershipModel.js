@@ -9,25 +9,30 @@ export class MemeberModel extends BaseModel{
   }
 
   async getMemberships() {
+    this.reset()
     this.getRequest()
   }
 
   async getMembership(id) {
+    this.reset()
     this.itemId = id
     this.getRequest()
   }
 
   async getCurrentMembership() {
+    this.reset()
     this.urlParams = '?current=1'
     await this.getRequest()
   }
 
   async deleteMembership(id) {
+    this.reset()
     this.itemId = id
     this.deleteRequest()
   }
 
   async postMembership(membership) {
+    this.reset()
     try {
       if (!membership) {
         this.setErrorMessage('Please supply a membership object')
@@ -41,5 +46,4 @@ export class MemeberModel extends BaseModel{
       setLoading(false)
     }
   }
-
 }

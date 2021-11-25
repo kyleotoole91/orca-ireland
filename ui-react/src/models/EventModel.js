@@ -8,21 +8,25 @@ export class EventModel extends BaseModel{
   }
 
   async getEvents() {
+    this.reset()
     this.itemId = ''
     await this.getRequest()
   }
 
   async getEvent(id) {
+    this.reset()
     this.itemId = id
     await this.getRequest()
   }
 
   async deleteEvent(id) {
+    this.reset()
     this.itemId = id
     await this.deleteRequest()
   }
 
   async postEvent(name, location, date, fee) {
+    this.reset()
     try {
       if (name === '' || location === '' || date === '') {
         this.setErrorMessage('Please fill in all fields')
@@ -36,6 +40,7 @@ export class EventModel extends BaseModel{
   }
 
   async enterEvent(eventId, car_ids) {
+    this.reset()
     if (car_ids && car_ids.length > 0) {
       this.itemId = eventId
       this.setRequestData({car_ids})
@@ -44,5 +49,4 @@ export class EventModel extends BaseModel{
       this.setErrorMessage('Please choose at least one car')
     }
   }
-
 }

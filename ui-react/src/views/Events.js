@@ -62,6 +62,7 @@ function Events() {
   } else { 
     eventModel.setApiToken(apiToken)
   }
+
   async function getApiToken() {
     let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
     eventModel.setApiToken(token)

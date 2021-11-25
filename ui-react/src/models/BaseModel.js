@@ -18,6 +18,17 @@ export class BaseModel {
     this.success = true
   }
 
+  reset() {
+    this.endpoint2 = '' 
+    this.itemId = '' 
+    this.itemId2 = ''  
+    this.urlParams = '' 
+    this.message = ''
+    this.response = {}
+    this.responseData = {}
+    this.requestData = {}
+  }
+
   async getRequest(){
     try {
       if (this.apiToken && this.apiToken !== '') {

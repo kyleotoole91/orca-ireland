@@ -4,13 +4,12 @@ import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Loading from '../components/Loading'
-//import { Permissions } from '../utils/permissions'
-
-//extLookup=1 will accept the auth0 user id instead of the mongodb users._id object id
-const urlParam = '?extLookup=1' 
+import { CarModel } from '../models/CarModel'
+import { ClassModel } from '../models/ClassModel'
 
 function Garage() {
-  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0()
+  const carModel = new CarModel()
+  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [classes, setClasses] = useState([])
   const [classId, setClassId] = useState('')
   const [manufacturer, setManufacturer] = useState('')
@@ -24,142 +23,78 @@ function Garage() {
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
 
+  if (apiToken === '') {
+    if (!isAuthenticated) {
+      loginWithRedirect()
+    } else {
+      getApiToken()
+    }
+  } else { 
+    carModel.setApiToken(apiToken)
+  }
+
+  async function getApiToken() {
+    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+    carModel.setApiToken(token)
+    setApiToken(token)   
+  }
+
   useEffect(() => {
     async function loadData () {
-      setLoading(true)
       if (apiToken !== '') {
-        const extId = '/'+user.sub
+        setLoading(true)
         try {
-          //load user's cars
-          await fetch(process.env.REACT_APP_API_URL+ 
-                      process.env.REACT_APP_API_USERS+extId+
-                      process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
-                .then(response => response.json())
-                .then((response) => {
-                  setData(response.data)
-                }).catch((error) => {
-                  setData([])
-                  window.alert(error)
-                  console.log(error)
-                })
-          //load car classes for new car submission
-          await fetch(process.env.REACT_APP_API_URL + 
-                      process.env.REACT_APP_API_CLASSES, {headers: {Authorization: `Bearer ${apiToken}`}})
-                .then(response => response.json())
-                .then((response) => {
-                  setClasses(response.data)
-                  if (response.data && response.data.length >= 1) {
-                    setClassId(response.data[0]._id) //set default to first class in array
-                  }
-                }).catch((error) => {
-                  setClasses([])
-                  window.alert(error)
-                  console.log(error)
-                })
-        } catch(e) {
-          window.alert(e)
+          const carModel = new CarModel()
+          const classModel = new ClassModel()
+          carModel.setApiToken(apiToken)
+          classModel.setApiToken(apiToken)
+          await carModel.getUserCars(user.sub)
+          if (carModel.success) {
+            setData(carModel.responseData)
+          } else {
+            window.alert(carModel.message)
+          }
+          await classModel.getClasses()
+          if (classModel.success) {
+            setClasses(classModel.responseData)
+          } else {
+            window.alert(classModel.message)
+          }
         } finally {
-          setLoading(false)
-        }
+          setLoading(false) 
+        }  
       }
     }  
     loadData()
   }, [apiToken, user.sub])
 
-  if (isAuthenticated && apiToken === '') {
-    getApiToken()
-  }
-
-  async function getApiToken() {
-    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
-    setApiToken(token)   
-  }
-
   async function deleteCar(e) {
-    if (window.confirm('Are you sure you want to delete this car?')) {
-      setLoading(true);
-      const id = '/'+e.target.id.toString()
-      const extId = '/'+user.sub
-      await fetch(process.env.REACT_APP_API_URL+ 
-                  process.env.REACT_APP_API_USERS+extId+
-                  process.env.REACT_APP_API_CARS+id+urlParam, {
-                  method: 'DELETE', 
-                  headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
-            })
-      .then(response => response.json())
-      .then((response) => {
-              if (!response.success) {
-                window.alert(response.message)   
-              }
-              setLoading(false)
-              handleClose()
-            }).catch((error) => {
-              setData([])
-              window.alert(error)
-              console.log(error)
-            });
-      //refresh
-      setLoading(true)
-      await fetch(process.env.REACT_APP_API_URL+ 
-                  process.env.REACT_APP_API_USERS+extId +
-                  process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
-            .then(response => response.json())
-            .then((response) => {
-              setData(response.data)
-              setLoading(false)
-            }).catch((error) => {
-              setData([])
-              window.alert(error)
-              console.log(error)
-            });
-      setLoading(false);
+    try {
+      if (window.confirm('Are you sure you want to delete this car?')) {
+        await carModel.deleteUserCar(user.sub, e.target.id.toString())
+        !carModel.success && window.alert(carModel.message)
+        await carModel.getUserCars(user.sub)
+        carModel.success && setData(carModel.responseData)
+      }
+    } catch(e) {
+      window.alert(e)
+    } finally {
+      setLoading(false)
     }
   }
 
   async function postCar() {
-    const extId = '/'+user.sub
-    console.log('posting car')
-    console.log(classId)
-    if (manufacturer === '' || model === '' || transponder === ''|| freq === '') {
-      window.alert('Please fill in all fields')
-    } else {
-      const car = {manufacturer, model, freq, transponder, 'class_id': classId}
-      await fetch(process.env.REACT_APP_API_URL+ 
-                  process.env.REACT_APP_API_USERS+extId +
-                  process.env.REACT_APP_API_CARS+urlParam, {
-              method: 'POST', 
-              headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
-              body: JSON.stringify(car)
-            })
-      .then(response => response.json())
-      .then((response) => {
-        if (!response.success) {
-          window.alert(response.message)   
-        }
-        setLoading(false)
-        handleClose()
-      }).catch((error) => {
-        setData([])
-        setLoading(false);
-        window.alert(error)
-        console.log(error)
-      })
-      //refresh
-      setLoading(true)
-      await fetch(process.env.REACT_APP_API_URL+ 
-                  process.env.REACT_APP_API_USERS+extId +
-                  process.env.REACT_APP_API_CARS+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
-            .then(response => response.json())
-            .then((response) => {
-              setData(response.data)
-              setLoading(false)
-            }).catch((error) => {
-              setData([])
-              setLoading(false);
-              window.alert(error)
-              console.log(error)
-            })
-    }
+    try {
+      await carModel.postCar(user.sub, manufacturer, model, transponder, freq)  
+      !carModel.success && window.alert(carModel.message)
+      await carModel.getUserCars(user.sub)
+      carModel.success && setData(carModel.responseData)
+    } catch(e) {
+      window.alert(e)
+    } finally {
+      setLoading(false)
+      handleClose()
+    }  
   }
 
   function handleChange(e){

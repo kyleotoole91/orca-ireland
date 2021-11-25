@@ -1,5 +1,5 @@
 
-import {BaseModel} from './BaseModel'
+import { BaseModel } from './BaseModel'
 
 export class CarModel extends BaseModel{
   
@@ -9,10 +9,12 @@ export class CarModel extends BaseModel{
   }
 
   async getCars() {
+    this.reset()
     await this.getRequest()
   }
 
   async getUserCars(userId) {
+    this.reset()
     let origEndpoint = this.endpoint
     try {
       this.itemId = userId
@@ -22,23 +24,44 @@ export class CarModel extends BaseModel{
       await this.getRequest()
     } finally {
       this.endpoint = origEndpoint
-      this.endpoint2 = ''
-      this.urlParams = ''
     } 
   }
 
   async getCar(id) {
+    this.reset()
     this.itemId = id
     await this.getRequest()
   }
 
   async deleteCar(id) {
+    this.reset()
     this.itemId = id
     await this.deleteRequest()
   }
 
-  async postCar(manufacturer, model, freq, transponder, classId) {
+  async deleteUserCar(userId, carId) {
+    let origEndpoint = this.endpoint
     try {
+      this.reset()
+      this.itemId = userId
+      this.itemId2 = carId
+      this.endpoint = process.env.REACT_APP_API_USERS
+      this.endpoint2 = origEndpoint
+      this.urlParams = '?extLookup=1' 
+      await this.deleteRequest()
+    } finally {
+      this.endpoint = origEndpoint
+    } 
+  }
+
+  async postCar(userId, manufacturer, model, freq, transponder, classId) {
+    let origEndpoint = this.endpoint
+    try {
+      this.reset() 
+      this.itemId = userId
+      this.endpoint = process.env.REACT_APP_API_USERS
+      this.endpoint2 = origEndpoint
+      this.urlParams = '?extLookup=1' 
       if (manufacturer === '' || model === '' || transponder === '' || freq === '' || classId === '') {
         this.setErrorMessage('Please fill in all fields')
       } else {
@@ -47,7 +70,8 @@ export class CarModel extends BaseModel{
       }
     } catch(e) {
       this.setErrorMessage(e)
+    } finally {
+      this.endpoint = origEndpoint   
     }
   }
-
 }
