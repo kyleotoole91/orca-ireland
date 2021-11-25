@@ -53,15 +53,18 @@ function Events() {
     setShowEnter(true) 
   }
 
-  if (user && isAuthenticated && apiToken === '') {
-    getApiToken()
-  } else if (apiToken === '') { 
-    loginWithRedirect()
+  if (apiToken === '') {
+    if (!isAuthenticated) {
+      loginWithRedirect()
+    } else {
+      getApiToken()
+    }
+  } else { 
+    eventModel.setApiToken(apiToken)
   }
-
   async function getApiToken() {
     let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
-    eventModel.setApiToken(apiToken)
+    eventModel.setApiToken(token)
     setApiToken(token)   
   }
 
@@ -112,12 +115,10 @@ function Events() {
   async function deleteEvent(e) {
     try {
       if (window.confirm('Are you sure you want to delete this event?')) {
-        const eventId = '/'+e.target.id.toString()
-        await eventModel.deleteEvent(eventId)
-        if (!eventModel.success) {
-          window.alert(eventModel.message)
-        }
+        await eventModel.deleteEvent(e.target.id.toString())
+        !eventModel.success && window.alert(eventModel.message)
         await eventModel.getEvents()
+        eventModel.success && setData(eventModel.responseData)
       }
     } catch(e) {
       window.alert(e)
@@ -132,15 +133,15 @@ function Events() {
         window.alert('Please fill in all fields')
       } else {
         await eventModel.postEvent(name, location, date, fee)
-        if (!eventModel.success) {
-          window.alert(eventModel.message)
-        }
+        !eventModel.success && window.alert(eventModel.message)
         await eventModel.getEvents()
+        eventModel.success && setData(eventModel.responseData)
       }
     } catch(e) {
       window.alert(e)
     } finally {
       setLoading(false)
+      handleClose()
     }
   }
 
@@ -149,17 +150,14 @@ function Events() {
       if (car_ids.length === 0) {
         window.alert('Please chose at least one car')
       } else {        
-        eventModel.setApiToken(apiToken)
         await eventModel.enterEvent(currEventId, car_ids)
-        if (!eventModel.success) {
-          window.alert(eventModel.message)
-        }
-        handleCloseEnter()
+        !eventModel.success && window.alert(eventModel.message)
       }
     } catch(e) {
       window.alert(e)
     } finally {
       setLoading(false)
+      handleCloseEnter()
     }
   }
   

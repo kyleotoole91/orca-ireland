@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useAuth0 } from "@auth0/auth0-react";
-//import LogoutButton from './LogoutButton';
 import DefaultProfilePng from './images/default-profile-image.png';
 
 function Profile ({ forceUsername }) {
@@ -10,7 +9,6 @@ function Profile ({ forceUsername }) {
   var username = 'Sign In'
 
   if (user != null) {
-    console.log(user)
     profilePic = user.picture
     if (user.name != null) {
       username = user.name;

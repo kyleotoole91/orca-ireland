@@ -45,7 +45,6 @@ function Membership() {
                     setLastName(user.family_name)  
                   }
                 } else if (!response.success && response.hasOwnProperty('message')) {
-                  //window.alert(response.message) //shows unauthorized error from the cors preflight options req, so disabled for now  
                   console.log('Error: '+response.message)  
                   if (user.hasOwnProperty('given_name')) {
                     setFirstName(user.given_name) 
@@ -74,6 +73,7 @@ function Membership() {
     let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
     setApiToken(token)   
     console.log(token)
+    console.log(user)
   }
 
   async function updateMemberDetails() {
