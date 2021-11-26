@@ -48,10 +48,10 @@ app.put('/events/:eventId', validateJwt, (req, res) => eventsController.updateEv
 app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteDocument(req, res))
 //users 
 app.get('/users', validateJwt, (req, res) => usersController.getAllDocuments(req, res))
-app.get('/users/:userId', validateJwt, (req, res) => usersController.getUserDocument(req, res))
+app.get('/users/:id', validateJwt, (req, res) => usersController.getUserDocument(req, res))
 app.post('/users', validateJwt, (req, res) => usersController.addUserDocument(req, res))
-app.put('/users/:userId', validateJwt, (req, res) => usersController.updateUserDocument(req, res))
-app.delete('/users/:userId', validateJwt, (req, res) => usersController.deleteUserDocument(req, res))
+app.put('/users/:id', validateJwt, (req, res) => usersController.updateUserDocument(req, res))
+app.delete('/users/:id', validateJwt, (req, res) => usersController.deleteUserDocument(req, res))
 //memberships
 app.get('/memberships', validateJwt, (req, res) => membershipsController.getAllDocuments(req, res))
 app.get('/memberships/:id', validateJwt, (req, res) => membershipsController.getDocument(req, res))
@@ -65,7 +65,7 @@ app.get('/users/:userId/cars', validateJwt, (req, res) => carsController.getUser
 app.get('/users/:userId/cars/:docId', validateJwt, (req, res) => carsController.getUserDocument(req, res))
 app.get('/cars/:userId', validateJwt, (req, res) => carsController.getDocument(req, res))
 app.post('/users/:userId/cars', validateJwt, (req, res) => carsController.addUserDocument(req, res))
-app.post('/users/:userId/cars', validateJwt, (req, res) => carsController.updateUserDocument(req, res))
+app.put('/users/:userId/cars', validateJwt, (req, res) => carsController.updateUserDocument(req, res))
 app.put('/cars/:id', validateJwt, (req, res) => carsController.updateDocument(req, res))
 app.delete('/cars/:id', validateJwt, (req, res) => carsController.deleteDocument(req, res))
 app.delete('/users/:userId/cars/:docId', validateJwt, (req, res) => carsController.deleteUserDocument(req, res))

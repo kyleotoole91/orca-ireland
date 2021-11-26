@@ -15,7 +15,7 @@ export class BaseModel {
     this.itemId = '' 
     this.itemId2 = ''
     this.urlParams = ''
-    this.success = true
+    this.success = false
   }
 
   reset() {
@@ -27,6 +27,7 @@ export class BaseModel {
     this.response = {}
     this.responseData = {}
     this.requestData = {}
+    this.success = false
   }
 
   async getRequest(){

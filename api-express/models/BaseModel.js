@@ -174,7 +174,6 @@ export class BaseModel {
   async updateDocument(id, document){
     this.message = 'Updated'
     try {
-      console.log('updateDocument()')
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set:  document })
       if(!this.result) {

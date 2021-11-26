@@ -43,7 +43,6 @@ export class EventsController extends BaseController {
 
   async updateEvent(req, res) {
     try { 
-      console.log(req.body)
       let user = await this.getUser(req, res, false)
       let addingMember = Object.keys(req.body).length === 1 && req.body.hasOwnProperty('car_ids')
       let hasPermission = addingMember || this.permissions.check(this.getToken(req), 'put', this.collectionName)

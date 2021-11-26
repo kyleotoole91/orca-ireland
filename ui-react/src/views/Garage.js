@@ -57,6 +57,9 @@ function Garage() {
           await classModel.getClasses()
           if (classModel.success) {
             setClasses(classModel.responseData)
+            if (classModel.responseData.length > 0) {
+              setClassId(classModel.responseData[0]._id)
+            }
           } else {
             window.alert(classModel.message)
           }
@@ -85,15 +88,18 @@ function Garage() {
 
   async function postCar() {
     try {
-      await carModel.postCar(user.sub, manufacturer, model, transponder, freq)  
-      !carModel.success && window.alert(carModel.message)
+      await carModel.postCar(user.sub, {manufacturer, model, transponder, freq, 'class_id': classId})  
+      if (carModel.success) {
+        handleClose()
+      } else {
+        window.alert(carModel.message)
+      }
       await carModel.getUserCars(user.sub)
       carModel.success && setData(carModel.responseData)
     } catch(e) {
       window.alert(e)
     } finally {
       setLoading(false)
-      handleClose()
     }  
   }
 

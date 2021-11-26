@@ -70,13 +70,12 @@ export class MembershipController extends BaseController {
   }
 
   /*
-   adding user
+    adding user to membership 
     {
         "secret": "membership-secret",
         "extId": "external-user-id"
     }  
   */
-
   async updateMembership(req, res) {
     try {
       let user = await this.getUser(req, res, false)

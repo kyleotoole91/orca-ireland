@@ -5,11 +5,11 @@ import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form'
 import Loading from '../components/Loading';
 import { useAuth0 } from "@auth0/auth0-react";
-const urlParam = '?extLookup=1' 
+import { UserModel } from '../models/UserModel'
 
 function Membership() {  
-  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0()
-  const [data, setData] = useState([])
+  const userModel = new UserModel() 
+  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
   const [firstName, setFirstName] = useState('')
@@ -18,97 +18,86 @@ function Membership() {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
 
-  useEffect(() => {
-    async function loadData () {
-      const extId = '/'+user.sub
-      let memberData 
-      setLoading(true)
-      if (apiToken !== '') {
-        await fetch(process.env.REACT_APP_API_URL+ 
-                    process.env.REACT_APP_API_USERS+extId+urlParam, {headers: {Authorization: `Bearer ${apiToken}`}})
-              .then(response => response.json())
-              .then((response) => {
-                user.nickname && setUsername(user.nickname) 
-                user.email && setEmail(user.email) 
-                if (response.success && response.hasOwnProperty('data')) {
-                  memberData = response.data 
-                  setUsername(memberData.username)   
-                  setPhone(memberData.phone) 
-                  if (memberData.hasOwnProperty('firstName')) {
-                    setFirstName(memberData.firstName)
-                  } else if (user.hasOwnProperty('given_name')) {
-                    setFirstName(user.given_name)  
-                  }
-                  if (memberData.hasOwnProperty('lastName')) {
-                    setLastName(memberData.lastName)
-                  } else if (user.hasOwnProperty('family_name')) {
-                    setLastName(user.family_name)  
-                  }
-                } else if (!response.success && response.hasOwnProperty('message')) {
-                  console.log('Error: '+response.message)  
-                  if (user.hasOwnProperty('given_name')) {
-                    setFirstName(user.given_name) 
-                  }
-                  if (user.hasOwnProperty('family_name')) {
-                    setLastName(user.family_name) 
-                  }
-                }
-                setLoading(false)
-              }).catch((error) => {
-                setData([])
-                setLoading(false);
-                window.alert(error)
-                console.log(error)
-              })
-      }
-    }  
-    loadData()
-  }, [apiToken, user, isAuthenticated, getAccessTokenSilently])
-
-  if (isAuthenticated && apiToken === '') {
-    getApiToken()
+  if (apiToken === '') {
+    if (!isAuthenticated) {
+      loginWithRedirect()
+    } else {
+      getApiToken()
+    }
+  } else { 
+    userModel.setApiToken(apiToken)
   }
 
   async function getApiToken() {
     let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+    userModel.setApiToken(token)
     setApiToken(token)   
     console.log(token)
     console.log(user)
   }
 
-  async function updateMemberDetails() {
-    if (firstName === '' || lastName === '' || phone === '') {
-      window.alert('Please fill in all fields')
-    } else {
-      const extId = user.sub 
-      const extIdUrl = '/'+extId
-      const member = {firstName, lastName, phone, username, email, extId}
-      await fetch(process.env.REACT_APP_API_URL+ 
-                  process.env.REACT_APP_API_USERS+extIdUrl+urlParam, {
-              method: 'PUT', 
-              headers: {Authorization: `Bearer ${apiToken}`, "Content-Type": "application/json"},
-              body: JSON.stringify(member)
-            })
-      .then(response => response.json())
-      .then((response) => {
-        if (!response.success) {
-          window.alert(response.message)   
-        } else {
-          window.alert('Membership details updated succesfully')    
+  useEffect(() => {
+    async function loadData () {
+      setLoading(true)
+      if (apiToken !== '') {
+        try {
+          const userModel = new UserModel() 
+          userModel.setApiToken(apiToken)
+          await userModel.getUser(user.sub)
+          if (userModel.success) {
+            user.nickname && setUsername(user.nickname) 
+            user.email && setEmail(user.email) 
+            setUsername(userModel.responseData.username)   
+            setPhone(userModel.responseData.phone) 
+            if (userModel.responseData.hasOwnProperty('firstName')) {
+              setFirstName(userModel.responseData.firstName)
+            } else if (user.hasOwnProperty('given_name')) {
+              setFirstName(user.given_name)  
+            }
+            if (userModel.responseData.hasOwnProperty('lastName')) {
+              setLastName(userModel.responseData.lastName)
+            } else if (user.hasOwnProperty('family_name')) {
+              setLastName(user.family_name)  
+            }
+          } else {
+            console.log(userModel.message)
+            if (user.hasOwnProperty('given_name')) {
+              setFirstName(user.given_name) 
+            }
+            if (user.hasOwnProperty('family_name')) {
+              setLastName(user.family_name) 
+            }
+            window.alert(userModel.message)
+          }
+        } catch(e) {
+          window.alert(e)
+        } finally {
+          setLoading(false)
         }
-        setLoading(false)
-      }).catch((error) => {
-        setData([])
-        setLoading(false);
-        window.alert(error)
-        console.log(error)
-      })
+      }
+    }  
+    loadData()
+  }, [apiToken, user, isAuthenticated, getAccessTokenSilently])
+
+  async function updateMemberDetails() {
+    try {
+      const extId = user.sub
+      await userModel.putUser({ firstName, lastName, phone, username, email, extId })  
+      if (userModel.success) {
+        window.alert('Details updated succesfully')
+      } else {
+        window.alert(userModel.message)
+      }
+    } catch (e) {
+      window.alert(e)
+    } finally {
+      setLoading(false)  
     }
   }
 
   if (loading) {
     return ( <Loading /> )
-  } else if (data) {
+  } else {
     return (
       <div style={{display: 'flex', flexFlow: 'wrap'}}> 
         <Card style={{margin: '3px'}}>

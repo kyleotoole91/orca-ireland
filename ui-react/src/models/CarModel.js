@@ -54,7 +54,7 @@ export class CarModel extends BaseModel{
     } 
   }
 
-  async postCar(userId, manufacturer, model, freq, transponder, classId) {
+  async postCar(userId, car) {
     let origEndpoint = this.endpoint
     try {
       this.reset() 
@@ -62,10 +62,13 @@ export class CarModel extends BaseModel{
       this.endpoint = process.env.REACT_APP_API_USERS
       this.endpoint2 = origEndpoint
       this.urlParams = '?extLookup=1' 
-      if (manufacturer === '' || model === '' || transponder === '' || freq === '' || classId === '') {
+      console.log(car)
+      if (userId === '') {
+        this.setErrorMessage('Please specify a user')
+      } else if (car.manufacturer === '' || car.model === '' || car.transponder === '' || car.freq === '' || car.class_id === '') {
         this.setErrorMessage('Please fill in all fields')
       } else {
-        this.setRequestData({manufacturer, model, freq, transponder, classId})
+        this.setRequestData(car)
         await this.postRequest()
       }
     } catch(e) {

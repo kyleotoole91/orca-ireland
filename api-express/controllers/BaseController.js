@@ -350,24 +350,24 @@ export class BaseController {
       if (user || this.permissions.userInToken(this.getToken(req), req.params.id)) { 
         if (!req.params.docId && req.query.extLookup === '1') { //requesting /user if no other param given
           if (user) {
-            this.data = await this.DB.updateDocument(user._id, req.body) 
+            this.data = await this.db.updateDocument(user._id, req.body) 
           } else { //allow inserting of user record if not found on put request
-            this.data = await this.DB.addDocument(req.body)     
+            this.data = await this.db.addDocument(req.body)     
           }
           console.log(JSON.stringify(this.data))   
         } else {  
-           this.data = await this.DB.updateUserDocument(user._id, req.params.docId, req.body)
+           this.data = await this.db.updateUserDocument(user._id, req.params.docId, req.body)
         } 
         if (this.data) {
           return res.status(200).send({
             success: true,
-            message: this.DB.message,
+            message: this.db.message,
             data: this.data
           })
         } else {
           return res.status(404).send({
             success: false,
-            message: this.DB.message
+            message: this.db.message
           });  
         } 
       } else {
