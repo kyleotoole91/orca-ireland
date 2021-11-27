@@ -18,4 +18,13 @@ export class UserModel extends BaseModel{
     }
   }
 
+  async post(user) {
+    if (user.extId === '' || user.firstName === '' || user.lastName === '' || user.phone === '') {
+      this.message = 'Please fill in all fields'
+      return
+    } else {
+      return await super.put(user)
+    }
+  }
+
 }
