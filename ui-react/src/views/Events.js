@@ -84,11 +84,9 @@ function Events() {
       setLoading(true);
       if (apiToken !== '') {
         try {
-          const eventModel = new EventModel()
-          const carModel = new CarModel()
+          const eventModel = new EventModel(apiToken)
+          const carModel = new CarModel(apiToken)
           const permissions = new Permissions()
-          carModel.setApiToken(apiToken)
-          eventModel.setApiToken(apiToken)
           await eventModel.get()
           if (eventModel.success) {
             setData(eventModel.responseData)

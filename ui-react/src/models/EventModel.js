@@ -2,8 +2,8 @@
 import {BaseModel} from './BaseModel'
 
 export class EventModel extends BaseModel{
-  constructor() {
-    super()
+  constructor(token) {
+    super(token)
     this.setEndpoint(process.env.REACT_APP_API_EVENTS)
   }
 

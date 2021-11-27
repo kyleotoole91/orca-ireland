@@ -41,8 +41,7 @@ function Membership() {
       setLoading(true)
       if (apiToken !== '') {
         try {
-          const userModel = new UserModel() 
-          userModel.setApiToken(apiToken)
+          const userModel = new UserModel(apiToken) 
           await userModel.get(user.sub)
           if (userModel.success) {
             user.nickname && setUsername(user.nickname) 

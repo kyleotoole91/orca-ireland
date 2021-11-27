@@ -2,8 +2,8 @@
 import {BaseModel} from './BaseModel'
 
 export class MemeberModel extends BaseModel{
-  constructor() {
-    super()
+  constructor(token) {
+    super(token)
     this.baseURL = process.env.REACT_APP_API_URL
     this.endpoint = process.env.REACT_APP_API_MEMBERSHIPS
   }

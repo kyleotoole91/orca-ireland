@@ -44,10 +44,8 @@ function Garage() {
       if (apiToken !== '') {
         setLoading(true)
         try {
-          const carModel = new CarModel()
-          const classModel = new ClassModel()
-          carModel.setApiToken(apiToken)
-          classModel.setApiToken(apiToken)
+          const carModel = new CarModel(apiToken)
+          const classModel = new ClassModel(apiToken)
           await carModel.getUserDocs(user.sub)
           if (carModel.success) {
             setData(carModel.responseData)

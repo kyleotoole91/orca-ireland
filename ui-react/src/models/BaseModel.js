@@ -2,12 +2,14 @@
 
 export class BaseModel {
 
-  constructor() {
+  constructor(token) {
     if (this.constructor === BaseModel) {
       throw new Error('Abstract class Base Model cannot be instantiated')
     } else {
+      if (token && token !== '') {
+        this.setApiToken(token)
+      }
       this.baseURL = process.env.REACT_APP_API_URL
-      this.apiToken = ''
       this.message = ''
       this.response = {}
       this.responseData = {}
