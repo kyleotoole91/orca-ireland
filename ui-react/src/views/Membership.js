@@ -43,7 +43,7 @@ function Membership() {
         try {
           const userModel = new UserModel() 
           userModel.setApiToken(apiToken)
-          await userModel.getUser(user.sub)
+          await userModel.get(user.sub)
           if (userModel.success) {
             user.nickname && setUsername(user.nickname) 
             user.email && setEmail(user.email) 
@@ -79,10 +79,10 @@ function Membership() {
     loadData()
   }, [apiToken, user, isAuthenticated, getAccessTokenSilently])
 
-  async function updateMemberDetails() {
+  async function updateUserDetails() {
     try {
       const extId = user.sub
-      await userModel.putUser({ firstName, lastName, phone, username, email, extId })  
+      await userModel.put(user.sub, { firstName, lastName, phone, username, email, extId })  
       if (userModel.success) {
         window.alert('Details updated succesfully')
       } else {
@@ -125,7 +125,7 @@ function Membership() {
                 <Form.Control readOnly type="test" placeholder="Enter email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </Form.Group>
             </Form> 
-            <Button variant="outline-primary" onClick={updateMemberDetails}>Save </Button>
+            <Button variant="outline-primary" onClick={updateUserDetails}>Save </Button>
           </Card.Body>
         </Card>
         <Card style={{margin: '3px', maxHeight: '125px', width: '284px'}}>

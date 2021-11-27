@@ -3,19 +3,17 @@
 export class BaseModel {
 
   constructor() {
-    this.baseURL = process.env.REACT_APP_API_URL
-    this.apiToken = ''
-    this.endpoint = ''
-    this.endpoint2 = ''
-    this.httpMethod = 'GET'
-    this.response = {}
-    this.responseData = {}
-    this.requestData = {}
-    this.message = ''
-    this.itemId = '' 
-    this.itemId2 = ''
-    this.urlParams = ''
-    this.success = false
+    if (this.constructor === BaseModel) {
+      throw new Error('Abstract class Base Model cannot be instantiated')
+    } else {
+      this.baseURL = process.env.REACT_APP_API_URL
+      this.apiToken = ''
+      this.message = ''
+      this.response = {}
+      this.responseData = {}
+      this.success = false
+      this.reset()
+    }
   }
 
   reset() {
@@ -23,78 +21,125 @@ export class BaseModel {
     this.itemId = '' 
     this.itemId2 = ''  
     this.urlParams = '' 
-    this.message = ''
-    this.response = {}
-    this.responseData = {}
-    this.requestData = {}
-    this.success = false
   }
 
-  async getRequest(){
+  hasApiToken(){
+    if (!this.apiToken || this.apiToken === '') { 
+      this.setErrorMessage('api token not set') 
+      return false
+    } else {
+      return true
+    }
+  }
+
+  async get(id){
     try {
-      if (this.apiToken && this.apiToken !== '') {
-        await fetch(this.getUrl(), {headers: {Authorization: `Bearer ${this.apiToken}`}})
-              .then(response => response.json())
-              .then((response) => {
-                this.setResponseData(response)}) 
-      } else {
-        this.setErrorMessage('api token not set')  
-      }  
+      this.itemId = id
+      if (!this.hasApiToken()) { return }
+      await fetch(this.getUrl(), {
+                  method: 'GET', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+              return response 
+            }) 
+
     } catch(e) {
       this.setErrorMessage(e)
+      return
+    } finally {
+      this.reset()
+    }
+  }
+
+  async getUserDocs(userId, itemId) {
+    let origEndpoint = this.endpoint
+    try {
+      this.autoReset = false
+      this.itemId2 = itemId
+      this.endpoint = process.env.REACT_APP_API_USERS
+      this.endpoint2 = origEndpoint
+      this.urlParams = '?extLookup=1' 
+      await this.get(userId)
+    } finally {
+      this.endpoint = origEndpoint
+      return this.responseData
     } 
   }
 
-  async postRequest(){
+  async put(id, data){
     try {
-      if (this.apiToken && this.apiToken !== '') {
-        await fetch(this.getUrl(), {
-                    method: 'POST', 
-                    headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
-                    body: JSON.stringify(this.requestData)})
-              .then(response => response.json())
-              .then((response) => {
-                this.setResponseData(response)})
-      } else {
-        this.setErrorMessage('api token not set')  
-      }  
+      if (!this.hasApiToken()) { return }
+      this.itemId = id
+      await fetch(this.getUrl(), {
+                  method: 'PUT', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
+                  body: JSON.stringify(data)})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+              return response 
+            })  
     } catch(e) {
       this.setErrorMessage(e)
+    } finally {
+      this.reset()
     } 
   }
 
-  async putRequest(){
+  async post(data){
     try {
-      if (this.apiToken && this.apiToken !== '') {
-        await fetch(this.getUrl(), {
-                    method: 'PUT', 
-                    headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
-                    body: JSON.stringify(this.requestData)})
-              .then(response => response.json())
-              .then((response) => {
-                this.setResponseData(response)})
-      } else {
-        this.setErrorMessage('api token not set')  
-      }   
+      if (!this.hasApiToken()) { return }
+      await fetch(this.getUrl(), {
+                  method: 'POST', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
+                  body: JSON.stringify(data)})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+              return response 
+            }) 
     } catch(e) {
       this.setErrorMessage(e)
-    } 
+      return 
+    } finally {
+      this.reset()
+    }
   }
 
-  async deleteRequest(){
+  async delete(id){
     try {
-      if (this.apiToken && this.apiToken !== '') {
-        await fetch(this.getUrl(), {
-                    method: 'DELETE', 
-                    headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})
-              .then(response => response.json())
-              .then((response) => {
-                this.setResponseData(response)})
-      } else {
-        this.setErrorMessage('api token not set')  
-      }   
+      this.itemId = id
+      if (!this.hasApiToken()) { return }
+      await fetch(this.getUrl(), {
+                  method: 'DELETE', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+              return response
+            })  
     } catch(e) {
       this.setErrorMessage(e)
+      return 
+    } finally {
+      this.reset()
+    }
+  }
+
+  async deleteUserDoc(userId, itemId) {
+    let origEndpoint = this.endpoint
+    try {
+      this.autoReset = false
+      this.itemId = userId
+      this.itemId2 = itemId
+      this.endpoint = process.env.REACT_APP_API_USERS
+      this.endpoint2 = origEndpoint
+      this.urlParams = '?extLookup=1' 
+      await this.delete(itemId)
+    } finally {
+      this.endpoint = origEndpoint
     } 
   }
 
@@ -104,7 +149,7 @@ export class BaseModel {
   }
 
   getEndpoint2() {
-    if (this.endpoint2 !== '') {
+    if (this.endpoint2 && this.endpoint2 !== '') {
       return this.endpoint2 
     } else {
       return ''
@@ -132,7 +177,7 @@ export class BaseModel {
   }
 
   getItemId(){
-    if (this.itemId !== '') {
+    if (this.itemId && this.itemId !== '') {
       return '/'+this.itemId
     } else {
       return ''
@@ -140,7 +185,7 @@ export class BaseModel {
   }
 
   getItemId2(){
-    if (this.itemId2 !== '') {
+    if (this.itemId2 && this.itemId2 !== '') {
       return '/'+this.itemId2
     } else {
       return ''

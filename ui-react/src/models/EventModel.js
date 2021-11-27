@@ -7,46 +7,21 @@ export class EventModel extends BaseModel{
     this.setEndpoint(process.env.REACT_APP_API_EVENTS)
   }
 
-  async getEvents() {
-    this.reset()
-    this.itemId = ''
-    await this.getRequest()
-  }
-
-  async getEvent(id) {
-    this.reset()
-    this.itemId = id
-    await this.getRequest()
-  }
-
-  async deleteEvent(id) {
-    this.reset()
-    this.itemId = id
-    await this.deleteRequest()
-  }
-
-  async postEvent(name, location, date, fee) {
-    this.reset()
-    try {
-      if (name === '' || location === '' || date === '') {
-        this.setErrorMessage('Please fill in all fields')
-      } else {
-        this.setRequestData({name, location, date, fee})
-        await this.postRequest()
-      }
-    } catch(e) {
-      this.setErrorMessage(e)
+  async post(event) {
+    if (!event || event.name === '' || event.location === '' || event.date === '') {
+      this.setErrorMessage('Please fill in all fields')
+      return
+    } else {
+      return await super.post(event)
     }
   }
 
   async enterEvent(eventId, car_ids) {
-    this.reset()
     if (car_ids && car_ids.length > 0) {
-      this.itemId = eventId
-      this.setRequestData({car_ids})
-      await this.putRequest()
+      return await this.put(eventId, {car_ids})
     } else {
       this.setErrorMessage('Please choose at least one car')
+      return 
     }
   }
 }

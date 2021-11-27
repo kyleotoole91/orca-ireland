@@ -89,7 +89,7 @@ function Events() {
           const permissions = new Permissions()
           carModel.setApiToken(apiToken)
           eventModel.setApiToken(apiToken)
-          await eventModel.getEvents()
+          await eventModel.get()
           if (eventModel.success) {
             setData(eventModel.responseData)
             setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
@@ -97,12 +97,10 @@ function Events() {
           } else {
             window.alert(eventModel.message)
           }
-          await carModel.getUserCars(user.sub)
+          await carModel.getUserDocs(user.sub)
           if (carModel.success) {
             setCarData(carModel.responseData)
-          } else {
-            window.alert(carModel.message)
-          }   
+          }  
         } catch(e) {
           window.alert(e)
         } finally {
@@ -116,9 +114,9 @@ function Events() {
   async function deleteEvent(e) {
     try {
       if (window.confirm('Are you sure you want to delete this event?')) {
-        await eventModel.deleteEvent(e.target.id.toString())
+        await eventModel.delete(e.target.id.toString())
         !eventModel.success && window.alert(eventModel.message)
-        await eventModel.getEvents()
+        await eventModel.get()
         eventModel.success && setData(eventModel.responseData)
       }
     } catch(e) {
@@ -133,9 +131,9 @@ function Events() {
       if (name === '' || location === '') {
         window.alert('Please fill in all fields')
       } else {
-        await eventModel.postEvent(name, location, date, fee)
+        await eventModel.post({name, location, date, fee})
         !eventModel.success && window.alert(eventModel.message)
-        await eventModel.getEvents()
+        await eventModel.get()
         eventModel.success && setData(eventModel.responseData)
       }
     } catch(e) {

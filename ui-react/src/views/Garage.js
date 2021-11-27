@@ -48,13 +48,13 @@ function Garage() {
           const classModel = new ClassModel()
           carModel.setApiToken(apiToken)
           classModel.setApiToken(apiToken)
-          await carModel.getUserCars(user.sub)
+          await carModel.getUserDocs(user.sub)
           if (carModel.success) {
             setData(carModel.responseData)
           } else {
             window.alert(carModel.message)
           }
-          await classModel.getClasses()
+          await classModel.get()
           if (classModel.success) {
             setClasses(classModel.responseData)
             if (classModel.responseData.length > 0) {
@@ -74,9 +74,9 @@ function Garage() {
   async function deleteCar(e) {
     try {
       if (window.confirm('Are you sure you want to delete this car?')) {
-        await carModel.deleteUserCar(user.sub, e.target.id.toString())
+        await carModel.deleteUserDoc(user.sub, e.target.id.toString())
         !carModel.success && window.alert(carModel.message)
-        await carModel.getUserCars(user.sub)
+        await carModel.getUserDocs(user.sub)
         carModel.success && setData(carModel.responseData)
       }
     } catch(e) {
@@ -88,13 +88,14 @@ function Garage() {
 
   async function postCar() {
     try {
-      await carModel.postCar(user.sub, {manufacturer, model, transponder, freq, 'class_id': classId})  
+      await carModel.post(user.sub, {manufacturer, model, transponder, freq, 'class_id': classId})  
       if (carModel.success) {
         handleClose()
       } else {
+        console.log('postCar() error')
         window.alert(carModel.message)
       }
-      await carModel.getUserCars(user.sub)
+      await carModel.getUserDocs(user.sub)
       carModel.success && setData(carModel.responseData)
     } catch(e) {
       window.alert(e)
