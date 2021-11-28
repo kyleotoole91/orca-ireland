@@ -64,9 +64,13 @@ function Membership() {
 
   async function activateMembership() {
     try {
-      await membershipModel.activateMembership(currMembership._id, user.sub, activationCode)  
-      if (!membershipModel.success) {
-        window.alert(membershipModel.message)
+      if (!user.email_verified) {
+        window.alert('Please verify your email, check your inbox')
+      } else {
+        await membershipModel.activateMembership(currMembership._id, user.sub, activationCode)  
+        if (!membershipModel.success) {
+          window.alert(membershipModel.message)
+        }
       }
     } finally {
       setRefresh(!refresh) 
