@@ -15,13 +15,18 @@ import { DateUtils } from '../utils/DateUtils'
 
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
+const eventStartTimeHours = 10
+let todayDateCtrl = dateUtils.formatDate(new Date(Date.now()), 'yyyy-mm-dd')
+let defaultEventDate = new Date(Date.now())
+defaultEventDate.setHours(eventStartTimeHours)
+defaultEventDate.setMinutes(0)
 
 function Events() {
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
-  let todayDate = dateUtils.formatDate(new Date(Date.now()), 'yyyy-mm-dd')
   const [name, setName] = useState('')
   const [location, setLocation] = useState("Saint Anne's Park")
-  const [date, setDate] = useState(todayDate)
+  const [date, setDate] = useState(todayDateCtrl)
+  const [eventDate, setEventDate] = useState(defaultEventDate)
   const [fee, setFee] = useState(10.00)
   const [data, setData] = useState([])
   const [car_ids, setCar_ids] = useState([])
@@ -121,6 +126,8 @@ function Events() {
       if (name === '' || location === '') {
         window.alert('Please fill in all fields')
       } else {
+        let date = eventDate
+        console.log(date)
         await eventModel.post({name, location, date, fee})
         !eventModel.success && window.alert(eventModel.message)
         await eventModel.get()
@@ -149,6 +156,14 @@ function Events() {
       handleCloseEnter()
     }
   }
+
+  function eventDateChange(stringDate) {
+    let date = new Date(stringDate)
+    date.setHours(eventStartTimeHours)
+    console.log(date)
+    setEventDate(date)
+    setDate(stringDate)  
+  }
   
   function modalForm(){
     return ( 
@@ -166,7 +181,7 @@ function Events() {
           </label>
           <label style={{ margin: '3px' }} >
             Date: &nbsp;&nbsp;&nbsp;&nbsp;
-            <input value={date} onChange={(e) => setDate(e.target.value)} type="date" id="eventDate" name="event-date" min={todayDate} />
+            <input value={date} onChange={(e) => eventDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={todayDateCtrl} />
           </label>
           <label style={{ margin: '3px' }} >
             Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

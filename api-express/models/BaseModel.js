@@ -32,25 +32,27 @@ export class BaseModel {
   }
 
   //Auto converts string fields with _id suffix to mongo db object _ids. Sometimes throws undefined errors
-  addObject_ids(obj){
+  applyDataTypes(obj){
     try {
       Object.keys(obj).forEach(function(key) {
         const field = key
         const value = obj[field]
-        if (field.includes('_id')) {
+        if (field.includes('date') || field.includes('Date')){
+          obj[field] = new Date(value) 
+        } else if (field.includes('_id')) {
           obj[field] = new ObjectId(value) 
         } else if (value === 'object' && !Array.isArray(value) && value !== null) {
-          addObject_ids(value);
+          applyDataTypes(value);
         } else if (Array.isArray(value)) {
           value.forEach(function (item) {
             if (item === 'object' && !Array.isArray(item) && item !== null) {
-              addObject_ids(item);
+              applyDataTypes(item);
             }  
           });
         }
       })
     } catch(e) {
-      console.log('Error addObject_ids(): '+e.message)
+      console.log('Error applyDataTypes(): '+e.message)
     }
   }
 
@@ -116,7 +118,7 @@ export class BaseModel {
   async addDocument(document){
     this.message = 'Added'
     try {
-      this.addObject_ids(document)
+      this.applyDataTypes(document)
       this.result = await this.db.insertOne( document )
       if(!this.result) {
         this.message = 'Not added' 
@@ -230,7 +232,7 @@ export class BaseModel {
   async updateUserDocument(userId, id, document){
     this.message = 'Updated'
     try {
-      this.addObject_ids(document)
+      this.applyDataTypes(document)
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set:  document })
       if(!this.result) {
