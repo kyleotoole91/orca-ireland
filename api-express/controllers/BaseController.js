@@ -354,7 +354,6 @@ export class BaseController {
           } else { //allow inserting of user record if not found on put request
             this.data = await this.db.addDocument(req.body)     
           }
-          console.log(JSON.stringify(this.data))   
         } else {  
            this.data = await this.db.updateUserDocument(user._id, req.params.docId, req.body)
         } 

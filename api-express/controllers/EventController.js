@@ -43,8 +43,6 @@ export class EventsController extends BaseController {
 
   removeUsersCars(user_id, event) {
     for (var car of event.cars) {
-      console.log(car.user._id.toString() )
-      console.log(user_id.toString() )
       if (car.user._id.toString() === user_id.toString()) {
         event.car_ids.splice(event.car_ids.indexOf(car._id), 1)
       }

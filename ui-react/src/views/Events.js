@@ -4,6 +4,7 @@ import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import InputGroup from 'react-bootstrap/InputGroup'
+import Accordion  from 'react-bootstrap/Accordion'
 import FormControl from 'react-bootstrap/FormControl'
 import Loading from '../components/Loading'
 import dayjs from 'dayjs'
@@ -12,6 +13,7 @@ import NumberFormat from 'react-number-format'
 import { EventModel } from '../models/EventModel'
 import { CarModel } from '../models/CarModel'
 import { DateUtils } from '../utils/DateUtils'
+import Spinner from 'react-bootstrap/Spinner'
 
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
@@ -29,6 +31,7 @@ function Events() {
   const [eventDate, setEventDate] = useState(defaultEventDate)
   const [fee, setFee] = useState(10.00)
   const [data, setData] = useState([])
+  const [currentEvent, setCurrentEvent] = useState([])
   const [car_ids, setCar_ids] = useState([])
   const [carData, setCarData] = useState([])
   const [apiToken, setApiToken] = useState('')
@@ -39,6 +42,8 @@ function Events() {
   const [showEnter, setShowEnter] = useState(false)
   const [currEventId, setCurrEventId] = useState('')
   const [refresh, setRefresh] = useState(false)
+  const [loadingAllEvents, setLoadingAllEvents] = useState(false)
+  const [allEventsExpanded, setAllEventsExpanded] = useState(false)
 
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
@@ -88,27 +93,36 @@ function Events() {
           break 
         }
       }
-    } else {
-      console.log('data undefined')
     }
     return found
   }
 
   useEffect(() => {
     async function loadData () {
-      setLoading(true);
+      setLoading(true)
       if (apiToken !== '') {
         try {
           const eventModel = new EventModel(apiToken)
           const carModel = new CarModel(apiToken)
           const permissions = new Permissions()
-          await eventModel.get()
+          setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+          setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+          let currEvent = await eventModel.getCurrentEvent()
           if (eventModel.success) {
-            setData(eventModel.responseData)
-            setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-            setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+            setCurrentEvent(eventModel.responseData)
           } else {
             window.alert(eventModel.message)
+          }
+          let noCurrentEvent = !currEvent || currEvent.length === 0
+          if (noCurrentEvent) {
+            await eventModel.get()
+            if (eventModel.success) {
+              setData(eventModel.responseData)
+              setLoadingAllEvents(false)
+              setAllEventsExpanded(true)
+            } else {
+              console.log(eventModel.message)
+            }
           }
           await carModel.getUserDocs(user.sub)
           if (carModel.success) {
@@ -146,15 +160,17 @@ function Events() {
       } else {
         let date = eventDate
         await eventModel.post({name, location, date, fee})
-        !eventModel.success && window.alert(eventModel.message)
-        await eventModel.get()
-        eventModel.success && setData(eventModel.responseData)
+        if (eventModel.success) {
+          setRefresh(!refresh)
+          handleClose()
+        } else {
+          window.alert(eventModel.message) 
+        }
       }
     } catch(e) {
       window.alert(e)
     } finally {
       setLoading(false)
-      handleClose()
     }
   }
 
@@ -180,7 +196,88 @@ function Events() {
     setEventDate(date)
     setDate(stringDate)  
   }
-  
+
+  function nextEventExpand(){
+    if (currentEvent && currentEvent.length > 0) {
+      return '0'
+    } else {
+      return '1'  
+    }
+  }
+
+  function allEventsExpand(){
+    if (currentEvent && currentEvent.length > 0) {
+      return '1'
+    } else {
+      return '0'  
+    }  
+  }
+
+  async function allEventsClick(){
+    try {
+      if (!allEventsExpanded) {
+        setLoadingAllEvents(true)
+        //await new Promise(r => setTimeout(r, 2000)); //sleep for 2s
+        await eventModel.get()
+        if (eventModel.success) {
+          setData(eventModel.responseData)
+        }  
+      } 
+    } finally {
+      setLoadingAllEvents(false)
+      setAllEventsExpanded(!allEventsExpanded)
+    }
+  }
+
+  function addCards(events, showEnter) {
+    return (
+      events.map((event, index) => (
+        <Card style={{minWidth: '25vh', maxWidth: '25vh', margin: '3px', zIndex: 0}} key={index}>
+          <Card.Header>{event.name}</Card.Header>
+          <Card.Body>
+            <Card.Title>{event.location}</Card.Title>
+            <Card.Text>Entry fee €{event.fee}</Card.Text>
+            <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
+            {showEnter && <Button onClick={handleShowEnter} id={event._id} variant="outline-primary">Enter</Button> }
+            {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }
+          </Card.Body>
+        </Card>)
+      )
+    )
+  }
+
+  function getCurrentEventCard(){
+    if (loading) {
+      return <div className="text-center">
+               <Spinner animation="border" variant="primary"/>
+             </div>
+    } else if (currentEvent && currentEvent.length > 0) {
+      return (
+        <div style={{display: 'flex', flexFlow: 'wrap'}}>
+          {addCards(currentEvent, true)}
+        </div>    
+      )
+    } else {
+      return ( <h4>No events</h4> )
+    }
+  }
+
+  function getAllEventCards(){
+    if (loadingAllEvents) {
+      return <div className="text-center">
+               <Spinner animation="border" variant="primary"/>
+             </div>
+    } else if (data && data.length > 0) {
+      return (
+        <div style={{display: 'flex', flexFlow: 'wrap'}}>
+          {addCards(data)}
+        </div>    
+      )
+    } else {
+      return ( <h4>No events</h4> )
+    }
+  }
+
   function modalForm(){
     return ( 
       <Modal show={show} onHide={handleClose}>
@@ -252,35 +349,30 @@ function Events() {
       </Modal>   
     )
   }
+
   //for split second, data is still undefined although loading state was set to true after data set was set 
   if (loading) {
     return ( <Loading /> )
-  } else if (!data || data.length === 0) {
-    return ( 
-      <div>
-        {allowAddEvents && modalForm()}
-        {allowAddEvents && <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
-      </div> )
   } else {
     return (
       <div>
         {allowAddEvents && <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
         {modalForm()}
         {modalEnterEvent()}
-        <div style={{display: 'flex', flexFlow: 'wrap'}}>
-          {data.map((event, index) => (
-            <Card style={{minWidth: '25vh', maxWidth: '25vh', margin: '3px', zIndex: 0}} key={index}>
-              <Card.Header>{event.name}</Card.Header>
-              <Card.Body>
-                <Card.Title>{event.location}</Card.Title>
-                <Card.Text>Entry fee €{event.fee}</Card.Text>
-                <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
-                <Button onClick={handleShowEnter} id={event._id} variant="outline-primary">Enter</Button>
-                {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }
-              </Card.Body>
-            </Card>
-          ))}    
-        </div> 
+        <Accordion defaultActiveKey="0">
+          <Accordion.Item eventKey={nextEventExpand()}>
+            <Accordion.Header>Next Event</Accordion.Header>
+            <Accordion.Body>
+              {getCurrentEventCard()} 
+            </Accordion.Body>
+          </Accordion.Item>
+          <Accordion.Item eventKey={allEventsExpand()} onClick={allEventsClick}>
+            <Accordion.Header>All Events</Accordion.Header>
+            <Accordion.Body>
+              {getAllEventCards()} 
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
       </div>
     )
   }
