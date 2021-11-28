@@ -90,7 +90,6 @@ function Garage() {
       if (carModel.success) {
         handleClose()
       } else {
-        console.log('postCar() error')
         window.alert(carModel.message)
       }
       await carModel.getUserDocs(user.sub)

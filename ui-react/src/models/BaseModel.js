@@ -10,7 +10,7 @@ export class BaseModel {
         this.setApiToken(token)
       }
       this.baseURL = process.env.REACT_APP_API_URL
-      this.message = ''
+      this.message = 'unknown error occurred'
       this.response = {}
       this.responseData = {}
       this.success = false
@@ -44,27 +44,33 @@ export class BaseModel {
             .then(response => response.json())
             .then((response) => {
               this.setResponseData(response)
-              return response 
             }) 
 
     } catch(e) {
       this.setErrorMessage(e)
-      return
     } finally {
       this.reset()
+      return this.responseData
     }
   }
 
   async getUserDocs(userId, itemId) {
     let origEndpoint = this.endpoint
     try {
-      this.autoReset = false
+      this.itemId = userId 
       this.itemId2 = itemId
       this.endpoint = process.env.REACT_APP_API_USERS
       this.endpoint2 = origEndpoint
       this.urlParams = '?extLookup=1' 
-      await this.get(userId)
+      await fetch(this.getUrl(), {
+                  method: 'GET', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+            })
     } finally {
+      this.reset()
       this.endpoint = origEndpoint
       return this.responseData
     } 
@@ -81,17 +87,40 @@ export class BaseModel {
             .then(response => response.json())
             .then((response) => {
               this.setResponseData(response)
-              return response 
             })  
     } catch(e) {
       this.setErrorMessage(e)
     } finally {
       this.reset()
+      return this.responseData
+    } 
+  }
+
+  async putUserDoc(userId, itemId, doc) {
+    let origEndpoint = this.endpoint
+    try {
+      this.itemId = userId
+      this.itemId2 = itemId
+      this.endpoint = process.env.REACT_APP_API_USERS
+      this.endpoint2 = origEndpoint
+      this.urlParams = '?extLookup=1' 
+      await fetch(this.getUrl(), {
+                  method: 'PUT', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
+                  body: JSON.stringify(doc)})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+            }) 
+    } finally {
+      this.endpoint = origEndpoint
+      return this.responseData
     } 
   }
 
   async post(data){
-    try {
+    console.log('post()')
+    try {  
       if (!this.hasApiToken()) { return }
       await fetch(this.getUrl(), {
                   method: 'POST', 
@@ -100,14 +129,36 @@ export class BaseModel {
             .then(response => response.json())
             .then((response) => {
               this.setResponseData(response)
-              return response 
             }) 
     } catch(e) {
       this.setErrorMessage(e)
-      return 
     } finally {
       this.reset()
+      return this.responseData
     }
+  }
+
+  async postUserDoc(userId, doc) {
+    let origEndpoint = this.endpoint
+    try {
+      this.itemId = userId
+      this.endpoint = process.env.REACT_APP_API_USERS
+      this.endpoint2 = origEndpoint
+      this.urlParams = '?extLookup=1'
+      await fetch(this.getUrl(), {
+                  method: 'POST', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
+                  body: JSON.stringify(doc)})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+            }) 
+    } catch(e) {
+      this.setErrorMessage(e)
+    } finally {
+      this.endpoint = origEndpoint
+      return this.responseData
+    } 
   }
 
   async delete(id){
@@ -120,13 +171,12 @@ export class BaseModel {
             .then(response => response.json())
             .then((response) => {
               this.setResponseData(response)
-              return response
             })  
     } catch(e) {
       this.setErrorMessage(e)
-      return 
     } finally {
       this.reset()
+      return this.responseData
     }
   }
 
@@ -139,7 +189,14 @@ export class BaseModel {
       this.endpoint = process.env.REACT_APP_API_USERS
       this.endpoint2 = origEndpoint
       this.urlParams = '?extLookup=1' 
-      await this.delete(itemId)
+      if (!this.hasApiToken()) { return }
+      await fetch(this.getUrl(), {
+                  method: 'DELETE', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+            })
     } finally {
       this.endpoint = origEndpoint
     } 
