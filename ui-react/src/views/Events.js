@@ -11,22 +11,14 @@ import { Permissions } from '../utils/permissions'
 import NumberFormat from 'react-number-format'
 import { EventModel } from '../models/EventModel'
 import { CarModel } from '../models/CarModel'
+import { DateUtils } from '../utils/DateUtils'
 
-function formatDate(date, format) {
-  const map = {
-    mm: (date.getMonth()+1).toString().padStart(2, '0'),
-    dd: date.getDate().toString().padStart(2, '0'),
-    yy: date.getFullYear().toString().slice(-2),
-    yyyy: date.getFullYear()
-  }
-  return format.replace(/mm|dd|yyyy/gi, matched => map[matched])
-}
+const eventModel = new EventModel()
+const dateUtils = new DateUtils()
 
 function Events() {
-  const eventModel = new EventModel()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
-  let todayDate = new Date(Date.now())
-  todayDate = formatDate(todayDate, 'yyyy-mm-dd')
+  let todayDate = dateUtils.formatDate(new Date(Date.now()), 'yyyy-mm-dd')
   const [name, setName] = useState('')
   const [location, setLocation] = useState("Saint Anne's Park")
   const [date, setDate] = useState(todayDate)
@@ -250,7 +242,7 @@ function Events() {
               <Card.Header>{event.name}</Card.Header>
               <Card.Body>
                 <Card.Title>{event.location}</Card.Title>
-              <Card.Text>Entry fee €{event.fee}</Card.Text>
+                <Card.Text>Entry fee €{event.fee}</Card.Text>
                 <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
                 <Button onClick={handleShowEnter} id={event._id} variant="outline-primary">Enter</Button>
                 {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }

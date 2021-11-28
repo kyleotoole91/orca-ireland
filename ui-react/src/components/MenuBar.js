@@ -1,40 +1,39 @@
-import React from 'react';
-import styled from 'styled-components';
-import mainLogo from './images/race-circuit.png';
-import Profile from './Profile';
-import MenuItems from './MenuItems';
-import { useAuth0 } from '@auth0/auth0-react';
-import { SideBar } from './'; 
+import React from 'react'
+import styled from 'styled-components'
+import mainLogo from './images/race-circuit.png'
+import Profile from './Profile'
+import MenuItems from './MenuItems'
+import { useAuth0 } from '@auth0/auth0-react'
+import { SideBar } from './'
+import { useWindowDimensions } from '../utils/WindowSize'
 
 function MenuBar () {
-  const { isAuthenticated } = useAuth0();
+  const { isAuthenticated } = useAuth0()
+  const { width } = useWindowDimensions()
   return (
     <>
       <SideBar authenticated={isAuthenticated} />
       <MenuBarContainer style={{zIndex: 1}} > 
         <BurgerContainer />
-        <CompanyContainer>
-          ORCA Ireland &nbsp;
-          <CompanyImage src={mainLogo} />
-        </CompanyContainer>
+        {width > 260 && 
+          <CompanyContainer>
+            ORCA Ireland &nbsp;
+            {width > 310 && <CompanyImage src={mainLogo} /> }
+          </CompanyContainer>
+        } 
         <MenuItems authenticated={isAuthenticated} />
-        <div style={{height: '100%'}} >
-          <Profile />
-        </div>        
+        {width > 125 && <Profile /> }     
       </MenuBarContainer>
     </ >
   )
-};
+}
 
 const CompanyImage = styled.img` 
   float: right;
   position: 'absolute';
   height: 100%;
   padding: 6px;
-  @media (max-width: ${({ theme}) => '305px'}) {
-    display: none;
-  }
-`;
+`
 
 const BurgerContainer = styled.div` 
   float: left; 
@@ -47,7 +46,7 @@ const BurgerContainer = styled.div`
     padding-top: 12px;
     padding-left: 12px; 
   }
-`;
+`
 
 const MenuBarContainer = styled.div`
   position: sticky;
@@ -65,7 +64,7 @@ const MenuBarContainer = styled.div`
       color: ${({ theme}) => theme.primaryLight};
     } 
   } 
-`;
+`
 
 const CompanyContainer = styled.div`
   display: flex;
@@ -78,9 +77,11 @@ const CompanyContainer = styled.div`
   padding-right: 18px;
   color: ${({ theme}) => theme.primaryLight};
   font-family: ${({ theme}) => theme.companyFont};
+`
+/*
   @media (max-width: ${({ theme}) => theme.mobileXS}) {
     display: none;
   }
-`;
+*/
 
 export default MenuBar

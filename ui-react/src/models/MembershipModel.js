@@ -1,7 +1,7 @@
 
 import {BaseModel} from './BaseModel'
 
-export class MemeberModel extends BaseModel{
+export class MembershipModel extends BaseModel{
   constructor(token) {
     super(token)
     this.baseURL = process.env.REACT_APP_API_URL
@@ -10,7 +10,7 @@ export class MemeberModel extends BaseModel{
 
   async getCurrentMembership() {
     this.urlParams = '?current=1'
-    await this.get()
+    return await this.get()
   }
 
   async post(membership) {
@@ -19,6 +19,15 @@ export class MemeberModel extends BaseModel{
       return
     } else {
       return super.post(membership)
+    }
+  }
+
+  async activateMembership(membershipId, extId, secret) {
+    if (!secret || secret === '') {
+      this.setErrorMessage('Please supply an activation code')
+      return
+    } else {
+      return super.put(membershipId, {extId, secret})
     }
   }
 }

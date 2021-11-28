@@ -49,7 +49,7 @@ export class EventsController extends BaseController {
       if (!hasPermission){
         return res.status(403).send({
           success: false,
-          message: 'unauthorized'
+          message: 'forbidden'
         })
       }
       let event
@@ -69,7 +69,7 @@ export class EventsController extends BaseController {
         if (!hasMembership) {
           return res.status(403).send({
             success: false,
-            message: 'unauthorized: user has no membership'
+            message: 'You need to activate your membership before you can enter events'
           })    
         }
         

@@ -7,8 +7,9 @@ import Loading from '../components/Loading'
 import { CarModel } from '../models/CarModel'
 import { ClassModel } from '../models/ClassModel'
 
+const carModel = new CarModel()
+
 function Garage() {
-  const carModel = new CarModel()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [classes, setClasses] = useState([])
   const [classId, setClassId] = useState('')

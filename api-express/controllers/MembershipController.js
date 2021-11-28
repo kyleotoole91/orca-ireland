@@ -40,7 +40,7 @@ export class MembershipController extends BaseController {
       } else {
         return res.status(403).send({
           success: false,
-          message: 'unauthorized'
+          message: 'forbidden'
         })
       } 
     } catch(e) {
@@ -58,7 +58,7 @@ export class MembershipController extends BaseController {
       } else { 
         return res.status(403).send({
           success: false,
-          message: 'unauthorized'
+          message: 'forbidden'
         })
       } 
     } catch(e) {
@@ -70,7 +70,7 @@ export class MembershipController extends BaseController {
   }
 
   /*
-    adding user to membership 
+    to activate membership 
     {
         "secret": "membership-secret",
         "extId": "external-user-id"
@@ -84,17 +84,29 @@ export class MembershipController extends BaseController {
       if (!hasPermission) {
         return res.status(403).send({
           success: false,
-          message: 'unauthorized'
+          message: 'forbidden'
         })  
       }
       let membership = await this.db.getDocument(req.params.membershipId)
-      if (!membership && !membership.hasOwnProperty('secret')) {
-        return res.status(404).send({
-          success: false,
-          message: 'not found: ' + this.db.message
-        })   
-      }
       if (addingMember) {
+        if (!user && !user.hasOwnProperty('username') || !user.hasOwnProperty('firstName') || user.username ===''|| user.firstName ==='') {
+          return res.status(404).send({
+            success: false,
+            message: 'Please complete and save the Member Details form before activating membership'
+          })   
+        }
+        if (!membership || !membership.hasOwnProperty('secret')) {
+          return res.status(404).send({
+            success: false,
+            message: 'not found: ' + this.db.message
+          })   
+        }
+        if (membership.secret !== req.body.secret) {
+          return res.status(403).send({
+            success: false,
+            message: 'Incorrect activation code'
+          })  
+        }
         if (!membership.hasOwnProperty('user_ids')) {  
           membership.user_ids = []
         }

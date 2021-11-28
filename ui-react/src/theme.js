@@ -5,7 +5,7 @@ export const theme = {
   mobileL: '900px',
   mobile: '767px',
   mobileS: '319px',
-  mobileXS: '259px',
+  mobileXS: '250px',
   mobileM: '666px',
   companyFont: '"Trebuchet MS", Helvetica, sans-serif',
   menuFont: '"Trebuchet MS", Helvetica, sans-serif',

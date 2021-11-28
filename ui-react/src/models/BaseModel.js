@@ -57,6 +57,7 @@ export class BaseModel {
   async getUserDocs(userId, itemId) {
     let origEndpoint = this.endpoint
     try {
+      if (!this.hasApiToken()) { return }
       this.itemId = userId 
       this.itemId2 = itemId
       this.endpoint = process.env.REACT_APP_API_USERS
@@ -79,6 +80,9 @@ export class BaseModel {
   async put(id, data){
     try {
       if (!this.hasApiToken()) { return }
+      console.log('put')
+      console.log(id)
+      console.log(data)
       this.itemId = id
       await fetch(this.getUrl(), {
                   method: 'PUT', 
@@ -99,6 +103,7 @@ export class BaseModel {
   async putUserDoc(userId, itemId, doc) {
     let origEndpoint = this.endpoint
     try {
+      if (!this.hasApiToken()) { return }
       this.itemId = userId
       this.itemId2 = itemId
       this.endpoint = process.env.REACT_APP_API_USERS
@@ -141,6 +146,7 @@ export class BaseModel {
   async postUserDoc(userId, doc) {
     let origEndpoint = this.endpoint
     try {
+      if (!this.hasApiToken()) { return }
       this.itemId = userId
       this.endpoint = process.env.REACT_APP_API_USERS
       this.endpoint2 = origEndpoint
@@ -183,6 +189,7 @@ export class BaseModel {
   async deleteUserDoc(userId, itemId) {
     let origEndpoint = this.endpoint
     try {
+      if (!this.hasApiToken()) { return }
       this.autoReset = false
       this.itemId = userId
       this.itemId2 = itemId
