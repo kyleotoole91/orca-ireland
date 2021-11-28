@@ -38,6 +38,7 @@ function Events() {
   const [show, setShow] = useState(false)
   const [showEnter, setShowEnter] = useState(false)
   const [currEventId, setCurrEventId] = useState('')
+  const [refresh, setRefresh] = useState(false)
 
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
@@ -73,7 +74,24 @@ function Events() {
       car_ids.splice(car_ids.indexOf(id), 1) 
     }
     setCar_ids(car_ids)
-    console.log(car_ids)
+  }
+
+  function carInEvent(carId) {
+    let found = false
+    if (data && data.length > 0 && data[0].hasOwnProperty('car_ids')) {
+      for (var car_id of data[0].car_ids) {
+        found = car_id === carId 
+        if (found) { 
+          if (car_ids.indexOf(carId) === -1) {
+            car_ids.push(carId) 
+          }
+          break 
+        }
+      }
+    } else {
+      console.log('data undefined')
+    }
+    return found
   }
 
   useEffect(() => {
@@ -104,7 +122,7 @@ function Events() {
       }
     }  
     loadData()
-  }, [apiToken, user.sub])
+  }, [refresh, apiToken, user.sub])
 
   async function deleteEvent(e) {
     try {
@@ -127,7 +145,6 @@ function Events() {
         window.alert('Please fill in all fields')
       } else {
         let date = eventDate
-        console.log(date)
         await eventModel.post({name, location, date, fee})
         !eventModel.success && window.alert(eventModel.message)
         await eventModel.get()
@@ -141,13 +158,13 @@ function Events() {
     }
   }
 
-  async function submitCars() {
-    try {
-      if (car_ids.length === 0) {
-        window.alert('Please chose at least one car')
-      } else {        
-        await eventModel.enterEvent(currEventId, car_ids)
-        !eventModel.success && window.alert(eventModel.message)
+  async function enterEvent() {
+    try {    
+      await eventModel.enterEvent(currEventId, car_ids)
+      if (eventModel.success) {
+        setRefresh(!refresh)
+      } else {
+        window.alert(eventModel.message)  
       }
     } catch(e) {
       window.alert(e)
@@ -160,7 +177,6 @@ function Events() {
   function eventDateChange(stringDate) {
     let date = new Date(stringDate)
     date.setHours(eventStartTimeHours)
-    console.log(date)
     setEventDate(date)
     setDate(stringDate)  
   }
@@ -205,7 +221,7 @@ function Events() {
       function carItem(car, index) {
         return (
           <InputGroup key={car._id+index} className="mb-3">
-            <InputGroup.Checkbox key={car._id} id={car._id} onChange={(e) => addCar(e.target.id)} aria-label="Checkbox for following text input" />
+            <InputGroup.Checkbox key={car._id} id={car._id} defaultChecked={carInEvent(car._id)} onChange={(e) => addCar(e.target.id)} aria-label="Checkbox for following text input" />
             <FormControl key={car._id+'-FormControl'} onChange={(e) => addCar(e.target.id)} value={car.manufacturer+' - '+car.model } aria-label="Text input with checkbox" />
           </InputGroup>
         )
@@ -229,7 +245,7 @@ function Events() {
             <Button variant="outline-secondary" onClick={handleCloseEnter}>
               Close
             </Button>
-            <Button variant="outline-primary" onClick={submitCars}>
+            <Button variant="outline-primary" onClick={enterEvent}>
               Enter Event
             </Button>
         </Modal.Footer>

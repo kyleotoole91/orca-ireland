@@ -39,11 +39,13 @@ export class EventModel extends BaseModel {
                                          foreignField: "_id",
                                          as: "user"}
                                },
+                               {$unwind: '$user'},
                                {$lookup:{from: "classes", // join a class onto the car (from the result of the prev lookup)
                                         localField: "class_id",
                                         foreignField: "_id",
                                         as: "class"}
                                },
+                               {$unwind: '$class'},
                                {$project: { //exclude these fields from the tables joined
                                   "user.email": 0,
                                   "user.phone": 0}
@@ -78,11 +80,14 @@ export class EventModel extends BaseModel {
                                          foreignField: "_id",
                                          as: "user"}
                                },
+                               {$unwind: '$user'},
                                {$lookup:{from: "classes", // join a class onto the car (from the result of the prev lookup)
                                         localField: "class_id",
                                         foreignField: "_id",
                                         as: "class"}
+
                                },
+                               {$unwind: '$class'},
                                {$project: { //exclude these fields from the tables joined
                                   "user.email": 0,
                                   "user.phone": 0}

@@ -31,17 +31,21 @@ export class BaseModel {
                        "as": foreignTable }}
   }
 
-  //Auto converts string fields with _id suffix to mongo db object _ids. Sometimes throws undefined errors
+  
   applyDataTypes(obj){
     try {
       Object.keys(obj).forEach(function(key) {
         const field = key
         const value = obj[field]
-        if (field.includes('date') || field.includes('Date')){
-          obj[field] = new Date(value) 
-        } else if (field.includes('_id')) {
-          obj[field] = new ObjectId(value) 
-        } else if (value === 'object' && !Array.isArray(value) && value !== null) {
+        if (field && value && field !== '' && value !== '') {
+          if (field.includes('date') || field.includes('Date')){
+            obj[field] = new Date(value) 
+          } else if (field.includes('_id')) {
+            obj[field] = new ObjectId(value) 
+          } 
+        }
+        //Sometimes throws undefined errors
+        /*else if (value === 'object' && !Array.isArray(value) && value !== null) {
           applyDataTypes(value);
         } else if (Array.isArray(value)) {
           value.forEach(function (item) {
@@ -49,7 +53,7 @@ export class BaseModel {
               applyDataTypes(item);
             }  
           });
-        }
+        }*/
       })
     } catch(e) {
       console.log('Error applyDataTypes(): '+e.message)

@@ -80,9 +80,6 @@ export class BaseModel {
   async put(id, data){
     try {
       if (!this.hasApiToken()) { return }
-      console.log('put')
-      console.log(id)
-      console.log(data)
       this.itemId = id
       await fetch(this.getUrl(), {
                   method: 'PUT', 
@@ -124,7 +121,6 @@ export class BaseModel {
   }
 
   async post(data){
-    console.log('post()')
     try {  
       if (!this.hasApiToken()) { return }
       await fetch(this.getUrl(), {

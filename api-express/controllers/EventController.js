@@ -41,30 +41,35 @@ export class EventsController extends BaseController {
     }
   }
 
+  removeUsersCars(user_id, event) {
+    for (var car of event.cars) {
+      console.log(car.user._id.toString() )
+      console.log(user_id.toString() )
+      if (car.user._id.toString() === user_id.toString()) {
+        event.car_ids.splice(event.car_ids.indexOf(car._id), 1)
+      }
+    }   
+  }
+
   async updateEvent(req, res) {
     try { 
       let user = await this.getUser(req, res, false)
-      let addingMember = Object.keys(req.body).length === 1 && req.body.hasOwnProperty('car_ids')
-      let hasPermission = addingMember || this.permissions.check(this.getToken(req), 'put', this.collectionName)
+      let userEnteringEvent = Object.keys(req.body).length === 1 && req.body.hasOwnProperty('car_ids') 
+      let hasPermission = userEnteringEvent || this.permissions.check(this.getToken(req), 'put', this.collectionName)
       if (!hasPermission){
         return res.status(403).send({
           success: false,
           message: 'forbidden'
         })
       }
-      let event
-      if (addingMember){
-        event = await this.db.getEventCarList(req.params.eventId)
-      } else {
-        event = await this.db.getDocument(req.params.eventId)  
-      }
+      let event = await this.db.getDocument(req.params.eventId)  
       if (!event) {
         return res.status(404).send({
           success: false,
           message: 'not found: ' + this.db.message
         })
       }
-      if (addingMember) {
+      if (userEnteringEvent) {
         let hasMembership = await this.membershipController.extIdActiveMember(user.extId)
         if (!hasMembership) {
           return res.status(403).send({
@@ -72,7 +77,6 @@ export class EventsController extends BaseController {
             message: 'You need to activate your membership before you can enter events'
           })    
         }
-        
         let car //check the car(s) belongs to the user
         for (var carId of req.body.car_ids) {
           objId = new ObjectId(carId)
@@ -84,9 +88,10 @@ export class EventsController extends BaseController {
             })  
           }
         }
-
         if (!event.hasOwnProperty('car_ids')) {  
           event.car_ids = []
+        } else {
+          this.removeUsersCars(user._id, event)
         }
 
         let objId
@@ -96,7 +101,7 @@ export class EventsController extends BaseController {
             event.car_ids.push(objId)   
           }
         }
-        event = await this.db.updateDocument(req.params.eventId, event)  
+        event = await this.db.updateDocument(req.params.eventId, {'car_ids': event.car_ids})  
       } else {
         event = await this.db.updateDocument(req.params.eventId, req.body)   
       }

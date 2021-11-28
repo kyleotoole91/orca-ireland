@@ -17,11 +17,6 @@ export class EventModel extends BaseModel{
   }
 
   async enterEvent(eventId, car_ids) {
-    if (car_ids && car_ids.length > 0) {
-      return await this.put(eventId, {car_ids})
-    } else {
-      this.setErrorMessage('Please choose at least one car')
-      return 
-    }
+    return await this.put(eventId, {car_ids})
   }
 }
