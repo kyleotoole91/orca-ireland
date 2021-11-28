@@ -217,7 +217,6 @@ function Events() {
     try {
       if (!allEventsExpanded) {
         setLoadingAllEvents(true)
-        //await new Promise(r => setTimeout(r, 2000)); //sleep for 2s
         await eventModel.get()
         if (eventModel.success) {
           setData(eventModel.responseData)
