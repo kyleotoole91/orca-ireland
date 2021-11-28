@@ -40,7 +40,8 @@ function Events() {
   const [allowDelEvents, setAllowDelEvents] = useState(false)
   const [show, setShow] = useState(false)
   const [showEnter, setShowEnter] = useState(false)
-  const [currEventId, setCurrEventId] = useState('')
+  const [selectedEventId, setSelecedEventId] = useState('')
+  const [selectedEvent, setSelecedEvent] = useState()
   const [refresh, setRefresh] = useState(false)
   const [loadingAllEvents, setLoadingAllEvents] = useState(false)
   const [allEventsExpanded, setAllEventsExpanded] = useState(false)
@@ -51,9 +52,20 @@ function Events() {
     setCar_ids([])
     setShowEnter(false) 
   }
-  const handleShowEnter = (e) => { 
-    setCurrEventId(e.target.id.toString())
+
+  async function handleShowEnter (e) { 
+    await selectEvent(e.target.id.toString())
     setShowEnter(true) 
+  }
+
+  async function selectEvent(eventId){
+    if (selectedEventId !== eventId) {
+      setSelecedEventId(eventId)
+      await eventModel.get(eventId)
+      if (eventModel.success) {
+        setSelecedEvent(eventModel.responseData)   
+      }
+    }
   }
 
   if (apiToken === '') {
@@ -83,14 +95,16 @@ function Events() {
 
   function carInEvent(carId) {
     let found = false
-    if (data && data.length > 0 && data[0].hasOwnProperty('car_ids')) {
-      for (var car_id of data[0].car_ids) {
-        found = car_id === carId 
-        if (found) { 
-          if (car_ids.indexOf(carId) === -1) {
-            car_ids.push(carId) 
+    if (selectedEventId !== '') {
+      if (selectedEvent && selectedEvent.hasOwnProperty('car_ids')) {
+        for (var car_id of selectedEvent.car_ids) {
+          found = car_id === carId 
+          if (found) { 
+            if (car_ids.indexOf(carId) === -1) {
+              car_ids.push(carId) 
+            }
+            break 
           }
-          break 
         }
       }
     }
@@ -110,6 +124,8 @@ function Events() {
           let currEvent = await eventModel.getCurrentEvent()
           if (eventModel.success) {
             setCurrentEvent(eventModel.responseData)
+            setSelecedEvent(eventModel.responseData)
+            setSelecedEventId(eventModel.responseData._id)
           } else {
             window.alert(eventModel.message)
           }
@@ -176,7 +192,7 @@ function Events() {
 
   async function enterEvent() {
     try {    
-      await eventModel.enterEvent(currEventId, car_ids)
+      await eventModel.enterEvent(selectedEventId, car_ids)
       if (eventModel.success) {
         setRefresh(!refresh)
       } else {
@@ -228,7 +244,15 @@ function Events() {
     }
   }
 
+  function showEventDetails() {
+    //todo redirect to /events/:id
+  }
+
   function addCards(events, showEnter) {
+    let deleteMarginLeft = '3px'
+    if (!showEnter) {
+      deleteMarginLeft = '0px'  
+    }
     return (
       events.map((event, index) => (
         <Card style={{minWidth: '25vh', maxWidth: '25vh', margin: '3px', zIndex: 0}} key={index}>
@@ -237,8 +261,9 @@ function Events() {
             <Card.Title>{event.location}</Card.Title>
             <Card.Text>Entry fee €{event.fee}</Card.Text>
             <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
-            {showEnter && <Button onClick={handleShowEnter} id={event._id} variant="outline-primary">Enter</Button> }
-            {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }
+            {showEnter && <Button onClick={handleShowEnter} id={event._id}  style={{width: "49%"}}variant="outline-primary">Enter</Button> }
+            {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginLeft: deleteMarginLeft, width: "49%"}} variant="outline-danger">Delete</Button> }  
+            <Button id={event._id} onClick={showEventDetails} style={{marginTop: "3px", width: "100%"}} variant="outline-secondary">Details</Button>   
           </Card.Body>
         </Card>)
       )
