@@ -7,9 +7,9 @@ import { theme } from './theme'
 import { MenuBar} from './components'
 import styled from 'styled-components'
 //import ProtectedRoute from './auth/protected-route';
-import Home from './views/Home'
+import Homepage from './views/Home'
 import Events from './views/Events'
-import EventsDetail from './views/Events'
+import EventDetail from './views/EventDetail'
 import Garage from './views/Garage'
 import Membership from './views/Membership'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
@@ -31,8 +31,8 @@ function App() {
           <MenuBar />   
           <AppContainer className="content">
             <Switch>
-              <Route exact path="/" component={Home} />
-              <Route path="/events/:id" component={EventsDetail} />
+              <Route exact path="/" component={Homepage} />
+              <Route path="/events/:id" component={EventDetail} />
               <Route path="/events" component={Events} />
               <Route path="/membership" component={Membership} /> 
               <Route path="/garage" component={Garage} />

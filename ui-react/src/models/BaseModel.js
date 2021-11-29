@@ -14,6 +14,7 @@ export class BaseModel {
       this.response = {}
       this.responseData = {}
       this.success = false
+      this.useExtId = true
       this.reset()
     }
   }
@@ -62,7 +63,9 @@ export class BaseModel {
       this.itemId2 = itemId
       this.endpoint = process.env.REACT_APP_API_USERS
       this.endpoint2 = origEndpoint
-      this.urlParams = '?extLookup=1' 
+      if (this.useExtId){
+        this.urlParams = '?extLookup=1' 
+      } 
       await fetch(this.getUrl(), {
                   method: 'GET', 
                   headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})
@@ -105,7 +108,9 @@ export class BaseModel {
       this.itemId2 = itemId
       this.endpoint = process.env.REACT_APP_API_USERS
       this.endpoint2 = origEndpoint
-      this.urlParams = '?extLookup=1' 
+      if (this.useExtId){
+        this.urlParams = '?extLookup=1' 
+      }
       await fetch(this.getUrl(), {
                   method: 'PUT', 
                   headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
@@ -146,7 +151,9 @@ export class BaseModel {
       this.itemId = userId
       this.endpoint = process.env.REACT_APP_API_USERS
       this.endpoint2 = origEndpoint
-      this.urlParams = '?extLookup=1'
+      if (this.useExtId){
+        this.urlParams = '?extLookup=1' 
+      }
       await fetch(this.getUrl(), {
                   method: 'POST', 
                   headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
@@ -191,7 +198,9 @@ export class BaseModel {
       this.itemId2 = itemId
       this.endpoint = process.env.REACT_APP_API_USERS
       this.endpoint2 = origEndpoint
-      this.urlParams = '?extLookup=1' 
+      if (this.useExtId){
+        this.urlParams = '?extLookup=1' 
+      } 
       if (!this.hasApiToken()) { return }
       await fetch(this.getUrl(), {
                   method: 'DELETE', 
