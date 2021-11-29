@@ -15,14 +15,14 @@ function MenuBar () {
       <SideBar authenticated={isAuthenticated} />
       <MenuBarContainer style={{zIndex: 1}} > 
         <BurgerContainer />
-        {width > 260 && 
+        {width > 285 && 
           <CompanyContainer>
             ORCA Ireland &nbsp;
-            {width > 310 && <CompanyImage src={mainLogo} /> }
+            {width > 319 && <CompanyImage src={mainLogo} /> }
           </CompanyContainer>
         } 
         <MenuItems authenticated={isAuthenticated} />
-        {width > 125 && <Profile /> }     
+        {width > 120 && <Profile /> }     
       </MenuBarContainer>
     </ >
   )

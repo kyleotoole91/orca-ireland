@@ -133,7 +133,7 @@ function Garage() {
     return (  
       <Modal show={show} onHide={handleClose} >
         <Modal.Header closeButton>
-          <Modal.Title>New Car</Modal.Title>
+          <Modal.Title>Add Car</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ display: 'grid', fontFamily: "monospace"} } >
           <label style={{ margin: '3px' }} >

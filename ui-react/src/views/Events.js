@@ -250,24 +250,6 @@ function Events() {
     history.push('/events/'+e.target.id)
   }
 
-  function addCards(events, showEnter) {
-    return (
-      events.map((event, index) => (
-        <Card style={{minWidth: '225px', maxWidth: '225px', margin: '3px', zIndex: 0}} key={index}>
-          <Card.Header>{event.name}</Card.Header>
-          <Card.Body>
-            <Card.Title>{event.location}</Card.Title>
-            <Card.Text>Entry fee €{event.fee}</Card.Text>
-            <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
-            {showEnter && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Enter</Button> }
-            {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginTop: "3px", width: "100%"}} variant="outline-danger">Delete</Button> }  
-            <Button id={event._id} onClick={showEventDetails} style={{marginTop: "3px", width: "100%"}} variant="outline-secondary">Details</Button>   
-          </Card.Body>
-        </Card>)
-      )
-    )
-  }
-
   function getCurrentEventCard(){
     if (loading) {
       return <div className="text-center">
@@ -298,6 +280,24 @@ function Events() {
     } else {
       return ( <h4>No events</h4> )
     }
+  }
+
+  function addCards(events, showEnter) {
+    return (
+      events.map((event, index) => (
+        <Card style={{minWidth: '225px', maxWidth: '225px', margin: '3px', zIndex: 0}} key={index}>
+          <Card.Header>{event.name}</Card.Header>
+          <Card.Body>
+            <Card.Title>{event.location}</Card.Title>
+            <Card.Text>Entry fee €{event.fee}</Card.Text>
+            <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
+            {showEnter && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Enter</Button> } 
+            <Button id={event._id} onClick={showEventDetails} style={{marginTop: "3px", width: "100%"}} variant="outline-secondary">Details</Button>
+            {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginTop: "3px", width: "100%"}} variant="outline-danger">Delete</Button> }    
+          </Card.Body>
+        </Card>)
+      )
+    )
   }
 
   function modalForm(){
