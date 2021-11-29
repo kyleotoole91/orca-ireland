@@ -49,7 +49,7 @@ const BurgerContainer = styled.div`
 `
 //background: ${({ theme}) => theme.primaryDark};
 const MenuBarContainer = styled.div`
-background: ${({ theme}) => theme.primaryDark};
+background: ${({ theme}) => theme.colorWhite};
   position: sticky;
   top: 0;
   height: 48px;primaryDark
