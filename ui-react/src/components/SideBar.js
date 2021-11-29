@@ -37,7 +37,7 @@ export default class SideBar extends Component {
         <Link onClick={() => this.closeMenu()} id="home" to="/">Home</Link>
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="events" className="menu-item" to="/events">Events</Link> }
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="garage" className="menu-item" to="/garage">Garage</Link> }
-        {this.props.authenticated && <Link onClick={() => this.closeMenu()} className="menu-item--small" to="/membership">Membership</Link> }
+        {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="membership" className="menu-item--small" to="/membership">Membership</Link> }
         <ProfileContainer><Profile forceUsername={true}/></ProfileContainer>
       </Menu>
     );

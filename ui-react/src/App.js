@@ -32,6 +32,7 @@ function App() {
           <AppContainer className="content">
             <Switch>
               <Route exact path="/" component={Homepage} />
+              <Route path="/home" component={Homepage} />
               <Route path="/events/:id" component={EventDetail} />
               <Route path="/events" component={Events} />
               <Route path="/membership" component={Membership} /> 

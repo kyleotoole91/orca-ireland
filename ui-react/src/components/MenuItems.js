@@ -16,10 +16,10 @@ class MenuItems extends Component {
     render() {
       return (
         <>
-          <MenuItem><Link to='./'>Home</Link></MenuItem>
-          {this.props.authenticated && <MenuItem><Link to='/events'>Events</Link></MenuItem> }
-          {this.props.authenticated && <MenuItem><Link to='/garage'>Garage</Link></MenuItem> }
-          {this.props.authenticated && <MenuItem><Link to='./membership'>Membership</Link></MenuItem> }
+          <MenuItem><Link id="home" to='/'>Home</Link></MenuItem>
+          {this.props.authenticated && <MenuItem><Link id="events" to='/events'>Events</Link></MenuItem> }
+          {this.props.authenticated && <MenuItem><Link id="garage" to='/garage'>Garage</Link></MenuItem> }
+          {this.props.authenticated && <MenuItem><Link id="membership" to="/membership">Membership</Link></MenuItem> }
         </ >
       )
     }

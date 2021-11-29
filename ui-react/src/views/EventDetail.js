@@ -75,7 +75,6 @@ function EventDetail() {
           const classModel = new ClassModel(apiToken)
           await eventModel.get(id)
           if (eventModel.success) {
-            console.log(eventModel.responseData)
             setEvent(eventModel.responseData)
             await classModel.get()
             if (classModel.success) {
@@ -84,8 +83,7 @@ function EventDetail() {
               window.alert(classModel.message)
             }
           } else {
-            setEvent({})
-            window.alert(eventModel.message)
+            setEvent()
           }
         } finally {
           setLoading(false)
@@ -95,9 +93,11 @@ function EventDetail() {
     loadData()
   }, [id, apiToken, user.sub])
 
-  if (!event || loading) {
+  if (loading) {
     return ( <Loading /> )
-  } else {
+  } else if (!event) {
+    return ( <h3>Not found</h3> )
+  } {
     return (
       <div>
         <h2>Roster</h2> 
