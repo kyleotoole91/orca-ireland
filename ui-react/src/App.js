@@ -9,6 +9,7 @@ import styled from 'styled-components'
 //import ProtectedRoute from './auth/protected-route';
 import Home from './views/Home'
 import Events from './views/Events'
+import EventsDetail from './views/Events'
 import Garage from './views/Garage'
 import Membership from './views/Membership'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
@@ -30,18 +31,11 @@ function App() {
           <MenuBar />   
           <AppContainer className="content">
             <Switch>
-              <Route exact path="/">
-                <Home />
-              </Route> 
-              <Route path="/events">
-                <Events />
-              </Route>
-              <Route path="/membership">
-                <Membership />
-              </Route>
-              <Route path="/garage">
-                <Garage />
-              </Route>
+              <Route exact path="/" component={Home} />
+              <Route path="/events/:id" component={EventsDetail} />
+              <Route path="/events" component={Events} />
+              <Route path="/membership" component={Membership} /> 
+              <Route path="/garage" component={Garage} />
             </Switch>   
           </AppContainer>
         </ThemeProvider>

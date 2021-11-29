@@ -14,6 +14,7 @@ import { EventModel } from '../models/EventModel'
 import { CarModel } from '../models/CarModel'
 import { DateUtils } from '../utils/DateUtils'
 import Spinner from 'react-bootstrap/Spinner'
+import { useParams, useHistory } from 'react-router-dom'
 
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
@@ -24,6 +25,9 @@ defaultEventDate.setHours(eventStartTimeHours)
 defaultEventDate.setMinutes(0)
 
 function Events() {
+  let { id } = useParams()
+  console.log('eventID: ' + id)
+  const history = useHistory()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [name, setName] = useState('')
   const [location, setLocation] = useState("Saint Anne's Park")
@@ -244,8 +248,8 @@ function Events() {
     }
   }
 
-  function showEventDetails() {
-    //todo redirect to /events/:id
+  function showEventDetails(e) {
+    history.push('/events/'+e.target.id)
   }
 
   function addCards(events, showEnter) {
