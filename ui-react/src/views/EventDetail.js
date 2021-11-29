@@ -28,8 +28,8 @@ function EventDetail() {
     setApiToken(token)   
   }
 
-  function addRacers(class_id, index){
-    function addTableRow(car){
+  function addRacers(class_id){
+    function addTableRow(car, index){
       return (
         <tr key={index+'-racersRow'}>
           <td>{car.user.firstName+' '+car.user.lastName}</td>
