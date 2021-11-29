@@ -34,6 +34,7 @@ function EventDetail() {
         <tr key={index+'-racersRow'}>
           <td>{car.user.firstName+' '+car.user.lastName}</td>
           <td>{car.manufacturer}</td>
+          <td>{car.hasOwnProperty('color') && car.color}</td>
           <td>{car.model}</td>
           <td>{car.transponder}</td>
         </tr>
@@ -51,7 +52,8 @@ function EventDetail() {
               <thead key={index+'-tableHead'}>
                 <tr key={index+'-tableHeadRow'}>
                   <th>Name</th>
-                  <th>manufacturer</th>
+                  <th>Manufacturer</th>
+                  <th>Colour</th>
                   <th>Model</th>
                   <th>Transponder</th>
                 </tr>
@@ -95,15 +97,15 @@ function EventDetail() {
 
   if (loading) {
     return ( <Loading /> )
-  } else if (!event) {
-    return ( <h3>Not found</h3> )
-  } {
+  } else if (event) {
     return (
-      <div>
+      <div style={{ maxWidth: '50%', height: 'auto'}}>
         <h2>Roster</h2> 
         {showRoster()}  
       </div>
     )
+  } else {
+    return (<h2>Not found</h2>)
   }
 };
 

@@ -17,6 +17,7 @@ function Garage() {
   const [model, setModel] = useState('')
   const [freq, setFreq] = useState('')
   const [transponder, setTransponder] = useState('')
+  const [color, setColor] = useState('')
   const [data, setData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
@@ -87,7 +88,7 @@ function Garage() {
 
   async function postCar() {
     try {
-      await carModel.post(user.sub, {manufacturer, model, transponder, freq, 'class_id': classId})  
+      await carModel.post(user.sub, {manufacturer, model, transponder, freq, color, 'class_id': classId})  
       if (carModel.success) {
         handleClose()
       } else {
@@ -144,6 +145,10 @@ function Garage() {
             <input value={model} onChange={(e) => setModel(e.target.value)} type="text" />
           </label>
           <label style={{ margin: '3px' }} >
+            Colour:  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input value={color} onChange={(e) => setColor(e.target.value)} type="text" />
+          </label> 
+          <label style={{ margin: '3px' }} >
             Frequency: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <input value={freq} onChange={(e) => setFreq(e.target.value)} type="text" />
           </label>        
@@ -182,6 +187,7 @@ function Garage() {
               <Card.Header>{car.manufacturer}</Card.Header>
               <Card.Body>
                 <Card.Title>{car.model}</Card.Title>
+                <Card.Text>Color: {car.hasOwnProperty('color') && car.color}</Card.Text>
                 <Card.Text>Frequency: {car.freq}</Card.Text>
                 <Card.Text>Transponder ID: {car.transponder}</Card.Text>
                 <Card.Text>Class: {getClassName(car.class_id)}</Card.Text>

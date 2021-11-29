@@ -47,11 +47,11 @@ const BurgerContainer = styled.div`
     padding-left: 12px; 
   }
 `
-
+//background: ${({ theme}) => theme.primaryDark};
 const MenuBarContainer = styled.div`
+background: ${({ theme}) => theme.primaryDark};
   position: sticky;
   top: 0;
-  background: ${({ theme}) => theme.primaryDark};
   height: 48px;primaryDark
   color: ${({ theme}) => theme.primaryLight};
   a {

@@ -13,7 +13,7 @@ export class CarModel extends BaseModel{
     try {
       if (userId === '') {
         this.setErrorMessage('Please specify a user')
-      } else if (car.manufacturer === '' || car.model === '' || car.transponder === '' || car.freq === '' || car.class_id === '') {
+      } else if (car.manufacturer === '' || car.model === '' || car.transponder === ''|| car.color === '' || car.freq === '' || car.class_id === '') {
         this.setErrorMessage('Please fill in all fields')
       } else {
         await super.postUserDoc(userId, car)
