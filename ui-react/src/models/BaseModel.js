@@ -120,6 +120,7 @@ export class BaseModel {
               this.setResponseData(response)
             }) 
     } finally {
+      this.reset()
       this.endpoint = origEndpoint
       return this.responseData
     } 
@@ -165,6 +166,7 @@ export class BaseModel {
     } catch(e) {
       this.setErrorMessage(e)
     } finally {
+      this.reset()
       this.endpoint = origEndpoint
       return this.responseData
     } 
@@ -210,6 +212,7 @@ export class BaseModel {
               this.setResponseData(response)
             })
     } finally {
+      this.reset()
       this.endpoint = origEndpoint
     } 
   }

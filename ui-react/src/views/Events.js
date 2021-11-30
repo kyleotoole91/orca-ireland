@@ -20,7 +20,8 @@ import styled from 'styled-components'
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
 const eventStartTimeHours = 10
-let todayDateCtrl = dateUtils.formatDate(new Date(Date.now()), 'yyyy-mm-dd')
+let todayDate = new Date(Date.now())
+let todayDateCtrl = dateUtils.formatDate(todayDate, 'yyyy-mm-dd')
 let defaultEventDate = new Date(Date.now())
 defaultEventDate.setHours(eventStartTimeHours)
 defaultEventDate.setMinutes(0)
@@ -43,11 +44,12 @@ function Events() {
   const [allowDelEvents, setAllowDelEvents] = useState(false)
   const [show, setShow] = useState(false)
   const [showEnter, setShowEnter] = useState(false)
-  const [selectedEventId, setSelecedEventId] = useState('')
-  const [selectedEvent, setSelecedEvent] = useState()
+  const [selectedEventId, setSelectedEventId] = useState('')
+  const [selectedEvent, setSelectedEvent] = useState()
   const [refresh, setRefresh] = useState(false)
   const [loadingAllEvents, setLoadingAllEvents] = useState(false)
   const [allEventsExpanded, setAllEventsExpanded] = useState(false)
+  const [editing, setEditing] = useState(false)
 
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
@@ -62,12 +64,15 @@ function Events() {
   }
 
   async function selectEvent(eventId){
-    if (selectedEventId !== eventId) {
-      setSelecedEventId(eventId)
-      await eventModel.get(eventId)
-      if (eventModel.success) {
-        setSelecedEvent(eventModel.responseData)   
-      }
+    await eventModel.get(eventId)
+    if (eventModel.success) {
+      setSelectedEventId(eventId)
+      setSelectedEvent(eventModel.responseData)   
+      return eventModel.responseData
+    } else {
+      setSelectedEventId('')
+      setSelectedEvent() 
+      return
     }
   }
 
@@ -126,9 +131,11 @@ function Events() {
           setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
           let currEvent = await eventModel.getCurrentEvent()
           if (eventModel.success) {
-            setCurrentEvent(eventModel.responseData)
-            setSelecedEvent(eventModel.responseData)
-            setSelecedEventId(eventModel.responseData._id)
+            if (eventModel.responseData.length > 0) {
+              setCurrentEvent(eventModel.responseData)
+              setSelectedEvent(eventModel.responseData[0])
+              setSelectedEventId(eventModel.responseData[0]._id)
+            }
           } else {
             window.alert(eventModel.message)
           }
@@ -157,13 +164,16 @@ function Events() {
     loadData()
   }, [refresh, apiToken, user.sub])
 
-  async function deleteEvent(e) {
+  async function deleteEvent() {
     try {
       if (window.confirm('Are you sure you want to delete this event?')) {
-        await eventModel.delete(e.target.id.toString())
-        !eventModel.success && window.alert(eventModel.message)
-        await eventModel.get()
-        eventModel.success && setData(eventModel.responseData)
+        await eventModel.delete(selectedEventId.toString())
+        if (eventModel.success) {
+          setRefresh(!refresh)
+          handleClose()
+        } else {
+          window.alert(eventModel.message)
+        }
       }
     } catch(e) {
       window.alert(e)
@@ -174,20 +184,28 @@ function Events() {
 
   async function postEvent() {
     try {
-      if (name === '' || location === '') {
-        window.alert('Please fill in all fields')
+      let date = eventDate
+      await eventModel.post({name, location, date, fee})
+      if (eventModel.success) {
+        setRefresh(!refresh)
+        handleClose()
       } else {
-        let date = eventDate
-        await eventModel.post({name, location, date, fee})
-        if (eventModel.success) {
-          setRefresh(!refresh)
-          handleClose()
-        } else {
-          window.alert(eventModel.message) 
-        }
+        window.alert(eventModel.message) 
       }
-    } catch(e) {
-      window.alert(e)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function putEvent() {
+    try {
+      let date = eventDate
+      await eventModel.put(selectedEventId, {name, location, date, fee})
+      if (eventModel.success) {
+        handleClose()
+      } else {
+        window.alert(eventModel.message) 
+      }
     } finally {
       setLoading(false)
     }
@@ -198,6 +216,7 @@ function Events() {
       await eventModel.enterEvent(selectedEventId, car_ids)
       if (eventModel.success) {
         setRefresh(!refresh)
+        handleCloseEnter()
       } else {
         window.alert(eventModel.message)  
       }
@@ -205,7 +224,6 @@ function Events() {
       window.alert(e)
     } finally {
       setLoading(false)
-      handleCloseEnter()
     }
   }
 
@@ -263,7 +281,7 @@ function Events() {
         </div>    
       )
     } else {
-      return ( <h4>No events</h4> )
+      return ( <h4>No upcoming event</h4> )
     }
   }
 
@@ -283,6 +301,39 @@ function Events() {
     }
   }
 
+  async function editEvent(e) {
+    let selEvent = await selectEvent(e.target.id.toString())
+    if (selEvent) {
+      setEditing(true)
+      setName(selEvent.name)
+      setLocation(selEvent.location)
+      setEventDate(new Date(selEvent.date))
+      setDate(dateUtils.formatDate(new Date(selEvent.date), 'yyyy-mm-dd')) 
+      setFee(selEvent.fee)
+      handleShow()
+    } else {
+      window.alert('Error loading event')
+    }
+  } 
+
+  function addEvent() {
+    setEditing(false)
+    setName('')
+    setLocation("Saint Anne's Park")
+    setEventDate(todayDate)
+    setDate(todayDateCtrl) 
+    setFee(10)
+    handleShow()
+  } 
+
+  function saveEvent(){
+    if (editing) {
+      putEvent(selectedEventId.toString())
+    } else {
+      postEvent()
+    }
+  }
+
   function addCards(events, showEnter) {
     return (
       events.map((event, index) => (
@@ -291,21 +342,29 @@ function Events() {
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
             <Card.Text>Entry fee €{event.fee}</Card.Text>
-            <Card.Text>{dayjs(event.date).format('DD/MM/YYYY') }</Card.Text>
+            <Card.Text>{dayjs(event.date).format('DD/MM/YYYY')}</Card.Text>
             {showEnter && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Enter</Button> } 
             <Button id={event._id} onClick={showEventDetails} style={{marginTop: "3px", width: "100%"}} variant="outline-secondary">Details</Button>
-            {allowDelEvents && <Button id={event._id} onClick={deleteEvent} style={{marginTop: "3px", width: "100%"}} variant="outline-danger">Delete</Button> }    
+            {allowDelEvents && <Button id={event._id} style={{marginTop: "3px", width: "100%"}} onClick={editEvent} variant="outline-warning">Edit</Button> }
           </Card.Body>
         </Card>)
       )
     )
   }
 
+  function headerText(){
+    if (editing) {
+      return 'Edit event'
+    } else {
+      return 'Add event'
+    }
+  }
+  
   function modalForm(){
     return ( 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>New Event</Modal.Title>
+          <Modal.Title>{headerText()}</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
           <label style={{ margin: '3px' }} >
@@ -325,10 +384,11 @@ function Events() {
           </label>
         </Modal.Body>
         <Modal.Footer>
+            {allowDelEvents && editing && <Button onClick={deleteEvent} variant="outline-danger">Delete</Button> }
             <Button variant="outline-secondary" onClick={handleClose}>
               Close
             </Button>
-            <Button variant="outline-primary" onClick={postEvent}>
+            <Button variant="outline-primary" onClick={saveEvent}>
               Save
             </Button>
         </Modal.Footer>
@@ -379,7 +439,7 @@ function Events() {
   } else {
     return (
       <div>
-        {allowAddEvents && <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
+        {allowAddEvents && <Button onClick={addEvent} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
         {modalForm()}
         {modalEnterEvent()}
         <Accordion defaultActiveKey="0">

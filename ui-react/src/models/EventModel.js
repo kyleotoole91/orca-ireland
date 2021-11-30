@@ -15,6 +15,9 @@ export class EventModel extends BaseModel{
 
   async post(event) {
     if (!event || event.name === '' || event.location === '' || event.date === '') {
+      if (typeof event.fee === 'string') {
+        event.fee = parseFloat(event.fee.replace('€', ''))
+      }
       this.setErrorMessage('Please fill in all fields')
       return
     } else {
@@ -22,7 +25,19 @@ export class EventModel extends BaseModel{
     }
   }
 
+  async put(eventId, event) {
+    if (!event || event.name === '' || event.location === '' || event.date === '') {
+      this.setErrorMessage('Please fill in all fields')
+      return
+    } else {
+      if (typeof event.fee === 'string') {
+        event.fee = parseFloat(event.fee.replace('€', ''))
+      }
+      return await super.put(eventId.toString(), event)
+    }
+  }
+
   async enterEvent(eventId, car_ids) {
-    return await this.put(eventId, {car_ids})
+    return await this.put(eventId.toString(), {car_ids})
   }
 }

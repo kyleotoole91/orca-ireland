@@ -24,13 +24,13 @@ app.get('/cors', (req, res) => {
 
 async function listMongoCollections() {
   await mongoClient.db(process.env.MONGO_DB_NAME)
-    .listCollections()
-    .toArray() 
-    .then(collections => { 
-      console.log('MongoDB Collections:')
-      for (var collection of collections) {
-        console.log(collection.name)
-      }})
+                   .listCollections()
+                   .toArray() 
+                   .then(collections => { 
+                     console.log('Connected to MongoDB:')
+                     for (var collection of collections) {
+                       console.log(collection.name)
+                    }})
 }
 
 listMongoCollections()
@@ -40,11 +40,11 @@ const usersController = new BaseController('users')
 const membershipsController = new MembershipController()
 const classesController = new BaseController('classes')
 const carsController = new BaseController('cars')
-//events
+//events 
 app.get('/events', validateJwt, (req, res) => eventsController.getAllDocuments(req, res))
 app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(req, res))
 app.post('/events', validateJwt, (req, res) => eventsController.addDocument(req, res))
-app.put('/events/:eventId', validateJwt, (req, res) => eventsController.updateEvent(req, res))
+app.put('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
 app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteDocument(req, res))
 //users 
 app.get('/users', validateJwt, (req, res) => usersController.getAllDocuments(req, res))
@@ -76,15 +76,14 @@ app.post('/classes', validateJwt, (req, res) => classesController.addDocument(re
 app.put('/classes/:id', validateJwt, (req, res) => classesController.updateDocument(req, res))
 app.delete('/classes/:id', validateJwt, (req, res) => classesController.deleteDocument(req, res))
 
-app.use(function (err, req, res, next) {
-  if (err) {
-    if (err.status) {
-      res.status(err.status).send({'success': false, 'message': err.message}) 
-    } else {
-      res.status(500).send({'success': false, 'message': err.message}) 
-    }
-  }
+app.use(function (req, res) {
+  res.status(404).send({'success': false, 'message': 'not found'})
 })
+app.use(function (err, req, res) {
+  if (err) {
+    res.status(500).send({'success': false, 'message': err.message})
+  }
+}) 
 
 app.listen(8000, () => {
   console.log('ORCA REST API server listening on port 8000')

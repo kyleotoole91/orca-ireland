@@ -74,12 +74,13 @@ function Garage() {
     loadData()
   }, [refresh, apiToken, user.sub])
 
-  async function deleteCar(e) {
+  async function deleteCar() {
     try {
       if (window.confirm('Are you sure you want to delete this car?')) {
-        await carModel.deleteUserDoc(user.sub, e.target.id.toString())
+        await carModel.deleteUserDoc(user.sub, carId)
         if (carModel.success){
           setRefresh(!refresh)
+          handleClose()
         } else {
           window.alert(carModel.message)
         }
@@ -188,6 +189,14 @@ function Garage() {
     }
   }
 
+  function headerText(){
+    if (editing) {
+      return 'Edit car'
+    } else {
+      return 'Add car'
+    }
+  }
+
   function modalForm(){
     function classesdDropDown () {
       return (
@@ -200,7 +209,7 @@ function Garage() {
     return (  
       <Modal show={show} onHide={handleClose} >
         <Modal.Header closeButton>
-          <Modal.Title>Add Car</Modal.Title>
+          <Modal.Title>{headerText()}</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ display: 'grid', fontFamily: "monospace"} } >
           <label style={{ margin: '3px' }} >
@@ -228,6 +237,7 @@ function Garage() {
           </label>      
         </Modal.Body>
         <Modal.Footer>
+            {editing && <Button onClick={deleteCar} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }
             <Button variant="outline-secondary" onClick={handleClose}>Close</Button>
             <Button variant="outline-primary" onClick={saveCar}>Save </Button>
         </Modal.Footer>
@@ -258,8 +268,7 @@ function Garage() {
                 <Card.Text>Frequency: {car.freq}</Card.Text>
                 <Card.Text>Transponder ID: {car.transponder}</Card.Text>
                 <Card.Text>Class: {getClassName(car.class_id)}</Card.Text>
-                <Button id={car._id} onClick={editCar} variant="outline-warning">Edit</Button>
-                <Button id={car._id} onClick={deleteCar} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> 
+                <Button style={{width: '100%'}} id={car._id} onClick={editCar} variant="outline-warning">Edit</Button>
               </Card.Body>
             </Card>
           ))}    

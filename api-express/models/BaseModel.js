@@ -202,8 +202,10 @@ export class BaseModel {
     this.message = 'Updated'
     try {
       const objId = new ObjectId(id)
+      this.applyDataTypes(document)
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set:  document })
-      if(!this.result || !this.result.hasOwnProperty('_id')) {
+      console.log(this.result)
+      if(!this.result || !this.result.hasOwnProperty('ok') || !this.result.ok) {
         this.result = null
         this.message = 'Error updating: ' + id
       } else {

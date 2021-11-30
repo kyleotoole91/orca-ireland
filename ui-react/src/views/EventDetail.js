@@ -5,6 +5,7 @@ import { EventModel } from '../models/EventModel'
 import { ClassModel } from '../models/ClassModel'
 import { useParams } from 'react-router-dom'
 import Table  from 'react-bootstrap/Table'
+import dayjs from 'dayjs'
 
 function EventDetail() {
   let { id } = useParams()
@@ -99,10 +100,16 @@ function EventDetail() {
     return ( <Loading /> )
   } else if (event) {
     return (
-      <div style={{ maxWidth: '50%', height: 'auto'}}>
-        <h2>Roster</h2> 
-        {showRoster()}  
-      </div>
+      <>
+        <div style={{ alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center', alignItems:'center', height: 'auto'}}>
+          <h4>Event</h4>
+          <h4>{dayjs(event.date).format('DD/MM/YYYY')}</h4>
+        </div>
+        <div style={{ maxWidth: '50%', height: 'auto'}}>
+          <h2>Roster</h2> 
+          {showRoster()}  
+        </div>
+      </>
     )
   } else {
     return (<h2>Not found</h2>)

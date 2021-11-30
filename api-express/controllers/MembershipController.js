@@ -98,7 +98,7 @@ export class MembershipController extends BaseController {
         if (!membership || !membership.hasOwnProperty('secret')) {
           return res.status(404).send({
             success: false,
-            message: 'not found: ' + this.db.message
+            message: this.db.message
           })   
         }
         if (membership.secret !== req.body.secret) {

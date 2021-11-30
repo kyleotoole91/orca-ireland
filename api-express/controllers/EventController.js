@@ -60,11 +60,14 @@ export class EventsController extends BaseController {
           message: 'forbidden'
         })
       }
-      let event = await this.db.getDocument(req.params.eventId)  
+      console.log(req.params.id)
+      console.log(req.body)
+      let event = await this.db.updateDocument(req.params.id, req.body) 
+      console.log(event)
       if (!event) {
         return res.status(404).send({
           success: false,
-          message: 'not found: ' + this.db.message
+          message: this.db.message
         })
       }
       if (userEnteringEvent) {
@@ -82,7 +85,7 @@ export class EventsController extends BaseController {
           if (!car){
             return res.status(404).send({
               success: false,
-              message: 'user car not found: ' + this.carDb.message
+              message: this.carDb.message
             })  
           }
         }
@@ -99,9 +102,9 @@ export class EventsController extends BaseController {
             event.car_ids.push(objId)   
           }
         }
-        event = await this.db.updateDocument(req.params.eventId, {'car_ids': event.car_ids})  
+        event = await this.db.updateDocument(req.params.id, {'car_ids': event.car_ids})  
       } else {
-        event = await this.db.updateDocument(req.params.eventId, req.body)   
+        event = await this.db.updateDocument(req.params.id, req.body)   
       }
       if (!event) {
         return res.status(500).send({
