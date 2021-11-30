@@ -15,6 +15,7 @@ import { CarModel } from '../models/CarModel'
 import { DateUtils } from '../utils/DateUtils'
 import Spinner from 'react-bootstrap/Spinner'
 import { useHistory } from 'react-router-dom'
+import styled from 'styled-components'
 
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
@@ -383,13 +384,13 @@ function Events() {
         {modalEnterEvent()}
         <Accordion defaultActiveKey="0">
           <Accordion.Item eventKey={nextEventExpand()}>
-            <Accordion.Header>Next Event</Accordion.Header>
+            <StyledAccordionHeader>Next Event</StyledAccordionHeader>
             <Accordion.Body>
               {getCurrentEventCard()} 
             </Accordion.Body>
           </Accordion.Item>
-          <Accordion.Item eventKey={allEventsExpand()} onClick={allEventsClick}>
-            <Accordion.Header>All Events</Accordion.Header>
+          <Accordion.Item>
+            <StyledAccordionHeader eventKey={allEventsExpand()} onClick={allEventsClick}>All Events</StyledAccordionHeader>
             <Accordion.Body>
               {getAllEventCards()} 
             </Accordion.Body>
@@ -399,6 +400,12 @@ function Events() {
     )
   }
 };
+
+const StyledAccordionHeader  = styled(Accordion.Header)`
+  accordion-button:focus {
+    z-index: 0
+  }
+`
 
 export default withAuthenticationRequired(Events, { onRedirecting: () => (<Loading />) });
 
