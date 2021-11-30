@@ -1,7 +1,6 @@
-import React from 'react';
-//import styled from 'styled-components';
-import CircuitLogo from '../components/images/orca-logo.png';
-import SaintAnnesTrack from '../components/images/saint-annes-track.png';
+import React from 'react'
+import CircuitLogo from '../components/images/orca-logo.png'
+import SaintAnnesTrack from '../components/images/saint-annes-track.png'
 
 function Home() {
   return (

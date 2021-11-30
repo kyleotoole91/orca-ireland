@@ -3,6 +3,7 @@ export const theme = {
   primaryLight: '#2B83CD',
   colorWhite: '#FFFFFF',
   primaryHover: '#343078',
+  hoverMenuItem: '#7FB4E1',
   mobileL: '900px',
   mobile: '767px',
   mobileS: '319px',

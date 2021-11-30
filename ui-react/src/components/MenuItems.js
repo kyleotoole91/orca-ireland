@@ -38,12 +38,11 @@ const MenuItem = styled.div`
   transition: all 0.3s ease-in;
   font-size: 18px;
   font-family: ${({ theme}) => theme.menuFont};
-  color: ${({ theme}) => theme.primaryLight};
-  &:hover {
-    background: white;
-  }
   @media (max-width: ${({ theme}) => theme.mobileM}) {
     display: none;
+  }
+  &:hover {
+    background: white;
   }
 `;
 

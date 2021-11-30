@@ -52,9 +52,9 @@ const MenuBarContainer = styled.div`
 background: ${({ theme}) => theme.colorWhite};
   position: sticky;
   top: 0;
-  height: 48px;primaryDark
-  color: ${({ theme}) => theme.primaryLight};
+  height: 48px;
   a {
+    color: ${({ theme}) => theme.primaryLight};
     text-decoration: none;
     outline-style: none;   
     font-weight: bold; 
@@ -63,6 +63,9 @@ background: ${({ theme}) => theme.colorWhite};
       outline-style: none;   
       color: ${({ theme}) => theme.primaryLight};
     } 
+    &:hover {
+      color: ${({ theme}) => theme.hoverMenuItem};
+    }
   } 
 `
 
