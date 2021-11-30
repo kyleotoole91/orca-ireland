@@ -129,7 +129,7 @@ function Events() {
           const permissions = new Permissions()
           setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
           setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-          let currEvent = await eventModel.getCurrentEvent()
+          await eventModel.getCurrentEvent()
           if (eventModel.success) {
             if (eventModel.responseData.length > 0) {
               setCurrentEvent(eventModel.responseData)
@@ -138,17 +138,6 @@ function Events() {
             }
           } else {
             window.alert(eventModel.message)
-          }
-          let noCurrentEvent = !currEvent || currEvent.length === 0
-          if (noCurrentEvent) {
-            await eventModel.get()
-            if (eventModel.success) {
-              setData(eventModel.responseData)
-              setLoadingAllEvents(false)
-              setAllEventsExpanded(true)
-            } else {
-              console.log(eventModel.message)
-            }
           }
           await carModel.getUserDocs(user.sub)
           if (carModel.success) {
@@ -202,6 +191,7 @@ function Events() {
       let date = eventDate
       await eventModel.put(selectedEventId, {name, location, date, fee})
       if (eventModel.success) {
+        setRefresh(!refresh)
         handleClose()
       } else {
         window.alert(eventModel.message) 

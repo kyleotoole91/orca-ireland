@@ -60,10 +60,7 @@ export class EventsController extends BaseController {
           message: 'forbidden'
         })
       }
-      console.log(req.params.id)
-      console.log(req.body)
-      let event = await this.db.updateDocument(req.params.id, req.body) 
-      console.log(event)
+      let event = await this.db.getDocument(req.params.id) 
       if (!event) {
         return res.status(404).send({
           success: false,

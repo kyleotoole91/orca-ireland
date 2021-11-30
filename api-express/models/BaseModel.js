@@ -46,14 +46,13 @@ export class BaseModel {
            dbResult.hasOwnProperty('value') &&
            dbResult.value._id !== ''
   }
-
   
   applyDataTypes(obj){
     try {
       Object.keys(obj).forEach(function(key) {
         const field = key
         const value = obj[field]
-        if (field && value && field !== '' && value !== '') {
+        if (field && !Array.isArray(value) && value && field !== '' && value !== '') {
           if (field.includes('date') || field.includes('Date')){
             obj[field] = new Date(value) 
           } else if (field.includes('_id')) {
@@ -182,7 +181,6 @@ export class BaseModel {
     try {
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set: {"deleted": true} })
-      console.log(this.result)
       if(!this.deletedOk(this.result)) {
         this.result = null 
         this.message = 'Error deleting: ' + id 
@@ -204,8 +202,7 @@ export class BaseModel {
       const objId = new ObjectId(id)
       this.applyDataTypes(document)
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set:  document })
-      console.log(this.result)
-      if(!this.result || !this.result.hasOwnProperty('ok') || !this.result.ok) {
+      if(!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
         this.result = null
         this.message = 'Error updating: ' + id
       } else {
@@ -216,7 +213,6 @@ export class BaseModel {
       this.message = error.message
       console.log(error)
     } finally {
-      console.log(this.message )
       return this.result  
     } 
   }
@@ -266,7 +262,7 @@ export class BaseModel {
       this.applyDataTypes(document)
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set:  document })
-      if(!this.result) {
+      if(!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
         this.message = 'Error updating: ' + id
       } else {
         this.result = this.result.value
