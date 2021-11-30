@@ -216,7 +216,7 @@ function Events() {
     setDate(stringDate)  
   }
 
-  function nextEventExpand(){
+  /*function nextEventExpand(){
     if (currentEvent && currentEvent.length > 0) {
       return '0'
     } else {
@@ -230,7 +230,7 @@ function Events() {
     } else {
       return '0'  
     }  
-  }
+  }*/
 
   async function allEventsClick(){
     try {
@@ -383,14 +383,14 @@ function Events() {
         {modalForm()}
         {modalEnterEvent()}
         <Accordion defaultActiveKey="0">
-          <Accordion.Item eventKey={nextEventExpand()}>
+          <Accordion.Item eventKey="0">
             <StyledAccordionHeader>Next Event</StyledAccordionHeader>
             <Accordion.Body>
               {getCurrentEventCard()} 
             </Accordion.Body>
           </Accordion.Item>
-          <Accordion.Item>
-            <StyledAccordionHeader eventKey={allEventsExpand()} onClick={allEventsClick}>All Events</StyledAccordionHeader>
+          <Accordion.Item eventKey="1">
+            <StyledAccordionHeader onClick={allEventsClick}>All Events</StyledAccordionHeader>
             <Accordion.Body>
               {getAllEventCards()} 
             </Accordion.Body>

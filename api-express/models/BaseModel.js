@@ -80,7 +80,7 @@ export class BaseModel {
   async getDocumentByExtId(extId, force) { 
     try {
       this.result = await this.db.findOne({ 'extId': extId, "deleted": {"$in": [null, false]} })
-      if (!this.result && force) {
+      if (!this.result || !this.result.hasOwnProperty('_id') && force) {
         this.result = await this.db.insertOne({ 'extId': extId }) 
         if (this.result.insertedId !== '') {
           this.result._id = this.result.insertedId
@@ -105,7 +105,8 @@ export class BaseModel {
     try {
       const objId = new ObjectId(id)
       this.result = await this.db.findOne({ '_id': objId, "deleted": {"$in": [null, false]} })
-      if(!this.result) { 
+      if(!this.result || !this.result.hasOwnProperty('_id')) {
+        this.result = null 
         this.message = 'Not found: ' + id 
       } else {
         this.message = this.collectionName
@@ -124,7 +125,8 @@ export class BaseModel {
     try {
       this.applyDataTypes(document)
       this.result = await this.db.insertOne( document )
-      if(!this.result) {
+      if(!this.result || !this.result.hasOwnProperty('_id')) {
+        this.result = null
         this.message = 'Not added' 
       } else {
         this.message = this.collectionName
@@ -143,7 +145,8 @@ export class BaseModel {
     try {
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set: {"deleted": true} })
-      if(!this.result) { 
+      if(!this.result) {
+        this.result = null 
         this.message = 'Error deleting: ' + id 
       } else {
         this.message = this.collectionName
@@ -163,7 +166,8 @@ export class BaseModel {
     try {
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set: {"deleted": true} })
-      if(!this.result.value) { 
+      if(!this.result || !this.result.hasOwnProperty('_id')) {
+        this.result = null 
         this.message = 'Error deleting: ' + id 
       } else {
         this.result = this.result.value
@@ -182,7 +186,8 @@ export class BaseModel {
     try {
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set:  document })
-      if(!this.result) {
+      if(!this.result || !this.result.hasOwnProperty('_id')) {
+        this.result = null
         this.message = 'Error updating: ' + id
       } else {
         this.result = this.result.value
@@ -192,6 +197,7 @@ export class BaseModel {
       this.message = error.message
       console.log(error)
     } finally {
+      console.log(this.message )
       return this.result  
     } 
   }
@@ -201,6 +207,7 @@ export class BaseModel {
       const objId = new ObjectId(userId) 
       this.result = await this.db.find({'user_id': objId, "deleted": {"$in": [null, false]}}).toArray()
       if(!this.result) {
+        this.result = null
         this.message = 'Not found'
       } else {
         this.message = "User's "+this.collectionName
@@ -219,7 +226,8 @@ export class BaseModel {
       const objUserId = new ObjectId(userId) 
       const objDocId = new ObjectId(docId) 
       this.result = await this.db.find({'user_id': objUserId, '_id': objDocId, "deleted": {"$in": [null, false]}}).toArray()
-      if(!this.result) {
+      if(!this.result || !this.result.hasOwnProperty('_id')) {
+        this.result = null
         this.message = 'Not found'
       } else {
         this.message = "User's "+this.collectionName

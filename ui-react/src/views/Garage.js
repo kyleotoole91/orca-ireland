@@ -22,6 +22,9 @@ function Garage() {
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
   const [show, setShow] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [refresh, setRefresh] = useState(false)
+  const [carId, setCarId] = useState('')
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
 
@@ -69,15 +72,17 @@ function Garage() {
       }
     }  
     loadData()
-  }, [apiToken, user.sub])
+  }, [refresh, apiToken, user.sub])
 
   async function deleteCar(e) {
     try {
       if (window.confirm('Are you sure you want to delete this car?')) {
         await carModel.deleteUserDoc(user.sub, e.target.id.toString())
-        !carModel.success && window.alert(carModel.message)
-        await carModel.getUserDocs(user.sub)
-        carModel.success && setData(carModel.responseData)
+        if (carModel.success){
+          setRefresh(!refresh)
+        } else {
+          window.alert(carModel.message)
+        }
       }
     } catch(e) {
       window.alert(e)
@@ -90,12 +95,27 @@ function Garage() {
     try {
       await carModel.post(user.sub, {manufacturer, model, transponder, freq, color, 'class_id': classId})  
       if (carModel.success) {
+        setRefresh(!refresh)
         handleClose()
       } else {
         window.alert(carModel.message)
       }
-      await carModel.getUserDocs(user.sub)
-      carModel.success && setData(carModel.responseData)
+    } catch(e) {
+      window.alert(e)
+    } finally {
+      setLoading(false)
+    }  
+  }
+
+  async function putCar(id) {
+    try {
+      await carModel.put(user.sub, id.toString(), {manufacturer, model, transponder, freq, color, 'class_id': classId})  
+      if (carModel.success) {
+        setRefresh(!refresh)
+        handleClose()
+      } else {
+        window.alert(carModel.message)
+      }
     } catch(e) {
       window.alert(e)
     } finally {
@@ -119,6 +139,53 @@ function Garage() {
     } else {
       return ''
     } 
+  }
+
+  function findCar(id) {
+    if (data && data.length > 0){
+      for (var car of data) {
+        if (car._id === id) {
+          return car
+        }
+      }
+    } else {
+      return
+    }
+  }
+
+  function editCar(e) {
+    let car = findCar(e.target.id) 
+    if (car) {
+      setManufacturer(car.manufacturer)
+      setModel(car.model)
+      setFreq(car.freq)
+      setColor(car.color)
+      setTransponder(car.transponder)
+      setCarId(e.target.id)
+      setEditing(true)
+      handleShow()
+    } else {
+      window.alert('error finding car')
+    }
+  } 
+
+  function addCar() {
+    setEditing(false)
+    setManufacturer('')
+    setModel('')
+    setFreq('')
+    setColor('')
+    setTransponder('')
+    setCarId('')
+    handleShow()
+  } 
+
+  function saveCar(){
+    if (editing) {
+      putCar(carId)
+    } else {
+      postCar()
+    }
   }
 
   function modalForm(){
@@ -162,7 +229,7 @@ function Garage() {
         </Modal.Body>
         <Modal.Footer>
             <Button variant="outline-secondary" onClick={handleClose}>Close</Button>
-            <Button variant="outline-primary" onClick={postCar}>Save </Button>
+            <Button variant="outline-primary" onClick={saveCar}>Save </Button>
         </Modal.Footer>
       </Modal>   
     )
@@ -173,14 +240,14 @@ function Garage() {
   } else if (!data || data.length === 0) {
     return ( 
       <div>
-        {modalForm(false)}
-        <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
+        {modalForm()}
+        <Button onClick={addCar} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
       </div> )
   } else {
     return (
       <div>
         <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
-        {modalForm(true)}
+        {modalForm()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data.map((car, index) => (
             <Card style={{minWidth: '250px', maxWidth: '250px', margin: '3px', zIndex: 0}} key={index}>
@@ -191,7 +258,7 @@ function Garage() {
                 <Card.Text>Frequency: {car.freq}</Card.Text>
                 <Card.Text>Transponder ID: {car.transponder}</Card.Text>
                 <Card.Text>Class: {getClassName(car.class_id)}</Card.Text>
-                <Button id={car._id} variant="outline-warning">Edit</Button>
+                <Button id={car._id} onClick={editCar} variant="outline-warning">Edit</Button>
                 <Button id={car._id} onClick={deleteCar} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> 
               </Card.Body>
             </Card>
