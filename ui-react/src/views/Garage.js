@@ -93,6 +93,7 @@ function Garage() {
 
   async function postCar() {
     try {
+      console.log('post car')
       await carModel.post(user.sub, {manufacturer, model, transponder, freq, color, 'class_id': classId})  
       if (carModel.success) {
         setRefresh(!refresh)
@@ -109,6 +110,7 @@ function Garage() {
 
   async function putCar(id) {
     try {
+      console.log('put car')
       await carModel.put(user.sub, id.toString(), {manufacturer, model, transponder, freq, color, 'class_id': classId})  
       if (carModel.success) {
         setRefresh(!refresh)

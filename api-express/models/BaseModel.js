@@ -31,6 +31,22 @@ export class BaseModel {
                        "as": foreignTable }}
   }
 
+  addedOk(dbResult){
+    return dbResult &&
+           dbResult.hasOwnProperty('acknowledged')  &&
+           dbResult.acknowledged  && 
+           dbResult.hasOwnProperty('insertedId')  &&
+           dbResult.insertedId
+  }
+
+  deletedOk(dbResult){
+    return dbResult &&
+           dbResult.hasOwnProperty('ok')  &&
+           dbResult.ok === 1  && 
+           dbResult.hasOwnProperty('value') &&
+           dbResult.value._id !== ''
+  }
+
   
   applyDataTypes(obj){
     try {
@@ -125,7 +141,7 @@ export class BaseModel {
     try {
       this.applyDataTypes(document)
       this.result = await this.db.insertOne( document )
-      if(!this.result || !this.result.hasOwnProperty('_id')) {
+      if(!this.addedOk(this.result)) {
         this.result = null
         this.message = 'Not added' 
       } else {
@@ -145,7 +161,7 @@ export class BaseModel {
     try {
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set: {"deleted": true} })
-      if(!this.result) {
+      if(!this.deletedOk(this.result)) {
         this.result = null 
         this.message = 'Error deleting: ' + id 
       } else {
@@ -166,7 +182,8 @@ export class BaseModel {
     try {
       const objId = new ObjectId(id)
       this.result = await this.db.findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set: {"deleted": true} })
-      if(!this.result || !this.result.hasOwnProperty('_id')) {
+      console.log(this.result)
+      if(!this.deletedOk(this.result)) {
         this.result = null 
         this.message = 'Error deleting: ' + id 
       } else {
