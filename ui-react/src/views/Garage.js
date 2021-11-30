@@ -93,7 +93,6 @@ function Garage() {
 
   async function postCar() {
     try {
-      console.log('post car')
       await carModel.post(user.sub, {manufacturer, model, transponder, freq, color, 'class_id': classId})  
       if (carModel.success) {
         setRefresh(!refresh)
@@ -110,7 +109,6 @@ function Garage() {
 
   async function putCar(id) {
     try {
-      console.log('put car')
       await carModel.put(user.sub, id.toString(), {manufacturer, model, transponder, freq, color, 'class_id': classId})  
       if (carModel.success) {
         setRefresh(!refresh)
@@ -248,7 +246,7 @@ function Garage() {
   } else {
     return (
       <div>
-        <Button onClick={handleShow} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
+        <Button onClick={addCar} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
         {modalForm()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data.map((car, index) => (

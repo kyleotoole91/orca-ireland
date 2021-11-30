@@ -278,7 +278,7 @@ export class BaseController {
       } else if (user && user._id !== '') { 
         this.data = await this.db.deleteUserDocument(user._id, req.params.docId) 
         if (this.data) {
-          return res.status(200).send({
+          return res.status(410).send({
             success: true,
             message: this.db.message,
             data: this.data

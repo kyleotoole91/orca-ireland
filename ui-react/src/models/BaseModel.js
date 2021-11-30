@@ -216,7 +216,6 @@ export class BaseModel {
 
   getUrl(){
     let url = this.baseURL + this.endpoint + this.getItemId() + this.getEndpoint2() + this.getItemId2() + this.urlParams
-    console.log(url)
     return url 
   }
 
@@ -265,7 +264,6 @@ export class BaseModel {
   }
 
   setResponseData(response){
-    console.log(response)
     this.response = response
     this.message = response.message
     this.success =  response.success
