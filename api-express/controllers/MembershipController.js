@@ -35,7 +35,7 @@ export class MembershipController extends BaseController {
             message: 'not found'
           })
         }
-      } else if (!this.permissions.check(this.getToken(req), 'get', this.collectionName)) {
+      } else if (this.permissions.check(this.getToken(req), 'get', this.collectionName)) {
         super.getAllDocuments(req, res, next)
       } else {
         return res.status(403).send({

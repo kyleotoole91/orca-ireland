@@ -384,33 +384,3 @@ export class BaseController {
     }
   }
 }
-/*
-event specific validation
-return res.status(403).send({
-        success: false,
-        message: 'forbidden'
-      })
-    } else if(!req.body.name) {
-      return res.status(400).send({
-        success: false,
-        message: 'name is required',
-      })
-    } else if(!req.body.location) {
-      return res.status(400).send({
-        success: false,
-        message: 'location is required',
-      })
-    } else if(!req.body.date) {
-      return res.status(400).send({
-        success: false,
-        message: 'date is required',
-      })
-    } else if(!req.body.price) {
-      return res.status(400).send({
-        success: false,
-        message: 'price is required',
-      })
-    } else { 
-      
-    }
-*/

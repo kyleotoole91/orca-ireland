@@ -14,8 +14,8 @@ export class MembershipModel extends BaseModel{
   }
 
   async post(membership) {
-    if (!membership) {
-      this.setErrorMessage('Please supply a membership object')
+    if (!membership || membership.name === '' || membership.secret === '' || membership.price === '') {
+      this.setErrorMessage('Please fill in all fields')
       return
     } else {
       return super.post(membership)

@@ -8,15 +8,26 @@ import { useAuth0 } from "@auth0/auth0-react"
 import { UserModel } from '../models/UserModel'
 import { MembershipModel } from '../models/MembershipModel'
 import { DateUtils } from '../utils/DateUtils'
+import { Permissions } from '../utils/permissions'
+import Modal from 'react-bootstrap/Modal'
+import NumberFormat from 'react-number-format'
 
+const userModel = new UserModel() 
+const membershipModel = new MembershipModel() 
+const dateUtils = new DateUtils()
+let todayDate = new Date(Date.now())
+let todayDateCtrl = dateUtils.formatDate(todayDate, 'yyyy-mm-dd')
+let d = new Date()
+let year = d.getFullYear()
+let month = d.getMonth()
+let day = d.getDate()
+let oneYearFromToday = new Date(year+1, month, day)
+let oneYearFromTodayCtrl = dateUtils.formatDate(oneYearFromToday, 'yyyy-mm-dd')
 const firstNamePH = 'First Name'
 const lastNamePH = 'Last Name'
 const usernamePH = 'Enter nickname'
 const phonePH = 'Enter nickname'
 const emailPH = 'Enter email'
-const userModel = new UserModel() 
-const membershipModel = new MembershipModel() 
-const dateUtils = new DateUtils()
 
 function Membership() {  
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
@@ -32,6 +43,20 @@ function Membership() {
   const [activeMember, setActiveMember] = useState(false)
   const [saveButtonState, setSaveButtonState] = useState(false)
   const [refresh, setRefresh] = useState(false)
+  const [allowAddMemberships, setAllowAddMemberships] = useState(false)
+  //const [allowReadMemberships, setAllowReadMemberships] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [show, setShow] = useState(false)
+  const handleClose = () => setShow(false)
+  const handleShow = () => setShow(true)
+  //add/edit membership form
+  const [secret, setSecret] = useState('')
+  const [name, setName] = useState('')
+  const [startDate, setStartDate] = useState(todayDate)
+  const [startDateCtrl, setStartDateCtrl] = useState(todayDateCtrl)
+  const [endDate, setEndDate] = useState(oneYearFromToday)
+  const [endDateCtrl, setEndDateCtrl] = useState(oneYearFromTodayCtrl)
+  const [fee, setFee] = useState(200)
 
   if (apiToken === '') {
     if (!isAuthenticated) {
@@ -99,6 +124,9 @@ function Membership() {
         try {
           const userModel = new UserModel(apiToken) 
           const membershipModel = new MembershipModel(apiToken) 
+          const permissions = new Permissions()
+          setAllowAddMemberships(permissions.check(apiToken, 'post', 'memberships'))
+          //setAllowReadMemberships(permissions.check(apiToken, 'get', 'memberships'))
           await userModel.get(user.sub)
           if (userModel.success) {
             user.nickname && setUsername(user.nickname) 
@@ -144,19 +172,126 @@ function Membership() {
     loadData()
   }, [refresh, apiToken, user, isAuthenticated, getAccessTokenSilently])
 
+  function saveButton() {
+    if (saveButtonState) {
+      return <Button variant="outline-primary" onClick={updateUserDetails}>Save </Button>
+    } else {
+      return <Button disabled variant="outline-secondary" onClick={updateUserDetails}>Save </Button>
+    }
+  }
+  
+  function setMemberDetailProp(fieldPlaceholder, value) {
+    if (fieldPlaceholder === firstNamePH) { setFirstName(value) }
+    if (fieldPlaceholder === lastNamePH) { setLastName(value) }
+    if (fieldPlaceholder === usernamePH) { setUsername(value) }
+    if (fieldPlaceholder === emailPH) { setEmail(value) }
+    if (fieldPlaceholder === phonePH) { setPhone(value) }
+    setSaveButtonState(true)
+  }
+
+  function addMembership() {
+    setEditing(false)
+    setSecret('')
+    setName('')
+    setStartDate(todayDate)
+    setStartDateCtrl(todayDateCtrl) 
+    setEndDate(oneYearFromToday)
+    setEndDateCtrl(oneYearFromTodayCtrl)
+    setFee(200)
+    handleShow()
+  }
+
+  async function postMembership(){
+    await membershipModel.post({name, startDate, endDate, fee, secret})
+    if (membershipModel.success){
+      handleClose() 
+    } else {
+      window.alert(membershipModel.message)
+    }
+  }
+
+  function saveMembership() {
+    if (editing) {
+      //putMembership(carId)
+    } else {
+      postMembership()
+    }
+    handleClose()
+  }
+
+  function startDateChange(stringDate) {
+    let date = new Date(stringDate)
+    setStartDate(date)
+    setStartDateCtrl(stringDate)  
+  }
+
+  function endDateChange(stringDate) {
+    let date = new Date(stringDate)
+    setEndDate(date)
+    setEndDateCtrl(stringDate)  
+  }
+
   function activationForm() {
     return (
       <>
         <Form.Group className="mb-3" controlId="formActivation">
           <Form.Label>Activation code</Form.Label>
-          <Form.Control type="password"placeholder="Enter activation code" value={activationCode} onChange={(e) => setActivationCode(e.target.value)}/>
+          <Form.Control type="password" placeholder="Enter activation code" value={activationCode} onChange={(e) => setActivationCode(e.target.value)}/>
         </Form.Group>
         <Button variant="outline-primary" onClick={activateMembership}> Activate</Button>
       </>
     )
   }
 
-  function membershipForm(){
+  function modalMembershipForm(){
+    function headerText(){
+      if (editing) {
+        return 'Edit Membership'
+      } else {
+        return 'Add Membership'
+      }
+    }
+    return ( 
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>{headerText()}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
+          <label style={{ margin: '3px' }} >
+            Name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+            <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
+          </label>
+          <label style={{ margin: '3px' }} >
+            Start Date: &nbsp;&nbsp;
+            <input style={{minWidth: '197px'}} value={startDateCtrl} onChange={(e) => startDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={startDateCtrl} />
+          </label>
+          <label style={{ margin: '3px' }} >
+            Expiry Date: &nbsp;
+            <input style={{minWidth: '197px'}} value={endDateCtrl} onChange={(e) => endDateChange(e.target.value)} type="date" id="eventDate" name="event-date" />
+          </label>
+          <label style={{ margin: '3px' }} >
+            Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
+          </label>
+          <label style={{ margin: '3px' }} >
+            Secret: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input value={secret} onChange={(e) => setSecret(e.target.value)} type="password" id="secret" name="membership-secret" />
+          </label>
+        </Modal.Body>
+        <Modal.Footer>
+            {/*allowDelEvents && editing && <Button onClick={deleteMembership} variant="outline-danger">Delete</Button>*/}
+            <Button variant="outline-secondary" onClick={handleClose}>
+              Close
+            </Button>
+            <Button variant="outline-primary" onClick={saveMembership}>
+              Save
+            </Button>
+        </Modal.Footer>
+      </Modal>   
+    )
+  }
+
+  function membershipCard(){
     if (currMembership) {
       let membershipState = 'Inactive'  
       let cardHeight = '350px'
@@ -166,7 +301,7 @@ function Membership() {
       } 
       return (
         <Card style={{margin: '3px', maxHeight: cardHeight, minWidth: '284px', maxWidth: '284px'}}>
-          <Card.Header>Membership</Card.Header>
+          <Card.Header>Current Membership</Card.Header>
           <Card.Body>
             <Card.Title>{currMembership.name}</Card.Title>
             <Card.Text><b>Valid until: </b> {dateUtils.formatISODate(currMembership.endDate)}</Card.Text>
@@ -184,58 +319,45 @@ function Membership() {
     }
   }
 
-  function saveButton() {
-    if (saveButtonState) {
-      return <Button variant="outline-primary" onClick={updateUserDetails}>Save </Button>
-    } else {
-      return <Button disabled variant="outline-secondary" onClick={updateUserDetails}>Save </Button>
-    }
-  }
-  
-  function setMemberDetailProp(fieldPlaceholder, value) {
-    if (fieldPlaceholder === firstNamePH) { setFirstName(value) }
-    if (fieldPlaceholder === lastNamePH) { setLastName(value) }
-    if (fieldPlaceholder === usernamePH) { setUsername(value) }
-    if (fieldPlaceholder === email) { setEmail(value) }
-    if (fieldPlaceholder === phonePH) { setPhone(value) }
-    setSaveButtonState(true)
-  }
-
   if (loading) {
     return ( <Loading /> )
   } else {
     return (
-      <div style={{display: 'flex', flexFlow: 'wrap'}}> 
-        <Card style={{margin: '3px', minWidth: '284px', maxWidth: '284px'}}>
-          <Card.Header>Member details</Card.Header>
-          <Card.Body>
-            <Form style={{width: '250px'}}>
-              <Form.Group className="mb-3" controlId="formGroupFirstName" >
-                <Form.Label>First Name</Form.Label>
-                <Form.Control type="text" placeholder={firstNamePH} value={firstName} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="formGroupLastName" >
-                <Form.Label>Last Name</Form.Label>
-                <Form.Control type="text" placeholder={lastNamePH} value={lastName} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="formGroupPhone">
-                <Form.Label>Phone</Form.Label>
-                <Form.Control type="text" placeholder={phonePH} value={phone} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="formGroupUsername">
-                <Form.Label>Nickname</Form.Label>
-                <Form.Control readOnly type="text" placeholder={usernamePH} value={username} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)}/>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="formGroupEmail">
-                <Form.Label>Email address</Form.Label>
-                <Form.Control readOnly type="test" placeholder={emailPH} value={email} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
-              </Form.Group>
-            </Form> 
-            {saveButton()}
-          </Card.Body>
-        </Card>
-        {membershipForm()}
-      </div>
+      <>
+        {allowAddMemberships && <Button onClick={addMembership} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Membership</Button> }
+        {modalMembershipForm()}
+        <div style={{display: 'flex', flexFlow: 'wrap'}}> 
+          <Card style={{margin: '3px', minWidth: '284px', maxWidth: '284px'}}>
+            <Card.Header>Member details</Card.Header>
+            <Card.Body>
+              <Form style={{width: '250px'}}>
+                <Form.Group className="mb-3" controlId="formGroupFirstName" >
+                  <Form.Label>First Name</Form.Label>
+                  <Form.Control type="text" placeholder={firstNamePH} value={firstName} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formGroupLastName" >
+                  <Form.Label>Last Name</Form.Label>
+                  <Form.Control type="text" placeholder={lastNamePH} value={lastName} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formGroupPhone">
+                  <Form.Label>Phone</Form.Label>
+                  <Form.Control type="text" placeholder={phonePH} value={phone} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formGroupUsername">
+                  <Form.Label>Nickname</Form.Label>
+                  <Form.Control readOnly type="text" placeholder={usernamePH} value={username} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)}/>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formGroupEmail">
+                  <Form.Label>Email address</Form.Label>
+                  <Form.Control readOnly type="test" placeholder={emailPH} value={email} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+                </Form.Group>
+              </Form> 
+              {saveButton()}
+            </Card.Body>
+          </Card>
+          {membershipCard()}
+        </div>
+      </>
     )
   }
 }

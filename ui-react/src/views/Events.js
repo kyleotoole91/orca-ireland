@@ -366,7 +366,7 @@ function Events() {
           </label>
           <label style={{ margin: '3px' }} >
             Date: &nbsp;&nbsp;&nbsp;&nbsp;
-            <input value={date} onChange={(e) => eventDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={todayDateCtrl} />
+            <input style={{minWidth: '197px'}} value={date} onChange={(e) => eventDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={todayDateCtrl} />
           </label>
           <label style={{ margin: '3px' }} >
             Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
