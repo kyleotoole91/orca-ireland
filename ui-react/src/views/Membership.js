@@ -248,6 +248,21 @@ function Membership() {
     )
   }
 
+  async function allMembersClick(){
+    try {
+      if (!allMembersExpanded) {
+        setLoadingAllMembers(true)
+        await userModel.get()
+        if (userModel.success) {
+          setUserData(userModel.responseData)
+        }  
+      } 
+    } finally {
+      setLoadingAllMembers(false)
+      setAllMembersExpanded(!allMembersExpanded)
+    }
+  }
+
   function modalMembershipForm(){
     function headerText(){
       if (editing) {
@@ -259,38 +274,38 @@ function Membership() {
     return ( 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>{headerText()}</Modal.Title>
+        <Modal.Title>{headerText()}</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
-          <label style={{ margin: '3px' }} >
-            Name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
-            <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
-          </label>
-          <label style={{ margin: '3px' }} >
-            Start Date: &nbsp;&nbsp;
-            <input style={{minWidth: '197px'}} value={startDateCtrl} onChange={(e) => startDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={startDateCtrl} />
-          </label>
-          <label style={{ margin: '3px' }} >
-            Expiry Date: &nbsp;
-            <input style={{minWidth: '197px'}} value={endDateCtrl} onChange={(e) => endDateChange(e.target.value)} type="date" id="eventDate" name="event-date" />
-          </label>
-          <label style={{ margin: '3px' }} >
-            Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
-          </label>
-          <label style={{ margin: '3px' }} >
-            Secret: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input value={secret} onChange={(e) => setSecret(e.target.value)} type="password" id="secret" name="membership-secret" />
-          </label>
-        </Modal.Body>
+          <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
+            <label style={{ margin: '3px' }} >
+              Name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
+            </label>
+            <label style={{ margin: '3px' }} >
+              Start Date: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <input style={{minWidth: '197px'}} value={startDateCtrl} onChange={(e) => startDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={startDateCtrl} />
+            </label>
+            <label style={{ margin: '3px' }} >
+              Expiry Date: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <input style={{minWidth: '197px'}} value={endDateCtrl} onChange={(e) => endDateChange(e.target.value)} type="date" id="eventDate" name="event-date" />
+            </label>
+            <label style={{ margin: '3px' }} >
+              Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
+            </label>
+            <label style={{ margin: '3px' }} >
+              Activation Code: &nbsp;
+              <input value={secret} onChange={(e) => setSecret(e.target.value)} type="password" id="secret" name="membership-secret" />
+            </label>
+          </Modal.Body>
         <Modal.Footer>
-            {/*allowDelEvents && editing && <Button onClick={deleteMembership} variant="outline-danger">Delete</Button>*/}
-            <Button variant="outline-secondary" onClick={handleClose}>
-              Close
-            </Button>
-            <Button variant="outline-primary" onClick={saveMembership}>
-              Save
-            </Button>
+          {/*allowDelEvents && editing && <Button onClick={deleteMembership} variant="outline-danger">Delete</Button>*/}
+          <Button variant="outline-secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="outline-primary" onClick={saveMembership}>
+            Save
+          </Button>
         </Modal.Footer>
       </Modal>   
     )
@@ -360,21 +375,6 @@ function Membership() {
     )
   }
 
-  async function allMembersClick(){
-    try {
-      if (!allMembersExpanded) {
-        setLoadingAllMembers(true)
-        await userModel.get()
-        if (userModel.success) {
-          setUserData(userModel.responseData)
-        }  
-      } 
-    } finally {
-      setLoadingAllMembers(false)
-      setAllMembersExpanded(!allMembersExpanded)
-    }
-  }
-
   function getAllMembersCards(){
     function addCard(user, index){
       if (userInMemebership(user.extId, currMembership)){
@@ -390,7 +390,7 @@ function Membership() {
     function addMemberCards(users) {
       return ( users.map((user, index) => (addCard(user, index))) )
     }
-    
+
     if (loadingAllMembers) {
       return <div className="text-center">
                <Spinner animation="border" variant="primary"/>
@@ -435,7 +435,7 @@ function Membership() {
 }
 
 const StyledAccordionHeader = styled(Accordion.Header)`
-  accordion-button:focus {
+  .accordion-button:focus {
     z-index: 0
   }
 `

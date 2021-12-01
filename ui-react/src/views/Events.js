@@ -352,33 +352,33 @@ function Events() {
     return ( 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>{headerText()}</Modal.Title>
+        <Modal.Title>{headerText()}</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
-          <label style={{ margin: '3px' }} >
-            Name: &nbsp;&nbsp;&nbsp;&nbsp; 
-            <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
-          </label>
-          <label style={{ margin: '3px' }} >
-            Location: <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" id="eventLocation" name="event-location" />
-          </label>
-          <label style={{ margin: '3px' }} >
-            Date: &nbsp;&nbsp;&nbsp;&nbsp;
-            <input style={{minWidth: '197px'}} value={date} onChange={(e) => eventDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={todayDateCtrl} />
-          </label>
-          <label style={{ margin: '3px' }} >
-            Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
-          </label>
-        </Modal.Body>
+          <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
+            <label style={{ margin: '3px' }} >
+              Name: &nbsp;&nbsp;&nbsp;&nbsp; 
+              <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
+            </label>
+            <label style={{ margin: '3px' }} >
+              Location: <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" id="eventLocation" name="event-location" />
+            </label>
+            <label style={{ margin: '3px' }} >
+              Date: &nbsp;&nbsp;&nbsp;&nbsp;
+              <input style={{minWidth: '197px'}} value={date} onChange={(e) => eventDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={todayDateCtrl} />
+            </label>
+            <label style={{ margin: '3px' }} >
+              Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
+            </label>
+          </Modal.Body>
         <Modal.Footer>
-            {allowDelEvents && editing && <Button onClick={deleteEvent} variant="outline-danger">Delete</Button> }
-            <Button variant="outline-secondary" onClick={handleClose}>
-              Close
-            </Button>
-            <Button variant="outline-primary" onClick={saveEvent}>
-              Save
-            </Button>
+          {allowDelEvents && editing && <Button onClick={deleteEvent} variant="outline-danger">Delete</Button> }
+          <Button variant="outline-secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="outline-primary" onClick={saveEvent}>
+            Save
+          </Button>
         </Modal.Footer>
       </Modal>   
     )
@@ -450,7 +450,7 @@ function Events() {
 };
 
 const StyledAccordionHeader  = styled(Accordion.Header)`
-  accordion-button:focus {
+  .accordion-button:focus {
     z-index: 0
   }
 `
