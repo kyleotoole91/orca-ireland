@@ -11,6 +11,9 @@ import { DateUtils } from '../utils/DateUtils'
 import { Permissions } from '../utils/permissions'
 import Modal from 'react-bootstrap/Modal'
 import NumberFormat from 'react-number-format'
+import Accordion  from 'react-bootstrap/Accordion'
+import styled from 'styled-components'
+import Spinner from 'react-bootstrap/Spinner'
 
 const userModel = new UserModel() 
 const membershipModel = new MembershipModel() 
@@ -49,7 +52,6 @@ function Membership() {
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
-  //add/edit membership form
   const [secret, setSecret] = useState('')
   const [name, setName] = useState('')
   const [startDate, setStartDate] = useState(todayDate)
@@ -57,6 +59,9 @@ function Membership() {
   const [endDate, setEndDate] = useState(oneYearFromToday)
   const [endDateCtrl, setEndDateCtrl] = useState(oneYearFromTodayCtrl)
   const [fee, setFee] = useState(200)
+  const [allMembersExpanded, setAllMembersExpanded] = useState(false)
+  const [loadingAllMembers, setLoadingAllMembers] = useState(false)
+  const [userData, setUserData] = useState()
 
   if (apiToken === '') {
     if (!isAuthenticated) {
@@ -319,6 +324,95 @@ function Membership() {
     }
   }
 
+  function userMembershipDetails(){
+    return (
+      <div style={{display: 'flex', flexFlow: 'wrap'}}> 
+        <Card style={{margin: '3px', minWidth: '284px', maxWidth: '284px'}}>
+          <Card.Header>Member details</Card.Header>
+          <Card.Body>
+            <Form style={{width: '250px'}}>
+              <Form.Group className="mb-3" controlId="formGroupFirstName" >
+                <Form.Label>First Name</Form.Label>
+                <Form.Control type="text" placeholder={firstNamePH} value={firstName} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formGroupLastName" >
+                <Form.Label>Last Name</Form.Label>
+                <Form.Control type="text" placeholder={lastNamePH} value={lastName} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formGroupPhone">
+                <Form.Label>Phone</Form.Label>
+                <Form.Control type="text" placeholder={phonePH} value={phone} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formGroupUsername">
+                <Form.Label>Nickname</Form.Label>
+                <Form.Control readOnly type="text" placeholder={usernamePH} value={username} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)}/>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formGroupEmail">
+                <Form.Label>Email address</Form.Label>
+                <Form.Control readOnly type="test" placeholder={emailPH} value={email} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+              </Form.Group>
+            </Form> 
+            {saveButton()}
+          </Card.Body>
+        </Card>
+        {membershipCard()}
+      </div>
+    )
+  }
+
+  async function allMembersClick(){
+    try {
+      if (!allMembersExpanded) {
+        setLoadingAllMembers(true)
+        await userModel.get()
+        if (userModel.success) {
+          setUserData(userModel.responseData)
+        }  
+      } 
+    } finally {
+      setLoadingAllMembers(false)
+      setAllMembersExpanded(!allMembersExpanded)
+    }
+  }
+
+  function getAllMembersCards(){
+    function addCard(user, index){
+      if (userInMemebership(user.extId, currMembership)){
+        return <Card key={user.extId+'-card'+index} style={{minWidth: '300px', maxWidth: '300px', margin: '3px', zIndex: 0}}>
+                 <Card.Header key={user.extId+'-header'+index}>{user.firstName+' '+user.lastName}</Card.Header>
+                 <Card.Body key={user.extId+'-body'+index}>
+                   <Card.Text key={user.extId+'-email'+index}>Email: {user.email}</Card.Text>
+                   <Card.Text key={user.extId+'-phone'+index}>Phone: {user.phone}</Card.Text>
+                 </Card.Body>
+               </Card> 
+      } 
+    }
+    function addMemberCards(users) {
+      return ( users.map((user, index) => (addCard(user, index))) )
+    }
+    
+    if (loadingAllMembers) {
+      return <div className="text-center">
+               <Spinner animation="border" variant="primary"/>
+             </div>
+    } else if (userData && userData.length > 0) {
+      return <div style={{display: 'flex', flexFlow: 'wrap'}}>
+              {addMemberCards(userData)}
+            </div> 
+    } else { 
+      return <h4>No active members</h4> 
+    }
+  }
+
+  function allMembersAccordian(){
+    return <Accordion.Item eventKey="1">
+            <StyledAccordionHeader onClick={allMembersClick}>Active Members</StyledAccordionHeader>
+            <Accordion.Body>
+              {getAllMembersCards()} 
+            </Accordion.Body>
+          </Accordion.Item>
+  }
+
   if (loading) {
     return ( <Loading /> )
   } else {
@@ -326,42 +420,25 @@ function Membership() {
       <>
         {allowAddMemberships && <Button onClick={addMembership} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Membership</Button> }
         {modalMembershipForm()}
-        <div style={{display: 'flex', flexFlow: 'wrap'}}> 
-          <Card style={{margin: '3px', minWidth: '284px', maxWidth: '284px'}}>
-            <Card.Header>Member details</Card.Header>
-            <Card.Body>
-              <Form style={{width: '250px'}}>
-                <Form.Group className="mb-3" controlId="formGroupFirstName" >
-                  <Form.Label>First Name</Form.Label>
-                  <Form.Control type="text" placeholder={firstNamePH} value={firstName} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="formGroupLastName" >
-                  <Form.Label>Last Name</Form.Label>
-                  <Form.Control type="text" placeholder={lastNamePH} value={lastName} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="formGroupPhone">
-                  <Form.Label>Phone</Form.Label>
-                  <Form.Control type="text" placeholder={phonePH} value={phone} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="formGroupUsername">
-                  <Form.Label>Nickname</Form.Label>
-                  <Form.Control readOnly type="text" placeholder={usernamePH} value={username} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)}/>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="formGroupEmail">
-                  <Form.Label>Email address</Form.Label>
-                  <Form.Control readOnly type="test" placeholder={emailPH} value={email} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
-                </Form.Group>
-              </Form> 
-              {saveButton()}
-            </Card.Body>
-          </Card>
-          {membershipCard()}
-        </div>
+        <Accordion defaultActiveKey="0">
+          <Accordion.Item eventKey="0">
+            <StyledAccordionHeader>My Membership</StyledAccordionHeader>
+            <Accordion.Body>
+              {userMembershipDetails()}
+            </Accordion.Body>
+          </Accordion.Item>
+          {activeMember && allMembersAccordian()}
+        </Accordion>
       </>
     )
   }
 }
 
+const StyledAccordionHeader = styled(Accordion.Header)`
+  accordion-button:focus {
+    z-index: 0
+  }
+`
 export default withAuthenticationRequired(Membership, {
   onRedirecting: () => (<Loading />)  
 });

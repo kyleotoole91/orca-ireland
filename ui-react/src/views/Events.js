@@ -265,11 +265,9 @@ function Events() {
                <Spinner animation="border" variant="primary"/>
              </div>
     } else if (currentEvent && currentEvent.length > 0) {
-      return (
-        <div style={{display: 'flex', flexFlow: 'wrap'}}>
-          {addCards(currentEvent, true)}
-        </div>    
-      )
+      return <div style={{display: 'flex', flexFlow: 'wrap'}}>
+              {addCards(currentEvent, true)}
+            </div>  
     } else {
       return ( <h4>No upcoming event</h4> )
     }
@@ -326,8 +324,8 @@ function Events() {
 
   function addCards(events, showEnter) {
     return (
-      events.map((event, index) => (
-        <Card style={{minWidth: '225px', maxWidth: '225px', margin: '3px', zIndex: 0}} key={index}>
+      events.map((event) => (
+        <Card style={{minWidth: '225px', maxWidth: '225px', margin: '3px', zIndex: 0}} key={event._id}>
           <Card.Header>{event.name}</Card.Header>
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
