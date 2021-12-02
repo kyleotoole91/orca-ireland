@@ -29,7 +29,7 @@ let oneYearFromTodayCtrl = dateUtils.formatDate(oneYearFromToday, 'yyyy-mm-dd')
 const firstNamePH = 'First Name'
 const lastNamePH = 'Last Name'
 const usernamePH = 'Enter nickname'
-const phonePH = 'Enter nickname'
+const phonePH = 'Enter phone'
 const emailPH = 'Enter email'
 
 function Membership() {  

@@ -29,7 +29,7 @@ export class DateUtils {
       sunday: 0
     }
     if (!days.hasOwnProperty(weekdayName)) 
-      throw new Error(refday+" is not a day of week string: "+JSON.stringify(days))
+      throw new Error(weekdayName+" is not a day of week string: "+JSON.stringify(days))
     var currDate = new Date()
     var currTimestamp = currDate.getTime()
     var triggerDay = days[weekdayName]
