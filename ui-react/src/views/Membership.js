@@ -63,6 +63,62 @@ function Membership() {
   const [loadingAllMembers, setLoadingAllMembers] = useState(false)
   const [userData, setUserData] = useState()
 
+  useEffect(() => {
+    async function loadData () {
+      setLoading(true)
+      if (apiToken !== '') {
+        try {
+          const userModel = new UserModel(apiToken) 
+          const membershipModel = new MembershipModel(apiToken) 
+          const permissions = new Permissions()
+          setAllowAddMemberships(permissions.check(apiToken, 'post', 'memberships'))
+          //setAllowReadMemberships(permissions.check(apiToken, 'get', 'memberships'))
+          await userModel.get(user.sub)
+          if (userModel.success) {
+            user.nickname && setUsername(user.nickname) 
+            user.email && setEmail(user.email) 
+            if (userModel.responseData.hasOwnProperty('username') && userModel.responseData.username !== '') {
+              setUsername(userModel.responseData.username)   
+            } else {
+              setUsername(user.nickname)
+            }
+            setPhone(userModel.responseData.phone) 
+            if (userModel.responseData.hasOwnProperty('firstName')) {
+              setFirstName(userModel.responseData.firstName)
+            } else if (user.hasOwnProperty('given_name')) {
+              setFirstName(user.given_name)  
+            }
+            if (userModel.responseData.hasOwnProperty('lastName')) {
+              setLastName(userModel.responseData.lastName)
+            } else if (user.hasOwnProperty('family_name')) {
+              setLastName(user.family_name)  
+            }
+          } else {
+            console.log(userModel.message)
+            if (user.hasOwnProperty('given_name')) {
+              setFirstName(user.given_name) 
+            }
+            if (user.hasOwnProperty('family_name')) {
+              setLastName(user.family_name) 
+            }
+            window.alert(userModel.message)
+          }
+          await membershipModel.getCurrentMembership()
+          if (membershipModel.success && membershipModel.responseData.length === 1) {
+            setCurrMembership(membershipModel.responseData[0]) 
+            setActiveMember(userInMemebership(user.sub, membershipModel.responseData[0]))  
+          } 
+        } catch(e) {
+          window.alert(e)
+        } finally {
+          setAllMembersExpanded(!allMembersExpanded)
+          setLoading(false)
+        }
+      }
+    }  
+    loadData()
+  }, [refresh, apiToken, user, isAuthenticated, getAccessTokenSilently])
+  
   if (apiToken === '') {
     if (!isAuthenticated) {
       loginWithRedirect()
@@ -121,61 +177,6 @@ function Membership() {
       setLoading(false)  
     }
   }
-
-  useEffect(() => {
-    async function loadData () {
-      setLoading(true)
-      if (apiToken !== '') {
-        try {
-          const userModel = new UserModel(apiToken) 
-          const membershipModel = new MembershipModel(apiToken) 
-          const permissions = new Permissions()
-          setAllowAddMemberships(permissions.check(apiToken, 'post', 'memberships'))
-          //setAllowReadMemberships(permissions.check(apiToken, 'get', 'memberships'))
-          await userModel.get(user.sub)
-          if (userModel.success) {
-            user.nickname && setUsername(user.nickname) 
-            user.email && setEmail(user.email) 
-            if (userModel.responseData.hasOwnProperty('username') && userModel.responseData.username !== '') {
-              setUsername(userModel.responseData.username)   
-            } else {
-              setUsername(user.nickname)
-            }
-            setPhone(userModel.responseData.phone) 
-            if (userModel.responseData.hasOwnProperty('firstName')) {
-              setFirstName(userModel.responseData.firstName)
-            } else if (user.hasOwnProperty('given_name')) {
-              setFirstName(user.given_name)  
-            }
-            if (userModel.responseData.hasOwnProperty('lastName')) {
-              setLastName(userModel.responseData.lastName)
-            } else if (user.hasOwnProperty('family_name')) {
-              setLastName(user.family_name)  
-            }
-          } else {
-            console.log(userModel.message)
-            if (user.hasOwnProperty('given_name')) {
-              setFirstName(user.given_name) 
-            }
-            if (user.hasOwnProperty('family_name')) {
-              setLastName(user.family_name) 
-            }
-            window.alert(userModel.message)
-          }
-          await membershipModel.getCurrentMembership()
-          if (membershipModel.success && membershipModel.responseData.length === 1) {
-            setCurrMembership(membershipModel.responseData[0]) 
-            setActiveMember(userInMemebership(user.sub, membershipModel.responseData[0]))  
-          } 
-        } catch(e) {
-          window.alert(e)
-        } finally {
-          setLoading(false)
-        }
-      }
-    }  
-    loadData()
-  }, [refresh, apiToken, user, isAuthenticated, getAccessTokenSilently])
 
   function saveButton() {
     if (saveButtonState) {

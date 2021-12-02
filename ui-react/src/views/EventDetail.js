@@ -9,12 +9,38 @@ import dayjs from 'dayjs'
 
 function EventDetail() {
   let { id } = useParams()
-
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [apiToken, setApiToken] = useState('')
   const [event, setEvent] = useState()
   const [classes, setClasses] = useState()
   const [loading, setLoading] = useState()
+
+  useEffect(() => {
+    async function loadData () {
+      setLoading(true)
+      if (apiToken !== '') {
+        try {
+          const eventModel = new EventModel(apiToken)
+          const classModel = new ClassModel(apiToken)
+          await eventModel.get(id)
+          if (eventModel.success) {
+            setEvent(eventModel.responseData)
+            await classModel.get()
+            if (classModel.success) {
+              setClasses(classModel.responseData)
+            } else {
+              window.alert(classModel.message)
+            }
+          } else {
+            setEvent()
+          }
+        } finally {
+          setLoading(false)
+        }
+      }
+    }  
+    loadData()
+  }, [id, apiToken, user.sub])
 
   if (apiToken === '') {
     if (!isAuthenticated) {
@@ -68,33 +94,6 @@ function EventDetail() {
       )
     )
   }
-
-  useEffect(() => {
-    async function loadData () {
-      setLoading(true)
-      if (apiToken !== '') {
-        try {
-          const eventModel = new EventModel(apiToken)
-          const classModel = new ClassModel(apiToken)
-          await eventModel.get(id)
-          if (eventModel.success) {
-            setEvent(eventModel.responseData)
-            await classModel.get()
-            if (classModel.success) {
-              setClasses(classModel.responseData)
-            } else {
-              window.alert(classModel.message)
-            }
-          } else {
-            setEvent()
-          }
-        } finally {
-          setLoading(false)
-        }
-      }
-    }  
-    loadData()
-  }, [id, apiToken, user.sub])
 
   if (loading) {
     return ( <Loading /> )

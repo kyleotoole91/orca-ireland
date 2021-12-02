@@ -58,6 +58,57 @@ function Events() {
     setShowEnter(false) 
   }
 
+  useEffect(() => {
+    async function loadData () {
+      setLoading(true)
+      if (apiToken !== '' && user) {
+        try {
+          const eventModel = new EventModel(apiToken)
+          const carModel = new CarModel(apiToken)
+          const permissions = new Permissions()
+          setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+          setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+          await eventModel.getCurrentEvent()
+          if (eventModel.success) {
+            if (eventModel.responseData.length > 0) {
+              setCurrentEvent(eventModel.responseData)
+              setSelectedEvent(eventModel.responseData[0])
+              setSelectedEventId(eventModel.responseData[0]._id)
+            }
+          } else {
+            window.alert(eventModel.message)
+          }
+          await carModel.getUserDocs(user.sub)
+          if (carModel.success) {
+            setCarData(carModel.responseData)
+          }  
+        } catch(e) {
+          window.alert(e)
+        } finally {
+          setAllEventsExpanded(false)
+          setLoading(false)
+        }
+      }
+    }  
+    loadData()
+  }, [refresh, apiToken, user.sub])
+
+  if (apiToken === '') {
+    if (!isAuthenticated) {
+      loginWithRedirect()
+    } else {
+      getApiToken()
+    }
+  } else { 
+    eventModel.setApiToken(apiToken)
+  }
+
+  async function getApiToken() {
+    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+    eventModel.setApiToken(token)
+    setApiToken(token)   
+  }
+
   async function handleShowEnter (e) { 
     await selectEvent(e.target.id.toString())
     setShowEnter(true) 
@@ -74,22 +125,6 @@ function Events() {
       setSelectedEvent() 
       return
     }
-  }
-
-  if (apiToken === '') {
-    if (!isAuthenticated) {
-      loginWithRedirect()
-    } else {
-      getApiToken()
-    }
-  } else { 
-    eventModel.setApiToken(apiToken)
-  }
-
-  async function getApiToken() {
-    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
-    eventModel.setApiToken(token)
-    setApiToken(token)   
   }
 
   function addCar(id){
@@ -118,40 +153,6 @@ function Events() {
     }
     return found
   }
-
-  useEffect(() => {
-    async function loadData () {
-      setLoading(true)
-      if (apiToken !== '') {
-        try {
-          const eventModel = new EventModel(apiToken)
-          const carModel = new CarModel(apiToken)
-          const permissions = new Permissions()
-          setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-          setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-          await eventModel.getCurrentEvent()
-          if (eventModel.success) {
-            if (eventModel.responseData.length > 0) {
-              setCurrentEvent(eventModel.responseData)
-              setSelectedEvent(eventModel.responseData[0])
-              setSelectedEventId(eventModel.responseData[0]._id)
-            }
-          } else {
-            window.alert(eventModel.message)
-          }
-          await carModel.getUserDocs(user.sub)
-          if (carModel.success) {
-            setCarData(carModel.responseData)
-          }  
-        } catch(e) {
-          window.alert(e)
-        } finally {
-          setLoading(false)
-        }
-      }
-    }  
-    loadData()
-  }, [refresh, apiToken, user.sub])
 
   async function deleteEvent() {
     try {
