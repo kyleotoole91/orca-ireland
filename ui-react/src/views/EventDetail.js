@@ -55,7 +55,7 @@ function EventDetail() {
     setApiToken(token)   
   }
 
-  function addRacers(class_id){
+  function addRacers(class_id) {
     function addTableRow(car, index){
       return (
         <tr key={index+'-racersRow'}>
@@ -70,9 +70,28 @@ function EventDetail() {
     return (event.cars.map((car, index) => ( car.class_id===class_id && addTableRow(car, index) ))) 
   }
 
+  function classesWithEntries(classes) {
+    let arr = []
+    if (classes && event){
+      console.log(event.cars)
+      for (var car of event.cars) {
+        for (var cls of classes) {
+          if (car.class_id === cls._id) {
+            if (arr.indexOf(cls) === -1) {
+              arr.push(cls)
+            }
+          }
+        }
+      }
+
+    }
+    return arr
+  }
+
   function showRoster() {
+    const filteredClasses = classesWithEntries(classes)
     return (
-      classes.map((carClass, index) => (
+      filteredClasses.map((carClass, index) => (
           <div key={index+'-div'}>
             <h4 key={index+'-headerLabel'}>{carClass.name}</h4>
             <Table striped bordered hover size="sm" key={index+'-table'}>

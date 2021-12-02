@@ -16,4 +16,30 @@ export class DateUtils {
     let date = new Date(isoDate)
     return this.formatDate(date, format)
   }
+
+  nextDayOfWeekDate(weekdayName){
+  //https://stackoverflow.com/questions/1579010/get-next-date-from-weekday-in-javascript
+    var days = {
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+      saturday: 6,
+      sunday: 0
+    }
+    if (!days.hasOwnProperty(weekdayName)) 
+      throw new Error(refday+" is not a day of week string: "+JSON.stringify(days))
+    var currDate = new Date()
+    var currTimestamp = currDate.getTime()
+    var triggerDay = days[weekdayName]
+    var dayMillDiff = 0
+    var dayInMill = 1000*60*60*24
+    while (currDate.getDay()!=triggerDay){
+        dayMillDiff += dayInMill;
+        currDate = new Date(currDate.getTime()+dayInMill)
+    }
+    return new Date(currTimestamp + dayMillDiff)
+}
+
 }

@@ -20,18 +20,18 @@ import styled from 'styled-components'
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
 const eventStartTimeHours = 10
-let todayDate = new Date(Date.now())
-let todayDateCtrl = dateUtils.formatDate(todayDate, 'yyyy-mm-dd')
-let defaultEventDate = new Date(Date.now())
+let defaultEventDate = dateUtils.nextDayOfWeekDate('sunday')
 defaultEventDate.setHours(eventStartTimeHours)
 defaultEventDate.setMinutes(0)
+let defaultEventDateCtrl = dateUtils.formatDate(defaultEventDate, 'yyyy-mm-dd')
+
 
 function Events() {
   const history = useHistory()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [name, setName] = useState('')
   const [location, setLocation] = useState("Saint Anne's Park")
-  const [date, setDate] = useState(todayDateCtrl)
+  const [date, setDate] = useState(defaultEventDateCtrl)
   const [eventDate, setEventDate] = useState(defaultEventDate)
   const [fee, setFee] = useState(10.00)
   const [data, setData] = useState([])
@@ -91,7 +91,7 @@ function Events() {
       }
     }  
     loadData()
-  }, [refresh, apiToken, user.sub])
+  }, [refresh, user, apiToken, user.sub])
 
   if (apiToken === '') {
     if (!isAuthenticated) {
@@ -309,8 +309,8 @@ function Events() {
     setEditing(false)
     setName('')
     setLocation("Saint Anne's Park")
-    setEventDate(todayDate)
-    setDate(todayDateCtrl) 
+    setEventDate(defaultEventDate)
+    setDate(defaultEventDateCtrl) 
     setFee(10)
     handleShow()
   } 
@@ -365,7 +365,7 @@ function Events() {
             </label>
             <label style={{ margin: '3px' }} >
               Date: &nbsp;&nbsp;&nbsp;&nbsp;
-              <input style={{minWidth: '197px'}} value={date} onChange={(e) => eventDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={todayDateCtrl} />
+              <input style={{minWidth: '197px'}} value={date} onChange={(e) => eventDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={defaultEventDateCtrl} />
             </label>
             <label style={{ margin: '3px' }} >
               Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
