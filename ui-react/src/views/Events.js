@@ -24,12 +24,12 @@ let defaultEventDate = dateUtils.nextDayOfWeekDate('sunday')
 defaultEventDate.setHours(eventStartTimeHours)
 defaultEventDate.setMinutes(0)
 let defaultEventDateCtrl = dateUtils.formatDate(defaultEventDate, 'yyyy-mm-dd')
-
+const defaultEventName = 'Round ' 
 
 function Events() {
   const history = useHistory()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
-  const [name, setName] = useState('')
+  const [name, setName] = useState(defaultEventName)
   const [location, setLocation] = useState("Saint Anne's Park")
   const [date, setDate] = useState(defaultEventDateCtrl)
   const [eventDate, setEventDate] = useState(defaultEventDate)
@@ -307,7 +307,7 @@ function Events() {
 
   function addEvent() {
     setEditing(false)
-    setName('')
+    setName(defaultEventName)
     setLocation("Saint Anne's Park")
     setEventDate(defaultEventDate)
     setDate(defaultEventDateCtrl) 
