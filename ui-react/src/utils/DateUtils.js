@@ -35,11 +35,11 @@ export class DateUtils {
     var triggerDay = days[weekdayName]
     var dayMillDiff = 0
     var dayInMill = 1000*60*60*24
-    while (currDate.getDay()!=triggerDay){
+    while (currDate.getDay() !== triggerDay){
         dayMillDiff += dayInMill;
         currDate = new Date(currDate.getTime()+dayInMill)
     }
     return new Date(currTimestamp + dayMillDiff)
-}
+  }
 
 }
