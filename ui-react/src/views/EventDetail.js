@@ -61,7 +61,7 @@ function EventDetail() {
         <tr key={index+'-racersRow'}>
           <td>{car.user.firstName+' '+car.user.lastName}</td>
           <td>{car.manufacturer}</td>
-          <td>{car.hasOwnProperty('color') && car.color}</td>
+          <td>{car.color}</td>
           <td>{car.model}</td>
           <td>{car.transponder}</td>
         </tr>
@@ -80,8 +80,8 @@ function EventDetail() {
                 <tr key={index+'-tableHeadRow'}>
                   <th>Name</th>
                   <th>Manufacturer</th>
-                  <th>Colour</th>
                   <th>Model</th>
+                  <th>Colour</th>
                   <th>Transponder</th>
                 </tr>
               </thead>
