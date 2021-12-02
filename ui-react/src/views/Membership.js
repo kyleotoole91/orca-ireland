@@ -111,7 +111,7 @@ function Membership() {
         } catch(e) {
           window.alert(e)
         } finally {
-          setAllMembersExpanded(!allMembersExpanded)
+          setAllMembersExpanded(false)
           setLoading(false)
         }
       }
