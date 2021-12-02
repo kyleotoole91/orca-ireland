@@ -60,7 +60,10 @@ function Membership() {
   const [endDateCtrl, setEndDateCtrl] = useState(oneYearFromTodayCtrl)
   const [fee, setFee] = useState(200)
   const [allMembersExpanded, setAllMembersExpanded] = useState(false)
+  const [allMembersShipsExpanded, setAllMembersShipsExpanded] = useState(false)
+  const [allMembersShips, setAllMembersShips] = useState()
   const [loadingAllMembers, setLoadingAllMembers] = useState(false)
+  const [loadingAllMembersShips, setLoadingAllMembersShips] = useState(false)
   const [userData, setUserData] = useState()
 
   useEffect(() => {
@@ -264,6 +267,22 @@ function Membership() {
     }
   }
 
+  async function allMembersShipsClick(){
+    try {
+      if (!allMembersShipsExpanded) {
+        setLoadingAllMembersShips(true)
+        await membershipModel.get()
+        if (membershipModel.success) {
+          setAllMembersShips(membershipModel.responseData)
+        }  
+      } 
+    } finally {
+      setLoadingAllMembersShips(false)
+      setAllMembersShipsExpanded(!allMembersShipsExpanded)
+    }
+  }
+
+
   function modalMembershipForm(){
     function headerText(){
       if (editing) {
@@ -414,6 +433,42 @@ function Membership() {
           </Accordion.Item>
   }
 
+  function getAllMembershipsCards(){
+    function addCard(membership, index){
+      return <Card key={user.extId+'-card'+index} style={{minWidth: '300px', maxWidth: '300px', margin: '3px', zIndex: 0}}>
+                <Card.Header key={membership.extId+'-header'+index}>{membership.name}</Card.Header>
+                <Card.Body>
+                  <Card.Text>Start Date: {dateUtils.formatISODate(membership.endDate)}</Card.Text>
+                  <Card.Text>End Date: {dateUtils.formatISODate(membership.endDate)}</Card.Text>
+                  <Card.Text>Price: €{membership.price}</Card.Text>
+                </Card.Body>
+              </Card> 
+    }
+    function addMemberCards(users){
+      return ( users.map((user, index) => (addCard(user, index))) )
+    }
+    if (loadingAllMembersShips) {
+      return <div className="text-center">
+               <Spinner animation="border" variant="primary"/>
+             </div>
+    } else if (allMembersShips && allMembersShips.length > 0) {
+      return <div style={{display: 'flex', flexFlow: 'wrap'}}>
+              {addMemberCards(allMembersShips)}
+            </div> 
+    } else { 
+      return <h4>No active members</h4> 
+    }
+  }
+
+  function allMembershipsAccordian(){
+    return <Accordion.Item eventKey="2">
+            <StyledAccordionHeader onClick={allMembersShipsClick}>All Memberships</StyledAccordionHeader>
+            <Accordion.Body>
+              {getAllMembershipsCards()} 
+            </Accordion.Body>
+          </Accordion.Item>
+  }
+
   if (loading) {
     return ( <Loading /> )
   } else {
@@ -429,6 +484,7 @@ function Membership() {
             </Accordion.Body>
           </Accordion.Item>
           {activeMember && allMembersAccordian()}
+          {allowAddMemberships && allMembershipsAccordian()}
         </Accordion>
       </>
     )
