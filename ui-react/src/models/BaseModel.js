@@ -27,12 +27,13 @@ export class BaseModel {
   }
 
   hasApiToken(){
-    if (!this.apiToken || this.apiToken === '') { 
+    /*if (!this.apiToken || this.apiToken === '') { 
       this.setErrorMessage('api token not set') 
       return false
     } else {
       return true
-    }
+    }*/
+    return true //let server decide
   }
 
   async get(id){

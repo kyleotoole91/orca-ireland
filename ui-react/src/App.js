@@ -12,6 +12,7 @@ import Events from './views/Events'
 import EventDetail from './views/EventDetail'
 import Garage from './views/Garage'
 import Membership from './views/Membership'
+import Gallery from './views/Gallery'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 //import { useAuth0 } from '@auth0/auth0-react';
 require('dotenv').config()
@@ -35,6 +36,7 @@ function App() {
               <Route path="/home" component={Homepage} />
               <Route path="/events/:id" component={EventDetail} />
               <Route path="/events" component={Events} />
+              <Route path="/gallery" component={Gallery} />
               <Route path="/membership" component={Membership} /> 
               <Route path="/garage" component={Garage} />
             </Switch>   

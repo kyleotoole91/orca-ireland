@@ -17,6 +17,7 @@ class MenuItems extends Component {
       return (
         <>
           <MenuItem><Link id="home" to='/'>Home</Link></MenuItem>
+          <MenuItem><Link id="gallery" to="/gallery">Gallery</Link></MenuItem>
           {this.props.authenticated && <MenuItem><Link id="events" to='/events'>Events</Link></MenuItem> }
           {this.props.authenticated && <MenuItem><Link id="garage" to='/garage'>Garage</Link></MenuItem> }
           {this.props.authenticated && <MenuItem><Link id="membership" to="/membership">Membership</Link></MenuItem> }
@@ -38,7 +39,7 @@ const MenuItem = styled.div`
   transition: all 0.3s ease-in;
   font-size: 18px;
   font-family: ${({ theme}) => theme.menuFont};
-  @media (max-width: ${({ theme}) => theme.mobileM}) {
+  @media (max-width: ${({ theme}) => theme.menuItemsMax}) {
     display: none;
   }
   &:hover {

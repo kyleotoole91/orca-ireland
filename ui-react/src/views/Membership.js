@@ -435,12 +435,17 @@ function Membership() {
 
   function getAllMembershipsCards(){
     function addCard(membership, index){
+      let memberCount = 0
+      if (membership.hasOwnProperty('user_ids')) {
+        memberCount = membership.user_ids.length  
+      }
       return <Card key={user.extId+'-card'+index} style={{minWidth: '300px', maxWidth: '300px', margin: '3px', zIndex: 0}}>
                 <Card.Header key={membership.extId+'-header'+index}>{membership.name}</Card.Header>
                 <Card.Body>
                   <Card.Text>Start Date: {dateUtils.formatISODate(membership.endDate)}</Card.Text>
                   <Card.Text>End Date: {dateUtils.formatISODate(membership.endDate)}</Card.Text>
                   <Card.Text>Price: €{membership.price}</Card.Text>
+                  <Card.Text>Member count: {memberCount}</Card.Text>
                 </Card.Body>
               </Card> 
     }
