@@ -7,4 +7,5 @@ ui-react/.env.development
 ui-react/.env.production
 ui-react/src/components/images
 ui-react/public/images
+ui-react/public/rules
 *jpg

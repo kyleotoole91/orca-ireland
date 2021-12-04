@@ -61,8 +61,8 @@ function EventDetail() {
         <tr key={index+'-racersRow'}>
           <td>{car.user.firstName+' '+car.user.lastName}</td>
           <td>{car.manufacturer}</td>
-          <td>{car.color}</td>
           <td>{car.model}</td>
+          <td>{car.color}</td>
           <td>{car.transponder}</td>
         </tr>
       )
@@ -73,7 +73,6 @@ function EventDetail() {
   function classesWithEntries(classes) {
     let arr = []
     if (classes && event){
-      console.log(event.cars)
       for (var car of event.cars) {
         for (var cls of classes) {
           if (car.class_id === cls._id) {
@@ -98,10 +97,10 @@ function EventDetail() {
               <thead key={index+'-tableHead'}>
                 <tr key={index+'-tableHeadRow'}>
                   <th>Name</th>
-                  <th>Manufacturer</th>
+                  <th>Mfr.</th>
                   <th>Model</th>
                   <th>Colour</th>
-                  <th>Transponder</th>
+                  <th>Tpdr.</th>
                 </tr>
               </thead>
               <tbody>

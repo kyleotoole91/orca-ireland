@@ -13,6 +13,7 @@ import EventDetail from './views/EventDetail'
 import Garage from './views/Garage'
 import Membership from './views/Membership'
 import Gallery from './views/Gallery'
+import Rules from './views/Rules'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 //import { useAuth0 } from '@auth0/auth0-react';
 require('dotenv').config()
@@ -39,6 +40,7 @@ function App() {
               <Route path="/gallery" component={Gallery} />
               <Route path="/membership" component={Membership} /> 
               <Route path="/garage" component={Garage} />
+              <Route path="/rules" component={Rules} />
             </Switch>   
           </AppContainer>
         </ThemeProvider>

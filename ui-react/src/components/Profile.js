@@ -67,7 +67,7 @@ const Username = styled.div`
   position: 'absolute';
   height: 100%;
   padding: 8px;
-  @media (max-width: ${ ({ theme}) => theme.mobileL}) {
+  @media (max-width: ${ ({ theme}) => theme.profileButtonMax}) {
     display: none;
   }
 `;

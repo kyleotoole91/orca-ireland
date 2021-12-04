@@ -23,7 +23,7 @@ export class UserModel extends BaseModel{
       this.message = 'Please fill in all fields'
       return
     } else {
-      return await super.put(user)
+      return await super.post(user)
     }
   }
 

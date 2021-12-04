@@ -3,7 +3,7 @@ import { React, useState, useEffect } from 'react'
 import ImageGallery from 'react-image-gallery'
 import 'react-image-gallery/styles/scss/image-gallery.scss'
 import 'react-image-gallery/styles/css/image-gallery.css'
-import { ImageModel, Images } from '../models/ImageModel'
+import { ImageModel } from '../models/ImageModel'
 import Loading from '../components/Loading'
 
 function Home() {
@@ -30,10 +30,13 @@ function Home() {
     loadData()
   }, [])
 
-  if (loading) {
+  if (loading || images.length === 0) {
     return ( <Loading /> )
   } else {
-    return ( <ImageGallery items={images} /> )
+    return (
+      <div style={{width:'100%', height:'100%'}}> 
+        <ImageGallery items={images} /> 
+      </div>)
   }
 }
 

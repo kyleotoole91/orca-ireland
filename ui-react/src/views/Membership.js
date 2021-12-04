@@ -240,18 +240,6 @@ function Membership() {
     setEndDateCtrl(stringDate)  
   }
 
-  function activationForm() {
-    return (
-      <>
-        <Form.Group className="mb-3" controlId="formActivation">
-          <Form.Label>Activation code</Form.Label>
-          <Form.Control type="password" placeholder="Enter activation code" value={activationCode} onChange={(e) => setActivationCode(e.target.value)}/>
-        </Form.Group>
-        <Button variant="outline-primary" onClick={activateMembership}> Activate</Button>
-      </>
-    )
-  }
-
   async function allMembersClick(){
     try {
       if (!allMembersExpanded) {
@@ -282,6 +270,17 @@ function Membership() {
     }
   }
 
+  function activationForm() {
+    return (
+      <>
+        <Form.Group className="mb-3" controlId="formActivation">
+          <Form.Label>Activation code</Form.Label>
+          <Form.Control type="password" placeholder="Enter activation code" value={activationCode} onChange={(e) => setActivationCode(e.target.value)}/>
+        </Form.Group>
+        <Button variant="outline-primary" onClick={activateMembership}> Activate</Button>
+      </>
+    )
+  }
 
   function modalMembershipForm(){
     function headerText(){
