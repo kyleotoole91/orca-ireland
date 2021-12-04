@@ -19,10 +19,16 @@ function Home() {
         <div style={{width: '100%', maxHeight: '100%'}}>
           <img style={{maxWidth: '100%', maxHeight: '100%'}} src={SaintAnnesTrack} alt="Saint Annes Track"></img>
         </div>
-        <GoogleMap ></GoogleMap> 
+         
+        <p>ORCA was founded in 1997, but some of our members have been involved in model car racing since the late 80's when originally the club was racing in what was then the main car park in University College Dublin. Racing is now at St. Annes Park, Raheny
+        </p>
+        <GoogleMap ></GoogleMap>
         <FooterContainer> 
           <a href='https://www.facebook.com/orcaireland/'>Follow us <img style={{width: '48px', weight: '48px'}} src='/images/facebook.png' alt="Facebook Page"></img></a>  
           <a href={emailTo}>Contact us <img style={{width: '36px', weight: '36px'}}  src='/images/email.png' alt="Email"></img></a>
+          <p></p>
+          <p>Designed by Kyle O'Toole</p>
+          <p>2021</p>
         </FooterContainer> 
       </div>
     </>
@@ -31,11 +37,15 @@ function Home() {
 
 const FooterContainer = styled.div`
   width: 100%; 
-  height: 80px;
+  height: 110px;
   alignSelf: center;
   display: grid;  
   justifyContent: center;
   alignItems: 'center';
+  p {
+    font-size: 10px;   
+    color: white;
+  }
   a {
     color: white;
     text-decoration: none;
