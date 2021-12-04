@@ -22,6 +22,9 @@ function Rules() {
 
   return (
     <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.6.347/build/pdf.worker.min.js">
+      
+
+
       <Accordion>
         {addAccordianItem('Club Constitution', '0', '/rules/ClubConstitution.pdf')}
         {addAccordianItem('General Rules',     '1', '/rules/GeneralRules.pdf')}
