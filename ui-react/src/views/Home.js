@@ -15,19 +15,16 @@ function Home() {
           <img style={{maxWidth: '50%', maxHeight: '50%'}} src={CircuitLogo} alt="Circuit Logo"></img>
         </div>  
         <h2> Ireland's only 1/8 scale on road circuit</h2>
-        <span>St.Anne's Park, Raheny, Dublin, Ireland</span>
         <div style={{width: '100%', maxHeight: '100%'}}>
           <img style={{maxWidth: '100%', maxHeight: '100%'}} src={SaintAnnesTrack} alt="Saint Annes Track"></img>
         </div>
-         
-        <p>ORCA was founded in 1997, but some of our members have been involved in model car racing since the late 80's when originally the club was racing in what was then the main car park in University College Dublin. Racing is now at St. Annes Park, Raheny
-        </p>
-        <GoogleMap ></GoogleMap>
+        <GoogleMap />
         <FooterContainer> 
           <a href='https://www.facebook.com/orcaireland/'>Follow us <img style={{width: '48px', weight: '48px'}} src='/images/facebook.png' alt="Facebook Page"></img></a>  
           <a href={emailTo}>Contact us <img style={{width: '36px', weight: '36px'}}  src='/images/email.png' alt="Email"></img></a>
           <p></p>
-          <p>Designed by Kyle O'Toole</p>
+          <p>St.Anne's Park, Raheny, Dublin, Ireland</p>
+          <p style={{fontSize: '10px'}}>Designed by Kyle O'Toole</p>
           <p>2021</p>
         </FooterContainer> 
       </div>
@@ -37,13 +34,12 @@ function Home() {
 
 const FooterContainer = styled.div`
   width: 100%; 
-  height: 110px;
+  height: 150px;
   alignSelf: center;
   display: grid;  
   justifyContent: center;
   alignItems: 'center';
-  p {
-    font-size: 10px;   
+  p { 
     color: white;
   }
   a {

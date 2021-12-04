@@ -1,7 +1,7 @@
-import React from 'react';
-import styled from 'styled-components';
-import { useAuth0 } from "@auth0/auth0-react";
-import DefaultProfilePng from './images/default-profile-image.png';
+import React from 'react'
+import styled from 'styled-components'
+import { useAuth0 } from "@auth0/auth0-react"
+import DefaultProfilePng from './images/default-profile-image.png'
 
 function Profile ({ forceUsername }) {
   const { logout, loginWithRedirect,  user, isAuthenticated } = useAuth0()
