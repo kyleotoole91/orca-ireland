@@ -76,7 +76,7 @@ export class MembershipController extends BaseController {
         "extId": "external-user-id"
     }  
   */
-  async updateMembership(req, res) {
+  async updateDocument(req, res) {
     try {
       let user = await this.getUser(req, res, false)
       let addingMember = Object.keys(req.body).length === 2 && req.body.hasOwnProperty('secret') && req.body.hasOwnProperty('extId')
@@ -87,7 +87,7 @@ export class MembershipController extends BaseController {
           message: 'forbidden'
         })  
       }
-      let membership = await this.db.getDocument(req.params.membershipId)
+      let membership = await this.db.getDocument(req.params.id)
       if (addingMember) {
         if (!user && !user.hasOwnProperty('username') || !user.hasOwnProperty('firstName') || user.username ===''|| user.firstName ==='') {
           return res.status(404).send({
@@ -112,10 +112,10 @@ export class MembershipController extends BaseController {
         }
         if (!this.objectIdExists(membership.user_ids, user._id)) {
           membership.user_ids.push(user._id)
-          membership = await this.db.updateDocument(req.params.membershipId, membership) 
+          membership = await this.db.updateDocument(req.params.id, membership) 
         }
       } else {
-        membership = await this.db.updateDocument(req.params.membershipId, req.body)   
+        membership = await this.db.updateDocument(req.params.id, req.body)   
       }
       if (!membership) {
         return res.status(500).send({

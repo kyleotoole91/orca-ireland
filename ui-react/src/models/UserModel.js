@@ -9,7 +9,7 @@ export class UserModel extends BaseModel{
   }
 
   async put(userId, user) {
-    if (user.firstName === '' || user.lastName === '' || user.phone === '') {
+    if (user.extId === '' || user.firstName === '' || user.lastName === '' || !user.phone || user.phone === '') {
       this.message = 'Please fill in all fields'
       return
     } else {
@@ -19,7 +19,7 @@ export class UserModel extends BaseModel{
   }
 
   async post(user) {
-    if (user.extId === '' || user.firstName === '' || user.lastName === '' || user.phone === '') {
+    if (user.extId === '' || user.firstName === '' || user.lastName === '' || !user.phone || user.phone === '') {
       this.message = 'Please fill in all fields'
       return
     } else {

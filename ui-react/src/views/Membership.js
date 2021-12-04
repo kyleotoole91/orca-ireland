@@ -85,7 +85,9 @@ function Membership() {
             } else {
               setUsername(user.nickname)
             }
-            setPhone(userModel.responseData.phone) 
+            if (userModel.responseData.hasOwnProperty('phone')) {
+              setPhone(userModel.responseData.phone)
+            } 
             if (userModel.responseData.hasOwnProperty('firstName')) {
               setFirstName(userModel.responseData.firstName)
             } else if (user.hasOwnProperty('given_name')) {
