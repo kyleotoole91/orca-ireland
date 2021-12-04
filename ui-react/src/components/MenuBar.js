@@ -13,7 +13,7 @@ function MenuBar () {
   return (
     <>
       <SideBar authenticated={isAuthenticated} />
-      <MenuBarContainer style={{zIndex: 1}} > 
+      <MenuBarContainer style={{zIndex: 3}} > 
         <BurgerContainer />
         {width > 285 && 
           <CompanyContainer>
@@ -30,7 +30,7 @@ function MenuBar () {
 
 const CompanyImage = styled.img` 
   float: right;
-  position: 'absolute';
+  position: relative;
   height: 100%;
   padding: 6px;
 `

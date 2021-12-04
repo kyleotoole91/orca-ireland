@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import {Map, Marker, GoogleApiWrapper} from 'google-maps-react'
+
 export class GoogleMap extends Component {
-  
   render() {
     return (
       <Map containerStyle={{position: 'relative'}}
