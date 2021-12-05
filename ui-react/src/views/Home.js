@@ -29,12 +29,13 @@ function Home() {
       <div>
         <GoogleMap/>
         <WhiteText style={{ alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center', alignItems:'center', height: 'auto'}}> 
-          <a href='https://www.facebook.com/orcaireland/'>Follow us <img style={{width: '48px', weight: '48px'}} src='/images/facebook.png' alt="Facebook Page"></img></a>  
-          <a href={emailTo}>Contact us <img style={{width: '36px', weight: '36px'}}  src='/images/email.png' alt="Email"></img></a>
-          <p></p>
+          <div style={{marginTop: '6px'}}>
+            <a href='https://www.facebook.com/orcaireland/'><img style={{width: '48px', weight: '48px'}} src='/images/facebook.png' alt="Facebook Page"></img></a>  
+            <a href={emailTo}>&nbsp;&nbsp;&nbsp;&nbsp;<img style={{width: '36px', weight: '36px'}}  src='/images/email.png' alt="Email"></img></a>
+          </div>
           <p>St.Anne's Park, Raheny, Dublin, Ireland</p>
-          <p style={{fontSize: '10px'}}>Designed by Kyle O'Toole</p>
-          <p style={{fontSize:'9px'}}>2021</p>
+          <span style={{fontSize: '10px'}}>Designed by Kyle O'Toole</span>
+          <span style={{fontSize:'9px'}}>2021</span>
         </WhiteText>
       </div>
     )
@@ -61,14 +62,17 @@ function Home() {
 }
 
 const WhiteText = styled.div`
+  font-family: ${({ theme}) => theme.companyFont};  
   p { 
     color: white;
+  }
+  span {
+    color: white;  
   }
   a {
     color: white;
     text-decoration: none;
     outline-style: none;   
-    font-weight: bold; 
     &:visited {
       text-decoration: none;
       outline-style: none;   
