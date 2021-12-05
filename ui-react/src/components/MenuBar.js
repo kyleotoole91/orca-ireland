@@ -76,7 +76,7 @@ const CompanyContainer = styled.div`
   position: 'relative';
   height: 100%;
   text-align: left;
-  padding-left: 18px;
+  padding-left: 10px;
   padding-right: 18px;
   color: ${({ theme}) => theme.primaryLight};
   font-family: ${({ theme}) => theme.companyFont};
