@@ -6,6 +6,7 @@ import Modal from 'react-bootstrap/Modal'
 import Loading from '../components/Loading'
 import { CarModel } from '../models/CarModel'
 import { ClassModel } from '../models/ClassModel'
+import Header from '../components/Header'
 
 const carModel = new CarModel()
 
@@ -251,11 +252,13 @@ function Garage() {
     return ( 
       <div>
         {modalForm()}
+        <Header props={{header:'Garage'}} /> 
         <Button onClick={addCar} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
       </div> )
   } else {
     return (
       <div>
+        <Header props={{header:'Garage'}} /> 
         <Button onClick={addCar} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
         {modalForm()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>

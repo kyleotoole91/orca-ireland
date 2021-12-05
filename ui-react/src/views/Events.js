@@ -7,6 +7,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Accordion  from 'react-bootstrap/Accordion'
 import FormControl from 'react-bootstrap/FormControl'
 import Loading from '../components/Loading'
+import Header from '../components/Header'
 import dayjs from 'dayjs'
 import { Permissions } from '../utils/permissions'
 import NumberFormat from 'react-number-format'
@@ -428,6 +429,7 @@ function Events() {
   } else {
     return (
       <div>
+        <Header props={{header:'Events'}} />
         {allowAddEvents && <Button onClick={addEvent} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
         {modalForm()}
         {modalEnterEvent()}

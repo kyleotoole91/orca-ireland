@@ -1,6 +1,7 @@
 import { React, useState, useEffect } from 'react'
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react"
 import Loading from '../components/Loading'
+import Header from '../components/Header'
 import { EventModel } from '../models/EventModel'
 import { ClassModel } from '../models/ClassModel'
 import { useParams } from 'react-router-dom'
@@ -118,10 +119,7 @@ function EventDetail() {
   } else if (event) {
     return (
       <>
-        <div style={{ alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center', alignItems:'center', height: 'auto'}}>
-          <h4>Event</h4>
-          <h4>{dayjs(event.date).format('DD/MM/YYYY')}</h4>
-        </div>
+        <Header props={{header:'Event', subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
         <div style={{ maxWidth: '50%', height: 'auto'}}>
           <h2>Roster</h2> 
           {showRoster()}  

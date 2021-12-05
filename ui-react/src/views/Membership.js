@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Loading from '../components/Loading'
+import Header from '../components/Header'
 import { useAuth0 } from "@auth0/auth0-react"
 import { UserModel } from '../models/UserModel'
 import { MembershipModel } from '../models/MembershipModel'
@@ -480,6 +481,7 @@ function Membership() {
   } else {
     return (
       <>
+        <Header props={{header:'Membership'}} />
         {allowAddMemberships && <Button onClick={addMembership} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Membership</Button> }
         {modalMembershipForm()}
         <Accordion defaultActiveKey="0">

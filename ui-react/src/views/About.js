@@ -4,6 +4,7 @@ import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
 import Accordion  from 'react-bootstrap/Accordion'
 import styled from 'styled-components'
+import Header from '../components/Header'
 
 function Rules() {
   function addAccordianItem(header, eventKey, pdfUrl) {
@@ -22,6 +23,7 @@ function Rules() {
 
   return (
     <Worker workerUrl="https://unpkg.com/pdfjs-dist@2.6.347/build/pdf.worker.min.js">
+      <Header props={{header:'About'}} /> 
       <Accordion defaultActiveKey="0">
         <Accordion.Item eventKey='0'>
         <StyledAccordionHeader>About Us</StyledAccordionHeader>

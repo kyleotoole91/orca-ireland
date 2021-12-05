@@ -11,9 +11,9 @@ function Profile ({ forceUsername }) {
   if (user != null) {
     profilePic = user.picture
     if (user.name != null) {
-      username = user.name;
+      username = user.name
     } else {
-      username = user.nickname;
+      username = user.nickname
     }
   }
 

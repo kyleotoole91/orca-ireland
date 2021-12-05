@@ -7,7 +7,7 @@ export class GoogleMap extends Component {
       <Map containerStyle={{position: 'relative'}}
            style={{height: '250px', width: '100%', marginTop: '6px', position: 'relative'}}
            google={this.props.google} 
-           zoom={14}
+           zoom={15.8}
            initialCenter={{
              lat: 53.372972833,
              lng: -6.174243994

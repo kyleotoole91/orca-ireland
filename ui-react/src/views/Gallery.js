@@ -5,6 +5,7 @@ import 'react-image-gallery/styles/scss/image-gallery.scss'
 import 'react-image-gallery/styles/css/image-gallery.css'
 import { ImageModel } from '../models/ImageModel'
 import Loading from '../components/Loading'
+import Header from '../components/Header'
 
 function Home() {
   const [images, setImages] = useState([])
@@ -30,13 +31,20 @@ function Home() {
     loadData()
   }, [])
 
-  if (loading || images.length === 0) {
+  if (loading) {
     return ( <Loading /> )
+  } else if (images.length === 0) {
+  return (
+    <h2>No images</h2>)
   } else {
     return (
-      <div style={{width:'100%', height:'100%'}}> 
-        <ImageGallery items={images} /> 
-      </div>)
+      <>
+        <Header props={{header:'Gallery'}} />
+        <div style={{width:'100%', height:'100%', alignItems: 'center', position: 'relative'}}> 
+          <ImageGallery items={images} /> 
+        </div>
+      </>
+    )
   }
 }
 
