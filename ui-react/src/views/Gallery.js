@@ -8,7 +8,7 @@ import Loading from '../components/Loading'
 
 function Home() {
   const [images, setImages] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadData () {
