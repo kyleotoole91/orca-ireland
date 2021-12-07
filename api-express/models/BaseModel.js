@@ -241,10 +241,11 @@ export class BaseModel {
       const objUserId = new ObjectId(userId) 
       const objDocId = new ObjectId(docId) 
       this.result = await this.db.find({'user_id': objUserId, '_id': objDocId, "deleted": {"$in": [null, false]}}).toArray()
-      if(!this.result || !this.result.hasOwnProperty('_id')) {
+      if(!this.result || this.result.length === 0) {
         this.result = null
         this.message = 'Not found'
       } else {
+        this.result = this.result[0]
         this.message = "User's "+this.collectionName
       }
     } catch (error) {

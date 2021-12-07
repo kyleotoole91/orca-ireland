@@ -120,7 +120,7 @@ function EventDetail() {
     return (
       <>
         <Header props={{header:'Event', subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
-        <div style={{ maxWidth: '50%', height: 'auto'}}>
+        <div style={{position: 'relative', maxWidth: '50%', height: 'auto'}}>
           <h2>Roster</h2> 
           {showRoster()}  
         </div>

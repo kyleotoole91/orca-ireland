@@ -1,13 +1,13 @@
 var styles = {
   bmBurgerButton: {
     position: "fixed",
-    width: "32px",
+    width: "28px",
     height: "24px",
-    left: "12px",
+    left: "14px",
     top: "8px",
     marginTop: "3px"
   },
-  bmBurgerBars: { background: "#2B83CD", height: "3px", width: "32px" },
+  bmBurgerBars: { background: "#2B83CD", height: "3px", width: "30px" },
   bmCrossButton: { height: "24px", width: "24px" },
   bmCross: { background: "#bdc3c7" },
   bmMorphShape: { fill: "#373a47" },

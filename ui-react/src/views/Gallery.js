@@ -39,7 +39,6 @@ function Home() {
   } else {
     return (
       <>
-        <Header props={{header:'Gallery'}} />
         <div style={{width:'100%', height:'100%', alignItems: 'center', position: 'relative'}}> 
           <ImageGallery items={images} /> 
         </div>

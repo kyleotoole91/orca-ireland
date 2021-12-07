@@ -75,17 +75,27 @@ export class EventsController extends BaseController {
             message: 'You need to activate your membership before you can enter events'
           })    
         }
+        let classIds = []
         let car //check the car(s) belongs to the user
         for (var carId of req.body.car_ids) {
-          objId = new ObjectId(carId)
-          car = this.carDb.getUserDocument(user._id, carId)
+          car = await this.carDb.getUserDocument(user._id.toString(), carId.toString())
           if (!car){
             return res.status(404).send({
               success: false,
               message: this.carDb.message
             })  
+          } else {
+            if (classIds.indexOf(car.class_id.toString()) >= 0) {
+              return res.status(422).send({
+                success: false,
+                message: 'You can only enter with one car per class'
+              }) 
+            } else {
+              classIds.push(car.class_id.toString()) 
+            }
           }
         }
+
         if (!event.hasOwnProperty('car_ids')) {  
           event.car_ids = []
         } else {

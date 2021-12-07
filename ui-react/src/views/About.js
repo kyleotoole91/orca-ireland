@@ -13,9 +13,9 @@ function Rules() {
         <StyledAccordionHeader>{header}</StyledAccordionHeader>
         <Accordion.Body >
           <a href={pdfUrl}>
-            <img alt="Qries" src='/images/printer.png' style={{width:'24px', height:'24px'}}/>
+            <img alt="Qries" src='/images/download.png' style={{width:'28px', height:'28px'}}/>
           </a>
-          <Viewer fileUrl={pdfUrl} />
+          <Viewer style={{maxWidth: '600px'}} fileUrl={pdfUrl} />
         </Accordion.Body>
       </Accordion.Item>
     )
@@ -29,8 +29,18 @@ function Rules() {
         <StyledAccordionHeader>About Us</StyledAccordionHeader>
           <Accordion.Body>
           <div style={{maxWidth: '400px'}}> 
-          ORCA was founded in 1997, but some of our members have been involved in model car racing since the late 80's. 
-          Back then the club was racing in what was then the main car park in University College Dublin. Racing is now at St. Annes Park, Raheny
+            <p>
+              ORCA was founded in 1997, but some of our members have been involved in model car racing since the late 80's. 
+              Back then the club was racing in what was then the main car park in University College Dublin. Racing is now at St. Annes Park, Raheny.
+            </p>
+            <p>
+              We, the club memebers primarily race 1/8 scale nitro machines with the GT (Grand Touring) class becoming more and more popular due to their
+              predictable handling in all weather conditions. We also have a GP class (1/8 On Road) which is more popular in the summer months since the foam tyres prefer
+              dry, warm tarmac. 
+            </p>
+            <p>
+              At the moment, we only have nitro classes since we don't have any members who run electric models at this time.
+            </p>
           </div>   
           </Accordion.Body>
         </Accordion.Item>
