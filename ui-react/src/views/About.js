@@ -11,11 +11,11 @@ function Rules() {
     return  (
       <Accordion.Item eventKey={eventKey}>
         <StyledAccordionHeader>{header}</StyledAccordionHeader>
-        <Accordion.Body >
+        <Accordion.Body style={{maxWidth: '1000px', textAlign: 'left'}}>
           <a href={pdfUrl}>
             <img alt="Qries" src='/images/download.png' style={{width:'28px', height:'28px'}}/>
           </a>
-          <Viewer style={{maxWidth: '600px'}} fileUrl={pdfUrl} />
+          <Viewer fileUrl={pdfUrl} />
         </Accordion.Body>
       </Accordion.Item>
     )
@@ -35,11 +35,8 @@ function Rules() {
             </p>
             <p>
               We, the club memebers primarily race 1/8 scale nitro machines with the GT (Grand Touring) class becoming more and more popular due to their
-              predictable handling in all weather conditions. We also have a GP class (1/8 On Road) which is more popular in the summer months since the foam tyres prefer
+              predictable handling in all weather conditions. We also have a faster GP class (1/8 On Road) which is more popular in the summer months since the foam tyres prefer
               dry, warm tarmac. 
-            </p>
-            <p>
-              At the moment, we only have nitro classes since we don't have any members who run electric models at this time.
             </p>
           </div>   
           </Accordion.Body>
