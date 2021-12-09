@@ -37,7 +37,7 @@ function App() {
   }, [])
 
   const onRedirectCallback = (appState) => {
-    history.push(appState?.returnTo || window.location.pathname);
+   history.push(appState?.returnTo || window.location.pathname);
   }
 
   if (loading) {

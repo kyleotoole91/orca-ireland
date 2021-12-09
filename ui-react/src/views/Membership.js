@@ -15,6 +15,7 @@ import NumberFormat from 'react-number-format'
 import Accordion  from 'react-bootstrap/Accordion'
 import styled from 'styled-components'
 import Spinner from 'react-bootstrap/Spinner'
+import { PlusButton } from '../components/PlusButton'
 
 const userModel = new UserModel() 
 const membershipModel = new MembershipModel() 
@@ -305,11 +306,11 @@ function Membership() {
             </label>
             <label style={{ margin: '3px' }} >
               Start Date: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <input style={{minWidth: '197px'}} value={startDateCtrl} onChange={(e) => startDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={startDateCtrl} />
+              <input style={{width: '182px'}} value={startDateCtrl} onChange={(e) => startDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={startDateCtrl} />
             </label>
             <label style={{ margin: '3px' }} >
               Expiry Date: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <input style={{minWidth: '197px'}} value={endDateCtrl} onChange={(e) => endDateChange(e.target.value)} type="date" id="eventDate" name="event-date" />
+              <input style={{width: '182px'}} value={endDateCtrl} onChange={(e) => endDateChange(e.target.value)} type="date" id="eventDate" name="event-date" />
             </label>
             <label style={{ margin: '3px' }} >
               Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -482,7 +483,9 @@ function Membership() {
     return (
       <>
         <Header props={{header:'Membership'}} />
-        {allowAddMemberships && <Button onClick={addMembership} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Membership</Button> }
+        {allowAddMemberships && <div onClick={addMembership} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
+                                  <PlusButton >Add Event</PlusButton> 
+                                </div> }
         {modalMembershipForm()}
         <Accordion defaultActiveKey="0">
           <Accordion.Item eventKey="0">

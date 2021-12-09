@@ -4,6 +4,8 @@ import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Loading from '../components/Loading'
+import { PlusButton } from '../components/PlusButton'
+//import { GearButton } from '../components/GearButton'
 import { CarModel } from '../models/CarModel'
 import { ClassModel } from '../models/ClassModel'
 import Header from '../components/Header'
@@ -16,9 +18,9 @@ function Garage() {
   const [classId, setClassId] = useState('')
   const [manufacturer, setManufacturer] = useState('')
   const [model, setModel] = useState('')
-  const [freq, setFreq] = useState('')
+  const [freq, setFreq] = useState('2.4ghz')
   const [transponder, setTransponder] = useState('')
-  const [color, setColor] = useState('')
+  const [color, setColor] = useState('White')
   const [data, setData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
@@ -175,8 +177,8 @@ function Garage() {
     setEditing(false)
     setManufacturer('')
     setModel('')
-    setFreq('')
-    setColor('')
+    setFreq('2.4ghz')
+    setColor('White')
     setTransponder('')
     setCarId('')
     handleShow()
@@ -199,9 +201,9 @@ function Garage() {
   }
 
   function modalForm(){
-    function classesdDropDown () {
+    function classesDropDown () {
       return (
-        <select id={classId} style={{width: '197px', height: '30px'}} onChange={(e) => handleChange(e)} >
+        <select id={classId} style={{width: '182px', height: '30px'}} onChange={(e) => handleChange(e)} >
           {classes.map((carClass, index) => 
             <option id={carClass._id} key={index} >{carClass.name}</option> ) }
         </select>  
@@ -234,7 +236,7 @@ function Garage() {
           </label>   
           <label style={{ margin: '3px' }} >
             Class: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            {classes && classes.length !== 0 && classesdDropDown()}  
+            {classes && classes.length !== 0 && classesDropDown()}  
           </label>      
         </Modal.Body>
         <Modal.Footer>
@@ -253,19 +255,23 @@ function Garage() {
       <div>
         {modalForm()}
         <Header props={{header:'Garage'}} /> 
-        <Button onClick={addCar} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
+        <div onClick={addCar} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
+          <PlusButton /> 
+        </div>
       </div> )
   } else {
     return (
       <div>
         <Header props={{header:'Garage'}} /> 
-        <Button onClick={addCar} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Car</Button> 
+        <div onClick={addCar} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
+          <PlusButton /> 
+        </div>
         {modalForm()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data.map((car, index) => (
             <Card style={{minWidth: '250px', maxWidth: '250px', margin: '3px', zIndex: 0}} key={index}>
               <Card.Header>{car.manufacturer}</Card.Header>
-              <Card.Body>
+              <Card.Body style={{height: '240px'}}>
                 <Card.Title>{car.model}</Card.Title>
                 <Card.Text>Color: {car.hasOwnProperty('color') && car.color}</Card.Text>
                 <Card.Text>Frequency: {car.freq}</Card.Text>
@@ -280,5 +286,11 @@ function Garage() {
     )
   }
 }
+
+/*
+<div id={car._id} onClick={editCar} style={{float: 'right', marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
+                  <GearButton />
+                </div>
+*/
 
 export default withAuthenticationRequired(Garage, { onRedirecting: () => (<Loading />) });

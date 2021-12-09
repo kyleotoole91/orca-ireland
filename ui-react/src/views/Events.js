@@ -17,6 +17,7 @@ import { DateUtils } from '../utils/DateUtils'
 import Spinner from 'react-bootstrap/Spinner'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
+import { PlusButton } from '../components/PlusButton'
 
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
@@ -38,7 +39,7 @@ function Events() {
   const [data, setData] = useState([])
   const [currentEvent, setCurrentEvent] = useState([])
   const [car_ids, setCar_ids] = useState([])
-  const [selClassIds, setSelClassIds] = useState([])
+  //const [selClassIds, setSelClassIds] = useState([])
   const [carData, setCarData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
@@ -369,7 +370,7 @@ function Events() {
             </label>
             <label style={{ margin: '3px' }} >
               Date: &nbsp;&nbsp;&nbsp;&nbsp;
-              <input style={{minWidth: '197px'}} value={date} onChange={(e) => eventDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={defaultEventDateCtrl} />
+              <input style={{minWidth: '182px'}} value={date} onChange={(e) => eventDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={defaultEventDateCtrl} />
             </label>
             <label style={{ margin: '3px' }} >
               Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -433,9 +434,11 @@ function Events() {
     return (
       <div>
         <Header props={{header:'Events'}} />
-        {allowAddEvents && <Button onClick={addEvent} style={{marginLeft: "3px", marginBottom: "3px"}} variant="outline-primary">Add Event</Button> }
         {modalForm()}
         {modalEnterEvent()}
+        {allowAddEvents && <div onClick={addEvent} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
+                              <PlusButton >Add Event</PlusButton> 
+                           </div> }
         <Accordion defaultActiveKey="0">
           <Accordion.Item eventKey="0">
             <StyledAccordionHeader>Next Event</StyledAccordionHeader>

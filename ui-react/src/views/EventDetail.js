@@ -7,6 +7,8 @@ import { ClassModel } from '../models/ClassModel'
 import { useParams } from 'react-router-dom'
 import Table  from 'react-bootstrap/Table'
 import dayjs from 'dayjs'
+import { Permissions } from '../utils/permissions'
+import { PlusButton } from '../components/PlusButton'
 
 function EventDetail() {
   let { id } = useParams()
@@ -15,6 +17,7 @@ function EventDetail() {
   const [event, setEvent] = useState()
   const [classes, setClasses] = useState()
   const [loading, setLoading] = useState()
+  const [allowAddRaces, setAllowAddRaces] = useState(false)
 
   useEffect(() => {
     async function loadData () {
@@ -23,6 +26,8 @@ function EventDetail() {
         try {
           const eventModel = new EventModel(apiToken)
           const classModel = new ClassModel(apiToken)
+          const permissions = new Permissions()
+          setAllowAddRaces(permissions.check(apiToken, 'post', 'races'))
           await eventModel.get(id)
           if (eventModel.success) {
             setEvent(eventModel.responseData)
@@ -93,7 +98,7 @@ function EventDetail() {
     return (
       filteredClasses.map((carClass, index) => (
           <div key={index+'-div'}>
-            <h4 key={index+'-headerLabel'}>{carClass.name}</h4>
+            <h4 style={{marginRight: '12px', float: 'left'}} key={index+'-headerLabel'}>{carClass.name}</h4> 
             <Table striped bordered hover size="sm" key={index+'-table'}>
               <thead key={index+'-tableHead'}>
                 <tr key={index+'-tableHeadRow'}>
@@ -108,6 +113,10 @@ function EventDetail() {
                 {addRacers(carClass._id, index)}
               </tbody>
             </Table>
+            <div style={{display: 'flex', flexFlow: 'wrap'}}>
+              <h4 style={{float: 'left'}}>Races</h4>
+              {allowAddRaces && <PlusButton />}
+            </div>
           </div>
         )
       )
@@ -120,7 +129,7 @@ function EventDetail() {
     return (
       <>
         <Header props={{header:'Event', subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
-        <div style={{position: 'relative', maxWidth: '50%', height: 'auto'}}>
+        <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
           <h2>Roster</h2> 
           {showRoster()}  
         </div>
@@ -129,6 +138,6 @@ function EventDetail() {
   } else {
     return (<h2>Not found</h2>)
   }
-};
+}
 
 export default withAuthenticationRequired(EventDetail, { onRedirecting: () => (<Loading />) });

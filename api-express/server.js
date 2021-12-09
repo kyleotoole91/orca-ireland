@@ -1,15 +1,19 @@
-const express = require('express')
-const app = express()
-var cors = require('cors')
 import { BaseController } from './controllers/BaseController' 
 import { MembershipController } from './controllers/MembershipController' 
 import { EventsController } from './controllers/EventController' 
-require('dotenv').config()
 import validateJwt from './utils/validate-jwt'
 import mongoClient from './mongo-client' 
-
+require('dotenv').config()
+const fs = require('fs')
+const express = require('express')
+const https = require('https')
+const http = require('http')
+const app = express()
+const cors = require('cors')
+const ssl = {key: fs.readFileSync('./SSL/privkey.pem', 'utf8'), 
+             cert: fs.readFileSync('./SSL/fullchain.pem', 'utf8')}
 const corsOpts = {
-  origin: 'http://localhost:3000',
+  origin: 'http://localhost:3001',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Bearer']
 }
@@ -18,7 +22,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());   
 app.use(cors(corsOpts));
 app.get('/cors', (req, res) => {
-  res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.set('Access-Control-Allow-Origin', 'http://localhost:3001');
   res.send({ "msg": "This has CORS enabled" })
 })
 
@@ -85,11 +89,17 @@ app.use(function (req, res) {
   res.status(404).send({'success': false, 'message': 'not found'})
 })
 app.use(function (err, req, res) {
+  res.status(401).send({'success': false, 'message': err.message})
+})
+app.use(function (err, req, res) {
   if (err) {
     res.status(500).send({'success': false, 'message': err.message})
   }
 }) 
 
-app.listen(8000, () => {
-  console.log('ORCA REST API server listening on port 8000')
-})
+http.createServer(app).listen(8000)
+https.createServer(ssl, app).listen(8001)
+
+//app.listen(8000, () => {
+//  console.log('ORCA REST API server listening on port 8000')
+//})

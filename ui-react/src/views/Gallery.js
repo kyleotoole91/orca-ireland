@@ -1,11 +1,9 @@
 import { React, useState, useEffect } from 'react'
-//https://openbase.com/js/react-image-gallery
-import ImageGallery from 'react-image-gallery'
+import ImageGallery from 'react-image-gallery' //https://openbase.com/js/react-image-gallery
 import 'react-image-gallery/styles/scss/image-gallery.scss'
 import 'react-image-gallery/styles/css/image-gallery.css'
 import { ImageModel } from '../models/ImageModel'
 import Loading from '../components/Loading'
-import Header from '../components/Header'
 
 function Home() {
   const [images, setImages] = useState([])

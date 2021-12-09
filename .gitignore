@@ -8,4 +8,9 @@ ui-react/.env.production
 ui-react/src/components/images
 ui-react/public/images
 ui-react/public/rules
+./droplet-env
 *jpg
+*.pem
+*.png
+ui-react/src/components/images/crypto-trac-icon-small.png
+api-express/SSL/README
