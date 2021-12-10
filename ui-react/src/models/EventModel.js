@@ -19,12 +19,12 @@ export class EventModel extends BaseModel{
       return
     }
     if (!event || event.name === '' || event.location === '' || event.date === '') {
+      return
+    } else {
       if (typeof event.fee === 'string') {
         event.fee = parseFloat(event.fee.replace('€', ''))
       }
       this.setErrorMessage('Please fill in all fields')
-      return
-    } else {
       return await super.post(event)
     }
   }

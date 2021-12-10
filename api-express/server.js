@@ -50,12 +50,11 @@ app.get('/events', validateJwt, (req, res) => eventsController.getAllDocuments(r
 app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(req, res))
 app.post('/events', validateJwt, (req, res) => eventsController.addDocument(req, res))
 app.put('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
+app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteDocument(req, res))
 //images
 app.get('/images', (req, res) => imagesController.getAllDocuments(req, res))
 app.get('/images/:id', (req, res) => imagesController.getDocument(req, res))
 app.post('/events', validateJwt, (req, res) => imagesController.addDocument(req, res))
-//events 
-app.get('/events', validateJwt, (req, res) => eventsController.getAllDocuments(req, res))
 //users 
 app.get('/users', validateJwt, (req, res) => usersController.getAllDocuments(req, res))
 app.get('/users/:id', validateJwt, (req, res) => usersController.getUserDocument(req, res))
