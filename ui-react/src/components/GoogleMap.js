@@ -5,7 +5,7 @@ export class GoogleMap extends Component {
   render() {
     return (
       <Map containerStyle={{position: 'relative'}}
-           style={{height: '250px', width: '100%', marginTop: '6px', position: 'relative'}}
+           style={{height: '200px', width: '100%', marginTop: '6px', position: 'relative'}}
            google={this.props.google} 
            zoom={15.8}
            initialCenter={{

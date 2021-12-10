@@ -34,9 +34,9 @@ function Rules() {
               Back then the club was racing in what was then the main car park in University College Dublin. Racing is now at St. Annes Park, Raheny.
             </p>
             <p>
-              We, the club memebers primarily race 1/8 scale nitro machines with the GT (Grand Touring) class becoming more and more popular due to their
-              predictable handling in all weather conditions. We also have a faster GP class (1/8 On Road) which is more popular in the summer months since the foam tyres prefer
-              dry, warm tarmac. 
+              We, the club members primarily race 1/8 scale nitro machines with the GT class becoming very popular due to their
+              predictable handling in all weather conditions. We also have a faster GP class, also known as 1/8 On Road. 
+              These cars use foam tyres that offer incredible traction, especially on dry surfaces.
             </p>
           </div>   
           </Accordion.Body>
