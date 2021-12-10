@@ -217,6 +217,7 @@ function Membership() {
   async function postMembership(){
     await membershipModel.post({name, startDate, endDate, fee, secret})
     if (membershipModel.success){
+      setRefresh(!refresh)
       handleClose() 
     } else {
       window.alert(membershipModel.message)
@@ -337,10 +338,10 @@ function Membership() {
   function membershipCard(){
     if (currMembership) {
       let membershipState = 'Inactive'  
-      let cardHeight = '350px'
+      let cardHeight = '330px'
       if (activeMember) {
         membershipState = 'Active'
-        cardHeight = '210px' 
+        cardHeight = '200px' 
       } 
       return (
         <Card style={{margin: '3px', maxHeight: cardHeight, minWidth: '284px', maxWidth: '284px'}}>
@@ -348,7 +349,7 @@ function Membership() {
           <Card.Body>
             <Card.Title>{currMembership.name}</Card.Title>
             <Card.Text><b>Valid until: </b> {dateUtils.formatISODate(currMembership.endDate)}</Card.Text>
-            <Card.Text><b>Price:</b> €{currMembership.price}</Card.Text>
+            <Card.Text><b>Price:</b> €{currMembership.fee}</Card.Text>
             <Card.Text><b>Status:</b> {membershipState}</Card.Text>
             {!activeMember && activationForm()}
           </Card.Body>
@@ -447,7 +448,7 @@ function Membership() {
                 <Card.Body>
                   <Card.Text>Start Date: {dateUtils.formatISODate(membership.endDate)}</Card.Text>
                   <Card.Text>End Date: {dateUtils.formatISODate(membership.endDate)}</Card.Text>
-                  <Card.Text>Price: €{membership.price}</Card.Text>
+                  <Card.Text>Price: €{membership.fee}</Card.Text>
                   <Card.Text>Member count: {memberCount}</Card.Text>
                 </Card.Body>
               </Card> 

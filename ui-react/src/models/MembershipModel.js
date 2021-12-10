@@ -14,10 +14,15 @@ export class MembershipModel extends BaseModel{
   }
 
   async post(membership) {
-    if (!membership || membership.name === '' || membership.secret === '' || membership.price === '') {
+    if (!membership || membership.name === '' || membership.secret === '' || membership.fee === '') {
       this.setErrorMessage('Please fill in all fields')
       return
     } else {
+      let prc = membership.fee 
+      if (typeof prc == 'string') {
+        console.log(prc)
+        membership.fee = parseFloat(prc.replace('€', ''))
+      }
       return super.post(membership)
     }
   }

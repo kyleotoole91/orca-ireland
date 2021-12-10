@@ -258,6 +258,7 @@ function Garage() {
         <div onClick={addCar} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
           <PlusButton /> 
         </div>
+        <span>Add your cars, this will let you enter events</span>
       </div> )
   } else {
     return (
