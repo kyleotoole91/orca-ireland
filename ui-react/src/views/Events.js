@@ -329,7 +329,13 @@ function Events() {
     }
   }
 
-  function addCards(events, showEnter) {
+  function addCards(events, currentEvent) {
+    let margin = '0px'
+    let detailBtnMrg = '10px'
+    if (currentEvent) {
+      margin = '10px'
+      detailBtnMrg = '6px'
+    }
     return (
       events.map((event) => (
         <Card style={{minWidth: '225px', maxWidth: '225px', margin: '3px', zIndex: 0}} key={event._id}>
@@ -337,14 +343,14 @@ function Events() {
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
             <Card.Text>Entry fee €{event.fee}</Card.Text>
-            <div style={{float: 'left'}}>
+            <div style={{marginBottom: `${margin}`, float: 'left'}}>
               <Card.Text>{dayjs(event.date).format('DD/MM/YYYY')}</Card.Text>
             </div>
-            <div style={{float: 'right'}} >
+            <div style={{marginBottom: `${margin}`, float: 'right'}} >
               {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
             </div>
-            {showEnter && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Enter</Button> } 
-            <Button id={event._id} onClick={showEventDetails} style={{marginTop: "10px", width: "100%"}} variant="outline-secondary">Details</Button>
+            {currentEvent && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Enter</Button> } 
+            <Button id={event._id} onClick={showEventDetails} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-secondary">Details</Button>
           </Card.Body>
         </Card>)
       )
