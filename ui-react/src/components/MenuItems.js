@@ -36,8 +36,8 @@ const MenuItem = styled.div`
   position: 'relative';
   height: 100%;
   text-align: centre;
-  padding-left: 12px;
-  padding-right: 12px;
+  padding-left: 10px;
+  padding-right: 10px;
   transition: all 0.3s ease-in;
   font-size: 18px;
   font-family: ${({ theme}) => theme.menuFont};

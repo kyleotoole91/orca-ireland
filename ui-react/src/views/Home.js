@@ -1,10 +1,8 @@
 import React, {useState, useEffect} from 'react'
 import OrcaLogo from '../components/images/orca-logo.png'
 import SaintAnnesTrack from '../components/images/saint-annes-track.png'
-import GoogleMap from '../components/GoogleMap'
-import styled from 'styled-components'
 import Loading from '../components/Loading'
-const emailTo = "mailto:"+process.env.REACT_APP_EMAIL
+import { Footer } from '../components/Footer'
 
 function Home() {
   const [loading, setLoading] = useState(true)
@@ -24,23 +22,6 @@ function Home() {
     loadPage()
   }, [])
 
-  function footer(){
-    return(
-      <div style={{maxWidth: '2048px'}}>
-        <GoogleMap/>
-        <WhiteText style={{display: 'grid'}}> 
-          <div style={{marginTop: '6px'}}>
-            <a href='https://www.facebook.com/orcaireland/'><img style={{width: '48px', weight: '48px'}} src='/images/facebook.png' alt="Facebook Page"></img></a>  
-            <a href={emailTo}>&nbsp;&nbsp;&nbsp;&nbsp;<img style={{width: '36px', weight: '36px'}}  src='/images/email.png' alt="Email"></img></a>
-          </div>
-          <p>St.Anne's Park, Raheny, Dublin, Ireland</p>
-          <span style={{fontSize: '10px'}}>Designed by Kyle O'Toole</span>
-          <span style={{fontSize:'9px'}}>2021</span>
-        </WhiteText>
-      </div>
-    )
-  }
-
   if (loading || !orcaLogo || !trackImage) {
     return ( <Loading /> )
   } else {
@@ -54,32 +35,10 @@ function Home() {
         <div style={{width: '100%', height: '100%'}}>
           <img style={{maxWidth: '100%', maxHeight: '100%'}} src={trackImage} alt="Saint Annes Track"></img>
         </div> 
-        {footer()}
+        <Footer />
       </div>)
   }
 }
-
-const WhiteText = styled.div`
-  font-family: ${({ theme}) => theme.companyFont};  
-  p { 
-    color: white;
-  }
-  span {
-    color: white;  
-  }
-  a {
-    color: white;
-    text-decoration: none;
-    outline-style: none;   
-    &:visited {
-      text-decoration: none;
-      outline-style: none;   
-      color: white;
-    }
-  }
-  background: ${({ theme}) => theme.primaryLight};
-`;
-
 
 /*const HomeContainer = styled.div`
   font-family: ${({ theme}) => theme.mainFont};

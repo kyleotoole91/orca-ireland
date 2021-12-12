@@ -3,7 +3,7 @@ var styles = {
     position: "fixed",
     width: "28px",
     height: "24px",
-    left: "14px",
+    left: "10px",
     top: "8px",
     marginTop: "3px"
   },

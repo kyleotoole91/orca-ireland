@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Loading from '../components/Loading'
 import { PlusButton } from '../components/PlusButton'
-//import { GearButton } from '../components/GearButton'
+import { GearButton } from '../components/GearButton'
 import { CarModel } from '../models/CarModel'
 import { ClassModel } from '../models/ClassModel'
 import Header from '../components/Header'
@@ -157,15 +157,15 @@ function Garage() {
     }
   }
 
-  function editCar(e) {
-    let car = findCar(e.target.id) 
+  function editCar(id) {
+    let car = findCar(id) 
     if (car) {
       setManufacturer(car.manufacturer)
       setModel(car.model)
       setFreq(car.freq)
       setColor(car.color)
       setTransponder(car.transponder)
-      setCarId(e.target.id)
+      setCarId(id)
       setEditing(true)
       handleShow()
     } else {
@@ -270,15 +270,19 @@ function Garage() {
         {modalForm()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data.map((car, index) => (
-            <Card style={{minWidth: '250px', maxWidth: '250px', margin: '3px', zIndex: 0}} key={index}>
+            <Card style={{width: '240px', margin: '3px', zIndex: 0}} key={index}>
               <Card.Header>{car.manufacturer}</Card.Header>
-              <Card.Body style={{height: '240px'}}>
+              <Card.Body style={{height: '190px'}}>
                 <Card.Title>{car.model}</Card.Title>
                 <Card.Text>Color: {car.hasOwnProperty('color') && car.color}</Card.Text>
                 <Card.Text>Frequency: {car.freq}</Card.Text>
                 <Card.Text>Transponder ID: {car.transponder}</Card.Text>
-                <Card.Text>Class: {getClassName(car.class_id)}</Card.Text>
-                <Button style={{width: '100%'}} id={car._id} onClick={editCar} variant="outline-warning">Edit</Button>
+                <div style={{float: 'left'}}>
+                  <Card.Text>Class: {getClassName(car.class_id)}</Card.Text>
+                </div>
+                <div style={{float: 'right'}} >
+                  <GearButton id={car._id} handleClick={() => editCar(car._id)}/>
+                </div>
               </Card.Body>
             </Card>
           ))}    
@@ -289,9 +293,7 @@ function Garage() {
 }
 
 /*
-<div id={car._id} onClick={editCar} style={{float: 'right', marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
-                  <GearButton />
-                </div>
+
 */
 
 export default withAuthenticationRequired(Garage, { onRedirecting: () => (<Loading />) });
