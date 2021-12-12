@@ -272,7 +272,7 @@ function Garage() {
           {data.map((car, index) => (
             <Card style={{width: '240px', margin: '3px', zIndex: 0}} key={index}>
               <Card.Header>{car.manufacturer}</Card.Header>
-              <Card.Body style={{height: '190px'}}>
+              <Card.Body>
                 <Card.Title>{car.model}</Card.Title>
                 <Card.Text>Color: {car.hasOwnProperty('color') && car.color}</Card.Text>
                 <Card.Text>Frequency: {car.freq}</Card.Text>
