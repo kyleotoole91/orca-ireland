@@ -18,6 +18,7 @@ import Spinner from 'react-bootstrap/Spinner'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import { PlusButton } from '../components/PlusButton'
+import { GearButton } from '../components/GearButton'
 
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
@@ -295,8 +296,8 @@ function Events() {
     }
   }
 
-  async function editEvent(e) {
-    let selEvent = await selectEvent(e.target.id.toString())
+  async function editEvent(id) {
+    let selEvent = await selectEvent(id)
     if (selEvent) {
       setEditing(true)
       setName(selEvent.name)
@@ -336,10 +337,14 @@ function Events() {
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
             <Card.Text>Entry fee €{event.fee}</Card.Text>
-            <Card.Text>{dayjs(event.date).format('DD/MM/YYYY')}</Card.Text>
+            <div style={{float: 'left'}}>
+              <Card.Text>{dayjs(event.date).format('DD/MM/YYYY')}</Card.Text>
+            </div>
+            <div style={{float: 'right'}} >
+              {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
+            </div>
             {showEnter && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Enter</Button> } 
-            <Button id={event._id} onClick={showEventDetails} style={{marginTop: "3px", width: "100%"}} variant="outline-secondary">Details</Button>
-            {allowDelEvents && <Button id={event._id} style={{marginTop: "3px", width: "100%"}} onClick={editEvent} variant="outline-warning">Edit</Button> }
+            <Button id={event._id} onClick={showEventDetails} style={{marginTop: "10px", width: "100%"}} variant="outline-secondary">Details</Button>
           </Card.Body>
         </Card>)
       )

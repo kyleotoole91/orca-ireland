@@ -128,7 +128,7 @@ function EventDetail() {
   } else if (event) {
     return (
       <>
-        <Header props={{header:'Event', subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
+        <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
         <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
           <h2>Roster</h2> 
           {showRoster()}  
