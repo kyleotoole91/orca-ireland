@@ -129,10 +129,20 @@ function EventDetail() {
     setThirdCarId(e.target.childNodes[e.target.selectedIndex].getAttribute('id'))
   }
 
+  function shouldAdd(cars, position){
+    let count = 0
+    for (var car of cars) {
+      if (car.class_id === classId) {
+        count = count + 1
+      } 
+    }
+    return position <= count
+  }
+
   function raceForm() {
     const checkClass = (car) => {
       if (car.class_id === classId) { 
-        return <option id={car._id} key={car.user._id} >{car.user.firstName+' '+car.user.lastName} </option>    
+        return <option id={car._id} key={car._id} >{car.user.firstName+' '+car.user.lastName} </option>    
       } else {
         return
       }
@@ -159,13 +169,13 @@ function EventDetail() {
             1st: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             {event && event.cars.length !== 0 && racers((e) => onFirstChange(e))}  
           </label>
-          {event.cars.length >= 2 &&
+          {shouldAdd(event.cars, 2) &&
             <label style={{ margin: '3px' }} >
               2nd: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               {event && event.cars.length !== 0 && racers((e) => onSecondChange(e))}  
             </label> 
           }
-          {event.cars.length >= 3 &&
+          {shouldAdd(event.cars, 3) &&
             <label style={{ margin: '3px' }} >
               3rd: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               {event && event.cars.length !== 0 && racers((e) => onThirdChange(e))}  
