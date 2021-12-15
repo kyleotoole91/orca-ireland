@@ -28,8 +28,14 @@ function Garage() {
   const [editing, setEditing] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [carId, setCarId] = useState('')
-  const handleClose = () => setShow(false)
-  const handleShow = () => setShow(true)
+  //arrow functions may be used to execute functions 
+  //rather than simply setting state variables
+  const handleClose = () => {
+    setShow(false)
+  }
+  const handleShow = () => {
+    setShow(true)
+  }
 
   if (apiToken === '') {
     if (!isAuthenticated) {
@@ -194,7 +200,7 @@ function Garage() {
 
   function headerText(){
     if (editing) {
-      return 'Edit car'
+      return manufacturer+' '+model
     } else {
       return 'Add car'
     }
@@ -215,14 +221,18 @@ function Garage() {
           <Modal.Title>{headerText()}</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ display: 'grid', fontFamily: "monospace"} } >
-          <label style={{ margin: '3px' }} >
-            Manufacturer: &nbsp;&nbsp;
-            <input value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} type="text" id="eventName" name="event-name" />
-          </label> 
-          <label style={{ margin: '3px' }} >
-            Model: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input value={model} onChange={(e) => setModel(e.target.value)} type="text" />
-          </label>
+          {editing ||
+            <label style={{ margin: '3px' }} >
+              Manufacturer: &nbsp;&nbsp;
+              <input value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} type="text" id="eventName" name="event-name" />
+            </label>  
+          }
+          {editing ||
+            <label style={{ margin: '3px' }} >
+              Model: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <input value={model} onChange={(e) => setModel(e.target.value)} type="text" />
+            </label>
+          }      
           <label style={{ margin: '3px' }} >
             Colour:  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <input value={color} onChange={(e) => setColor(e.target.value)} type="text" />
@@ -233,11 +243,13 @@ function Garage() {
           </label>        
           <label style={{ margin: '3px' }} >
             Transponder ID: <input value={transponder} onChange={(e) => setTransponder(e.target.value)} type="text" />
-          </label>   
-          <label style={{ margin: '3px' }} >
-            Class: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            {classes && classes.length !== 0 && classesDropDown()}  
-          </label>      
+          </label>  
+          {editing ||
+            <label style={{ margin: '3px' }} >
+              Class: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              {classes && classes.length !== 0 && classesDropDown()}  
+            </label>  
+          }     
         </Modal.Body>
         <Modal.Footer>
             {editing && <Button onClick={deleteCar} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }

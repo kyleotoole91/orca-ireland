@@ -1,7 +1,7 @@
 
 import { BaseModel } from './BaseModel'
 
-export class CarModel extends BaseModel{
+export class CarModel extends BaseModel {
   
   constructor(token) {
     super(token)

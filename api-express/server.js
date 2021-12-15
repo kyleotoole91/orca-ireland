@@ -31,7 +31,7 @@ async function listMongoCollections() {
                    .listCollections()
                    .toArray() 
                    .then(collections => { 
-                     console.log('Connected to MongoDB:')
+                     console.log('MongoDB Collections:')
                      for (var collection of collections) {
                        console.log(collection.name)
                     }})
@@ -45,6 +45,13 @@ const membershipsController = new MembershipController()
 const classesController = new BaseController('classes')
 const carsController = new BaseController('cars')
 const imagesController = new BaseController('images')
+const racesController = new BaseController('races')
+//races
+app.get('/races', validateJwt, (req, res) => racesController.getAllDocuments(req, res))
+app.get('/races/:id', validateJwt, (req, res) => racesController.getDocument(req, res))
+app.post('/races', validateJwt, (req, res) => racesController.addDocument(req, res))
+app.put('/races/:id', validateJwt, (req, res) => racesController.updateEvent(req, res))
+app.delete('/races/:id', validateJwt, (req, res) => racesController.deleteDocument(req, res))
 //events 
 app.get('/events', validateJwt, (req, res) => eventsController.getAllDocuments(req, res))
 app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(req, res))

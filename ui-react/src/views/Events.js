@@ -54,7 +54,6 @@ function Events() {
   const [loadingAllEvents, setLoadingAllEvents] = useState(false)
   const [allEventsExpanded, setAllEventsExpanded] = useState(false)
   const [editing, setEditing] = useState(false)
-
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
   const handleCloseEnter = () => { 
@@ -231,22 +230,6 @@ function Events() {
     setDate(stringDate)  
   }
 
-  /*function nextEventExpand(){
-    if (currentEvent && currentEvent.length > 0) {
-      return '0'
-    } else {
-      return '1'  
-    }
-  }
-
-  function allEventsExpand(){
-    if (currentEvent && currentEvent.length > 0) {
-      return '1'
-    } else {
-      return '0'  
-    }  
-  }*/
-
   async function allEventsClick(){
     try {
       if (!allEventsExpanded) {
@@ -262,8 +245,8 @@ function Events() {
     }
   }
 
-  function showEventDetails(e) {
-    history.push('/events/'+e.target.id)
+  function showEventDetails(id) {
+    history.push('/events/'+id)
   }
 
   function getCurrentEventCard(){
@@ -349,8 +332,8 @@ function Events() {
             <div style={{marginBottom: `${margin}`, float: 'right'}} >
               {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
             </div>
-            {currentEvent && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Enter</Button> } 
-            <Button id={event._id} onClick={showEventDetails} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-secondary">Details</Button>
+            {currentEvent && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Enter Event</Button> } 
+            <Button id={event._id} onClick={(e) =>  showEventDetails(e.target.id)} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-secondary">Details</Button>
           </Card.Body>
         </Card>)
       )

@@ -2,10 +2,10 @@ import React from 'react'
 import { BsFillPlusCircleFill } from "react-icons/bs"
 import styled from 'styled-components'
 
-export const PlusButton = () => {
+export const PlusButton = ({id, handleClick = () => {}}) => {
   return (
     <div style={{height: '15px', maxWidth: '15px'}} >
-      <PlusBtn ></PlusBtn> 
+      <PlusBtn onClick={() => handleClick(id)}></PlusBtn> 
     </div>
   )
 }

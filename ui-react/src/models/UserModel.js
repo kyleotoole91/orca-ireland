@@ -1,7 +1,7 @@
 
 import {BaseModel} from './BaseModel'
 
-export class UserModel extends BaseModel{
+export class UserModel extends BaseModel {
   
   constructor(token) {
     super(token)

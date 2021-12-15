@@ -7,6 +7,21 @@ export class EventModel extends BaseModel {
     super()
     this.result = null
     this.setCollectionName('events')
+    this.mongoPipeline = [{$lookup:{from: "users", // join the user document onto the car (from the result of the root lookup)
+                                    localField: "user_id",
+                                    foreignField: "_id",
+                                    as: "user"}
+                            },
+                            {$unwind: '$user'}, //remove array, making it a one to one
+                            {$lookup:{from: "classes", // join a class onto the car (from the result of the previous lookup)
+                                      localField: "class_id",
+                                      foreignField: "_id",
+                                      as: "class"}
+                            },
+                            {$unwind: '$class'}, //remove array, making it a one to one
+                            {$project: { "user.email": 0, "user.phone": 0} } //exclude these fields from the tables joined
+                          ]                  
+                                    
   }
 
   async getAllDocuments() {
@@ -33,24 +48,8 @@ export class EventModel extends BaseModel {
                              localField: "car_ids",
                              foreignField: "_id",
                              as: "cars",
-                             pipeline: [
-                               {$lookup:{from: "users", // join a user onto the car (from the result of the prev lookup)
-                                         localField: "user_id",
-                                         foreignField: "_id",
-                                         as: "user"}
-                               },
-                               {$unwind: '$user'},
-                               {$lookup:{from: "classes", // join a class onto the car (from the result of the prev lookup)
-                                        localField: "class_id",
-                                        foreignField: "_id",
-                                        as: "class"}
-                               },
-                               {$unwind: '$class'},
-                               {$project: { //exclude these fields from the tables joined
-                                  "user.email": 0,
-                                  "user.phone": 0}
-                              }
-                             ]}}] 
+                             pipeline: this.mongoPipeline 
+                            }}] 
       const sort = {"date": 1}
       const where = {"date" : {"$gte": new Date()}, "deleted": {"$in": [null, false]}}
       this.result = await this.db.aggregate(joins).match(where).sort(sort).limit(1).toArray()
@@ -66,7 +65,7 @@ export class EventModel extends BaseModel {
     } finally {
       return this.result  
     }
-  }
+  }  
 
   async getDocument(id) {
     try {
@@ -74,25 +73,14 @@ export class EventModel extends BaseModel {
                              localField: "car_ids",
                              foreignField: "_id",
                              as: "cars",
-                             pipeline: [
-                               {$lookup:{from: "users", // join a user onto the car (from the result of the prev lookup)
-                                         localField: "user_id",
-                                         foreignField: "_id",
-                                         as: "user"}
-                               },
-                               {$unwind: '$user'},
-                               {$lookup:{from: "classes", // join a class onto the car (from the result of the prev lookup)
-                                        localField: "class_id",
-                                        foreignField: "_id",
-                                        as: "class"}
-
-                               },
-                               {$unwind: '$class'},
-                               {$project: { //exclude these fields from the tables joined
-                                  "user.email": 0,
-                                  "user.phone": 0}
-                              }
-                             ]}}]
+                             pipeline: this.mongoPipeline}
+                   },
+                   {$lookup:{from: "races", // join many races
+                             localField: "_id",
+                             foreignField: "event_id",
+                             as: "races"}
+                   }
+                  ]
       const objId = new ObjectId(id)
       const where = {"_id" : objId, "deleted": {"$in": [null, false]}}
       this.result = await await this.db.aggregate(joins).match(where).toArray()
