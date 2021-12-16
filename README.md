@@ -5,7 +5,7 @@ Developed using nodeJS servers, React frontend and Express backend.
 The Database is MongoDB, making it a MERN stack.
 It's hosted on a Digital Ocean Droplet (Ubuntu VM) for $6 per month (this includes a faster CPU for extra $1).
 This machine hosts both the frontend and backed servers on different ports. 
-The database is alson located here. There is 25GB of storage on this droplet.
+The database is hosted located here but not accessible publicly. There is 25GB of storage on this droplet.
 
 Server Setup Cheat Sheet
 
@@ -18,7 +18,7 @@ git fetch https://github.com/kyleotoole91/orca-ireland.git
 
 -- Mongo
 https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-18-04-source
-- Allow remote access (comma seperated binIp. Add IP of server) https://www.youtube.com/watch?v=sQhy63x9s3U
+- Config for MongoDB (comma seperated binIp. Allow access by adding Add IP of server) https://www.youtube.com/watch?v=sQhy63x9s3U
 nano /etc/mongod.conf
 
 --pm2 (service manager)
