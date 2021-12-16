@@ -1,9 +1,15 @@
 # orca-ireland
 orca-ireland
+
+Developed using nodeJS servers, React frontend and Express backend. 
+The Database is MongoDB, making it a MERN stack.
+It's hosted on a Digital Ocean Droplet (Ubuntu VM) for $6 per month (this includes a faster CPU for extra $1).
+This machine hosts both the frontend and backed servers on different ports. 
+The database is alson located here. There is 25GB of storage on this droplet.
+
 Server Setup Cheat Sheet
 
-This is a MERN stack Hosted on a Digital Ocean Droplet (Ubuntu VM) for $6 per month.
-IT came pre installed with nodeJS, pm2, ngix git.
+Pre installed with nodeJS, pm2 and git.
 
 -- Git (from ../orca-ireland/
 git clone https://github.com/kyleotoole91/orca-ireland.git
@@ -42,5 +48,3 @@ https://gist.github.com/bradtraversy/cd90d1ed3c462fe3bddd11bf8953a896
 
 https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal
 /etc/letsencrypt/live/orcaireland.com
-
-https://orcaireland.com/
