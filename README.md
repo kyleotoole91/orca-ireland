@@ -2,8 +2,8 @@
 orca-ireland
 Server Setup Cheat Sheet
 
-Hosted on Digital Ocean Droplet (Ubuntu VM) for $6 per month.
-Pre installed with nodeJS, pm2 and git.
+This is a MERN stack Hosted on a Digital Ocean Droplet (Ubuntu VM) for $6 per month.
+IT came pre installed with nodeJS, pm2, ngix git.
 
 -- Git (from ../orca-ireland/
 git clone https://github.com/kyleotoole91/orca-ireland.git
