@@ -3,7 +3,7 @@ orca-ireland
 
 Developed using nodeJS servers, React frontend and Express backend. 
 The Database is MongoDB, making it a MERN stack.
-It's hosted on a Digital Ocean Droplet (Ubuntu 20 VM) for $6 per month (this includes a faster CPU for extra $1).
+It's hosted on a Digital Ocean Droplet (Ubuntu Ubuntu 20.04.2 LTS VM) for $6 per month (this includes a faster CPU for extra $1).
 This machine hosts both the frontend and backed servers on different ports. 
 The database is hosted located here but not accessible publicly. There is 25GB of storage on this droplet.
 
