@@ -28,7 +28,7 @@ pm2 start --name uireact npm -- start
 pm2 startup ubuntu
 
 -- nginx 
-- How to config proxies
+- Config proxies
 nano /etc/nginx/sites-available/default
 - after editing restart the service
 - service nginx restart
@@ -38,7 +38,7 @@ if ($host = www.orcaireland.com) {
 }
 
 -- .env
-In package.json, to start react on another port use:
+In package.json, to start react on desired port use:
 -windows
 "set PORT=X && react-scripts start"
 -linux
