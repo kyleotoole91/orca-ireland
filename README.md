@@ -42,3 +42,5 @@ https://gist.github.com/bradtraversy/cd90d1ed3c462fe3bddd11bf8953a896
 
 https://certbot.eff.org/instructions?ws=nginx&os=ubuntufocal
 /etc/letsencrypt/live/orcaireland.com
+
+https://orcaireland.com/
