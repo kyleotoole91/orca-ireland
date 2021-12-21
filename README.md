@@ -8,6 +8,7 @@ The Database is MongoDB, making it a MERN stack.
 It's hosted on a Digital Ocean Droplet (Ubuntu Ubuntu 20.04.2 LTS VM) for $6 per month (this includes a faster CPU for extra $1).
 This machine hosts both the frontend and backed servers on different ports. 
 The database is hosted on this server, but it is not accessible publicly. 
+Nginx is used to route requests to the secured SSL ports. It also redirects www. requests to non www.
 There is 25GB of storage on this droplet.
 
 Server Setup Cheat Sheet
@@ -33,15 +34,14 @@ pm2 startup ubuntu
 -- nginx 
 - Config proxies
 nano /etc/nginx/sites-available/default
-- after editing restart the service
-- service nginx restart
 - Add after server_name in server block for port 443. This will redirect www. to non www. to satisfy CORS policy for rest api
 if ($host = www.orcaireland.com) {
   return 301 https://orcaireland.com$request_uri;
 }
+- restart the service so changes take effect: service nginx restart
 
 -- .env
-In package.json, to start react on desired port use:
+In package.json, to start the react app on desired port use:
 -windows
 "set PORT=X && react-scripts start"
 -linux
