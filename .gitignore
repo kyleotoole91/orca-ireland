@@ -16,3 +16,4 @@ ui-react/src/components/images/crypto-trac-icon-small.png
 api-express/SSL/README
 *.png
 ui-react/src/components/images/orca-logo.png
+ui-react/public/favicon.ico
