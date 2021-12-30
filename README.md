@@ -6,7 +6,7 @@ https://orcaireland.com/
 Developed using NodeJS, React and Express. 
 The Database is MongoDB, making it a MERN stack.
 It's hosted on a Digital Ocean Droplet (Ubuntu Ubuntu 20.04.2 LTS VM) for $6 per month (this includes a faster CPU for extra $1).
-This machine hosts both the frontend and backed servers on different ports. 
+This droplet hosts both the frontend and backed servers. 
 The database is hosted on this server, but it is not accessible publicly. 
 Nginx is used to route requests to the secured SSL ports. It also redirects www. requests to non www.
 There is 25GB of storage on this droplet.
