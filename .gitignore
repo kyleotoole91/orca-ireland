@@ -9,6 +9,7 @@ ui-react/src/components/images
 ui-react/public/images
 ui-react/public/rules
 ui-react/build
+ui-react/src-prod-2021_12_30
 ./droplet-env
 ./ui-react-2
 *jpg

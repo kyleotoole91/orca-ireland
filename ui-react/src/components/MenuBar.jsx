@@ -18,11 +18,11 @@ function MenuBar () {
         {width > 285 && 
           <CompanyContainer>
             ORCA Ireland &nbsp;
-            {width > 319 && <CompanyImage alt="race track icon" src={mainLogo} /> }
+            {width > 319 && <CompanyImage alt="race track icon" src={mainLogo} />}
           </CompanyContainer>
         } 
         <MenuItems authenticated={isAuthenticated} />
-        {width > 120 && <Profile /> }     
+        {width > 120 && <Profile />}     
       </MenuBarContainer>
     </ >
   )

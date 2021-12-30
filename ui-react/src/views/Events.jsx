@@ -40,7 +40,6 @@ function Events() {
   const [data, setData] = useState([])
   const [currentEvent, setCurrentEvent] = useState([])
   const [car_ids, setCar_ids] = useState([])
-  //const [selClassIds, setSelClassIds] = useState([])
   const [carData, setCarData] = useState([])
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
@@ -160,6 +159,7 @@ function Events() {
   async function deleteEvent() {
     try {
       if (window.confirm('Are you sure you want to delete this event?')) {
+        setLoading(true) 
         await eventModel.delete(selectedEventId.toString())
         if (eventModel.success) {
           setRefresh(!refresh)
@@ -176,48 +176,34 @@ function Events() {
   }
 
   async function postEvent() {
-    try {
-      let date = eventDate
-      await eventModel.post({name, location, date, fee})
-      if (eventModel.success) {
-        setRefresh(!refresh)
-        handleClose()
-      } else {
-        window.alert(eventModel.message) 
-      }
-    } finally {
-      setLoading(false)
+    let date = eventDate
+    await eventModel.post({name, location, date, fee})
+    if (eventModel.success) {
+      setRefresh(!refresh)
+      handleClose()
+    } else {
+      window.alert(eventModel.message) 
     }
   }
 
   async function putEvent() {
-    try {
-      let date = eventDate
-      await eventModel.put(selectedEventId, {name, location, date, fee})
-      if (eventModel.success) {
-        setRefresh(!refresh)
-        handleClose()
-      } else {
-        window.alert(eventModel.message) 
-      }
-    } finally {
-      setLoading(false)
+    let date = eventDate
+    await eventModel.put(selectedEventId, {name, location, date, fee})
+    if (eventModel.success) {
+      setRefresh(!refresh)
+      handleClose()
+    } else {
+      window.alert(eventModel.message) 
     }
   }
 
-  async function enterEvent() {
-    try {    
-      await eventModel.enterEvent(selectedEventId, car_ids)
-      if (eventModel.success) {
-        setRefresh(!refresh)
-        handleCloseEnter()
-      } else {
-        window.alert(eventModel.message)  
-      }
-    } catch(e) {
-      window.alert(e)
-    } finally {
-      setLoading(false)
+  async function enterEvent() {  
+    await eventModel.enterEvent(selectedEventId, car_ids)
+    if (eventModel.success) {
+      setRefresh(!refresh)
+      handleCloseEnter()
+    } else {
+      window.alert(eventModel.message)  
     }
   }
 
@@ -257,7 +243,7 @@ function Events() {
               {addCards(currentEvent, true)}
             </div>  
     } else {
-      return ( <h4>No upcoming event</h4> )
+      return <h4>No upcoming event</h4> 
     }
   }
 
@@ -266,15 +252,13 @@ function Events() {
       return <div className="text-center">
                <Spinner animation="border" variant="primary"/>
              </div>
-    } else if (data && data.length > 0) {
-      return (
-        <div style={{display: 'flex', flexFlow: 'wrap'}}>
-          {addCards(data)}
-        </div>    
-      )
-    } else {
-      return ( <h4>No events</h4> )
+    } 
+    if (data && data.length > 0) {
+      return <div style={{display: 'flex', flexFlow: 'wrap'}}>
+               {addCards(data)}
+             </div>    
     }
+    return <h4>No events</h4> 
   }
 
   async function editEvent(id) {
@@ -419,7 +403,6 @@ function Events() {
     )
   }
 
-  //for split second, data is still undefined although loading state was set to true after data set was set 
   if (loading) {
     return ( <Loading /> )
   } else {
@@ -458,7 +441,7 @@ const StyledAccordionHeader  = styled(Accordion.Header)`
 
 export default withAuthenticationRequired(Events, { onRedirecting: () => (<Loading />) });
 
-//Alternative to declaring functions such as loadData() in useEffect(). Memoize with useCallback()
+//Alternative to declaring functions in useEffect(). Memoize with useCallback()
 /* 
 function MyComponent() {
 

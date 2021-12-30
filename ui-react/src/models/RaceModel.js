@@ -18,7 +18,7 @@ export class RaceModel extends BaseModel {
   }
 
   async post(race) {
-    if (race.name) {
+    if (race.name === '') {
       this.message = 'Please give the race a name'
       return
     } else {

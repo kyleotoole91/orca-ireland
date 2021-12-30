@@ -20,15 +20,19 @@ function EventDetail() {
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [apiToken, setApiToken] = useState('')
   const [event, setEvent] = useState()
+  const [refresh, setRefresh] = useState()
   const [classes, setClasses] = useState()
   const [loading, setLoading] = useState()
   const [allowAddRaces, setAllowAddRaces] = useState(false)
   const [showRaceForm, setShowRaceForm] = useState(false)
   const [raceName, setRaceName] = useState('')
   const [classId, setClassId] = useState('')
-  const [firstCarId, setFirstCarId] = useState('')
-  const [secondCarId, setSecondCarId] = useState('')
-  const [thirdCarId, setThirdCarId] = useState('')
+  const [first, setFirst] = useState('')
+  const [second, setSecond] = useState('')
+  const [third, setThird] = useState('')
+  const [firstCar, setFirstCar] = useState('')
+  const [secondCar, setSecondCar] = useState('')
+  const [thirdCar, setThirdCar] = useState('')
   const closeRaceForm = () => setShowRaceForm(false)
   const displayRaceForm = () => setShowRaceForm(true)
 
@@ -59,7 +63,7 @@ function EventDetail() {
       }
     }  
     loadData()
-  }, [id, apiToken, user.sub])
+  }, [id, apiToken, user.sub, refresh])
 
   if (apiToken === '') {
     if (!isAuthenticated) {
@@ -67,6 +71,20 @@ function EventDetail() {
     } else {
       getApiToken()
     }
+  } else {
+    raceModel.setApiToken(apiToken)
+  }
+
+  function getClassName(id) {
+    let carClass
+    if (classes && classes.length !== 0) {
+      carClass = classes.find(c => c._id === id)
+    } 
+    if (carClass) {
+      return carClass.name
+    } else {
+      return ''
+    } 
   }
 
   async function getApiToken() {
@@ -112,21 +130,38 @@ function EventDetail() {
     displayRaceForm()
   }
 
-  function saveRace(){
-    //todo, post race to DB
-    //raceModel.post(data)
+  async function postRace() {  
+    const raceDate = event.date
+    const event_id = event._id
+    const class_id = classId 
+    const name = raceName
+    const firstCar_id = firstCar
+    const secondCar_id = secondCar
+    const thirdCar_id = thirdCar
+    const class_name = getClassName(class_id)
+    console.log('race name'+ name)
+    await raceModel.post({event_id, class_id, class_name, raceDate, name, first, second, third, firstCar_id, secondCar_id, thirdCar_id})
+    if (raceModel.success) {
+      setRefresh(!refresh)
+      setShowRaceForm(false)
+    } else {
+      window.alert(raceModel.message) 
+    }
   }
 
   function onFirstChange(e) {
-    setFirstCarId(e.target.childNodes[e.target.selectedIndex].getAttribute('id'))
+    setFirst(e.target.childNodes[e.target.selectedIndex].getAttribute('value'))
+    setFirstCar(e.target.childNodes[e.target.selectedIndex].getAttribute('id'))
   }
 
   function onSecondChange(e) {
-    setSecondCarId(e.target.childNodes[e.target.selectedIndex].getAttribute('id'))
+    setSecond(e.target.childNodes[e.target.selectedIndex].getAttribute('value'))
+    setSecondCar(e.target.childNodes[e.target.selectedIndex].getAttribute('id'))
   }
 
   function onThirdChange(e) {
-    setThirdCarId(e.target.childNodes[e.target.selectedIndex].getAttribute('id'))
+    setThird(e.target.childNodes[e.target.selectedIndex].getAttribute('value'))
+    setThirdCar(e.target.childNodes[e.target.selectedIndex].getAttribute('id'))
   }
 
   function shouldAdd(cars, position){
@@ -142,7 +177,7 @@ function EventDetail() {
   function raceForm() {
     const checkClass = (car) => {
       if (car.class_id === classId) { 
-        return <option id={car._id} key={car._id} >{car.user.firstName+' '+car.user.lastName} </option>    
+        return <option id={car._id} key={car._id} value={car.user.firstName+' '+car.user.lastName} >{car.user.firstName+' '+car.user.lastName} </option>    
       } else {
         return
       }
@@ -184,10 +219,48 @@ function EventDetail() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="outline-secondary" onClick={closeRaceForm}>Close</Button>
-          <Button variant="outline-primary" onClick={saveRace}>Save </Button>
+          <Button variant="outline-primary" onClick={postRace}>Save </Button>
         </Modal.Footer>
       </Modal>   
     )
+  }
+
+  function addRaces(classId) {
+    let rowCount = 0  
+    function addTableRow(race, index) {
+      ++rowCount
+      return (
+        <tr key={index+'-raceRow'}>
+          <td>{race.name}</td>
+          <td>{race.first}</td>
+          <td>{race.second}</td>
+          <td>{race.third}</td>
+        </tr>
+      )
+    } 
+    function addRows(){
+      return (event.races.map((race, index) => ( 
+        race.class_id===classId && addTableRow(race, index) 
+      ))) 
+    } 
+    let rows = addRows()
+    if (rowCount !== 0) {
+      return <Table striped bordered hover size="sm" key={classId+'-race-table'}>
+               <thead key={classId+'-raceHead'}>
+                 <tr key={classId+'-raceRow'}>
+                   <th>Race Name</th>
+                   <th>1st</th>
+                   <th>2nd</th>
+                   <th>3rd</th>
+                 </tr>
+               </thead>
+               <tbody>
+                   {rows}
+               </tbody>
+             </Table>
+    } else {
+      return <></>
+    }
   }
 
   function showRoster() {
@@ -212,10 +285,9 @@ function EventDetail() {
             </Table>
             <div style={{display: 'flex', flexFlow: 'wrap'}}>
               <h4 style={{float: 'left'}}>Races</h4>
-              {event.cars.length &&
-                allowAddRaces && <PlusButton id={carClass._id} handleClick={() => addRace(carClass._id)} />
-              }
+              {event.cars.length && allowAddRaces && <PlusButton id={carClass._id} handleClick={() => addRace(carClass._id)} /> }
             </div>
+            {addRaces(carClass._id)}
           </div>
         )
       )
@@ -223,20 +295,18 @@ function EventDetail() {
   }
 
   if (loading) {
-    return ( <Loading /> )
+    return <Loading /> 
   } else if (event) {
-    return (
-      <>
-        <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
-        <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
-          <h2>Roster</h2> 
-          {showRoster()}  
-          {raceForm()}
-        </div>
-      </>
-    )
+    return <>
+            <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
+            <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
+              <h2>Roster</h2> 
+              {showRoster()}  
+              {raceForm()}
+            </div>
+          </>
   } else {
-    return (<h2>Not found</h2>)
+    return <h2>Not found</h2>
   }
 }
 

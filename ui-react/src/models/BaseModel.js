@@ -26,7 +26,7 @@ export class BaseModel {
     this.urlParams = '' 
   }
 
-  hasApiToken(){
+  hasApiToken() {
     /*if (!this.apiToken || this.apiToken === '') { 
       this.setErrorMessage('api token not set') 
       return false
@@ -36,7 +36,7 @@ export class BaseModel {
     return true //let server decide
   }
 
-  async get(id){
+  async get(id) {
     try {
       this.itemId = id
       if (!this.hasApiToken()) { return }
@@ -81,7 +81,7 @@ export class BaseModel {
     } 
   }
 
-  async put(id, data){
+  async put(id, data) {
     try {
       if (!this.hasApiToken()) { return }
       this.itemId = id
@@ -127,7 +127,7 @@ export class BaseModel {
     } 
   }
 
-  async post(data){
+  async post(data) {
     try {  
       if (!this.hasApiToken()) { return }
       await fetch(this.getUrl(), {
@@ -173,7 +173,7 @@ export class BaseModel {
     } 
   }
 
-  async delete(id){
+  async delete(id) {
     try {
       this.itemId = id
       if (!this.hasApiToken()) { return }
@@ -218,7 +218,7 @@ export class BaseModel {
     } 
   }
 
-  getUrl(){
+  getUrl() {
     let url = this.baseURL + this.endpoint + this.getItemId() + this.getEndpoint2() + this.getItemId2() + this.urlParams
     return url 
   }
@@ -231,7 +231,7 @@ export class BaseModel {
     }
   }
 
-  setRequestData(data){
+  setRequestData(data) {
     if (data) {
       this.requestData = data 
     }
@@ -267,7 +267,7 @@ export class BaseModel {
     }
   }
 
-  setResponseData(response){
+  setResponseData(response) {
     this.response = response
     this.message = response.message
     this.success =  response.success
