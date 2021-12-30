@@ -207,7 +207,7 @@ function EventDetail() {
     return (  
       <Modal show={showRaceForm} onHide={closeRaceForm} >
         <Modal.Header closeButton>
-          <Modal.Title>Add Race</Modal.Title>
+          <Modal.Title>Add Race ({getClassName(classId)})</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ display: 'grid', fontFamily: "monospace"} } >
           <label style={{ margin: '3px' }} >
