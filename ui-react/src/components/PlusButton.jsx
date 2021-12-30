@@ -11,7 +11,6 @@ export const PlusButton = ({id, handleClick = () => {}}) => {
 }
 
 const PlusBtn = styled(BsFillPlusCircleFill)`
-  margin-top: 6px;
   margin-left: 6px;
   color: ${({ theme}) => theme.primaryLight};
   &:hover {
