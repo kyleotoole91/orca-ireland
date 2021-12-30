@@ -9,8 +9,6 @@ export const TrashCan = ({id, handleClick = () => {}}) => {
 }
 
 const GearBtn = styled(BsFillTrashFill)`
-  margin-top: 6px;
-  margin-left: 6px;
   color: ${({ theme}) => theme.deleteColor};
   &:hover {
     color: ${({ theme}) => theme.deleteHover};

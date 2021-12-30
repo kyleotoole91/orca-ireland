@@ -14,8 +14,8 @@ export class Permissions {
         }
         return false
       }
-    } catch (error) {
-        console.error(error)
+    } catch (e) {
+        console.error(e)
         return false
     }    
   }

@@ -135,10 +135,9 @@ export class BaseModel {
     }
   }
 
-  async addDocument(document){
+  async addDocument(document) {
     this.message = 'Added'
     try {
-      console.log(document)
       this.applyDataTypes(document)
       this.result = await this.db.insertOne( document )
       if(!this.addedOk(this.result)) {

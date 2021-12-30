@@ -12,6 +12,7 @@ import Button from 'react-bootstrap/Button'
 import dayjs from 'dayjs'
 import { Permissions } from '../utils/permissions'
 import { PlusButton } from '../components/PlusButton'
+import { TrashCan } from '../components/TrashCan'
 
 const raceModel = new RaceModel() 
 
@@ -24,6 +25,7 @@ function EventDetail() {
   const [classes, setClasses] = useState()
   const [loading, setLoading] = useState()
   const [allowAddRaces, setAllowAddRaces] = useState(false)
+  const [allowDelRaces, setAllowDelRaces] = useState(false)
   const [showRaceForm, setShowRaceForm] = useState(false)
   const [raceName, setRaceName] = useState('')
   const [classId, setClassId] = useState('')
@@ -45,6 +47,7 @@ function EventDetail() {
           const classModel = new ClassModel(apiToken)
           const permissions = new Permissions()
           setAllowAddRaces(permissions.check(apiToken, 'post', 'races'))
+          setAllowDelRaces(permissions.check(apiToken, 'delete', 'races'))
           await eventModel.get(id)
           if (eventModel.success) {
             setEvent(eventModel.responseData)
@@ -139,13 +142,24 @@ function EventDetail() {
     const secondCar_id = secondCar
     const thirdCar_id = thirdCar
     const class_name = getClassName(class_id)
-    console.log('race name'+ name)
     await raceModel.post({event_id, class_id, class_name, raceDate, name, first, second, third, firstCar_id, secondCar_id, thirdCar_id})
     if (raceModel.success) {
       setRefresh(!refresh)
       setShowRaceForm(false)
     } else {
       window.alert(raceModel.message) 
+    }
+  }
+
+  async function deleteRace(raceId) {
+    if (window.confirm('Are you sure you want to delete this race?')) {
+      await raceModel.delete(raceId)
+      if (raceModel.success) {
+        setRefresh(!refresh)
+        setShowRaceForm(false)
+      } else {
+        window.alert(raceModel.message) 
+      }
     }
   }
 
@@ -231,23 +245,26 @@ function EventDetail() {
       ++rowCount
       return (
         <tr key={index+'-raceRow'}>
-          <td>{race.name}</td>
+          <td>{race.name} {allowDelRaces && <TrashCan id={race._id} handleClick={() => deleteRace(race._id)} /> } </td>
           <td>{race.first}</td>
           <td>{race.second}</td>
           <td>{race.third}</td>
         </tr>
       )
     } 
+    function raceDeleted(race){
+      if (race.hasOwnProperty('deleted')) { return race.deleted } else { return false }
+    }
     function addRows(){
       return (event.races.map((race, index) => ( 
-        race.class_id===classId && addTableRow(race, index) 
+        !raceDeleted(race) && race.class_id===classId && addTableRow(race, index) 
       ))) 
     } 
     let rows = addRows()
     if (rowCount !== 0) {
       return <Table striped bordered hover size="sm" key={classId+'-race-table'}>
-               <thead key={classId+'-raceHead'}>
-                 <tr key={classId+'-raceRow'}>
+               <thead key={classId+'-race-head'}>
+                 <tr key={classId+'-race-row'}>
                    <th>Race Name</th>
                    <th>1st</th>
                    <th>2nd</th>
@@ -255,7 +272,7 @@ function EventDetail() {
                  </tr>
                </thead>
                <tbody>
-                   {rows}
+                 {rows}
                </tbody>
              </Table>
     } else {
@@ -268,10 +285,10 @@ function EventDetail() {
     return (
       filteredClasses.map((carClass, index) => (
           <div key={index+'-div'}>
-            <h4 style={{marginRight: '12px', float: 'left'}} key={index+'-headerLabel'}>{carClass.name}</h4> 
-            <Table striped bordered hover size="sm" key={index+'-table'}>
-              <thead key={index+'-tableHead'}>
-                <tr key={index+'-tableHeadRow'}>
+            <h4 style={{marginRight: '12px', float: 'left'}} key={index+'-header-label'}>{carClass.name}</h4> 
+            <Table striped bordered hover size="sm" key={index+'-roster'}>
+              <thead key={index+'-roster-head'}>
+                <tr key={index+'-roster-row'}>
                   <th>Name</th>
                   <th>Mfr.</th>
                   <th>Model</th>

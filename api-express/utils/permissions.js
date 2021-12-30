@@ -3,24 +3,21 @@ import jwt_decode from "jwt-decode"
 export class Permissions {
   
   check (token, action, resource) {
-    let allow = false
     try {   
       if (token !== '') {
         let tokenDecoded = jwt_decode(token)
         if (tokenDecoded.permissions !== undefined) {
           for (var permission of tokenDecoded.permissions) {
-            if (action ==='super' && resource === 'super') {
-              return true
+            if (permission === 'super:super' || permission === action+':'+resource) { 
+              return true 
             }
-            allow = permission === action+':'+resource
-            if (allow) { break }
           }
         }
+        return false
       }
-    } catch (error) {
-      console.error(error)
+    } catch (e) {
+      console.error(e)
     }    
-    return allow
   }
 
   userInToken (encodedToken, extId) {
