@@ -8,7 +8,9 @@ ui-react/.env.production
 ui-react/src/components/images
 ui-react/public/images
 ui-react/public/rules
+ui-react/build
 ./droplet-env
+./ui-react-2
 *jpg
 *.pem
 *.png
@@ -17,3 +19,9 @@ api-express/SSL/README
 *.png
 ui-react/src/components/images/orca-logo.png
 ui-react/public/favicon.ico
+ui-react/src/components/images/orca-logo.png
+ui-react/src/components/images/saint-annes-track.jpg
+ui-react/src/components/images/saint-annes-track.png
+*.png
+ui-react/src/components/images/saint-annes-track.png
+ui-react/src/components/images/saint-annes-track.png

@@ -131,8 +131,6 @@ function Events() {
   }
 
   function addCar(id){
-    //TODO: Validate by checking there is only one car per class. Find car and Use setSelClassIds
-    //Needs to be done serer side also
     if (car_ids.indexOf(id) === -1) {
       car_ids.push(id)   
     } else {

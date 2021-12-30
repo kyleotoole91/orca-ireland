@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import Spinner from 'react-bootstrap/Spinner';
+import React, {Component} from 'react'
+import Spinner from 'react-bootstrap/Spinner'
 
 class Loading extends Component {
   constructor(props) {

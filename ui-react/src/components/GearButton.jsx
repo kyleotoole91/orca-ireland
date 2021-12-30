@@ -1,5 +1,5 @@
 import React from 'react'
-import { BsFillGearFill } from "react-icons/bs"
+import { BsFillGearFill } from "react-icons/bs" //https://react-icons.github.io/react-icons/icons?name=bs
 import styled from 'styled-components'
 
 export const GearButton = ({id, handleClick = () => {}}) => {
