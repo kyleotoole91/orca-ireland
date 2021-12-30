@@ -256,9 +256,11 @@ function EventDetail() {
       if (race.hasOwnProperty('deleted')) { return race.deleted } else { return false }
     }
     function addRows(){
-      return (event.races.map((race, index) => ( 
-        !raceDeleted(race) && race.class_id===classId && addTableRow(race, index) 
-      ))) 
+      if (event && event.hasOwnProperty('races')) {
+        return (event.races.map((race, index) => ( 
+          !raceDeleted(race) && race.class_id===classId && addTableRow(race, index) 
+        ))) 
+      } else { return }
     } 
     let rows = addRows()
     if (rowCount !== 0) {

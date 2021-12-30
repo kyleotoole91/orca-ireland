@@ -14,21 +14,5 @@ var styles = {
   bmItemList: { color: "#b8b7ad" },
   bmOverlay: { background: "rgba(0, 0, 0, 0.3)" }
 }
-/*
-bmMenu: {
-   bmItem: {
-    display: "inline-block",
-    textDecoration: "none",
-    marginBottom: "10px",
-    color: "#d1d1d1",
-    transition: "color 0.2s",
-  },
-    display: "flex",
-    flexDirection: "column",
-    background: "#FFFFFF",
-    padding: "2.5em 1.5em 0",
-    fontSize: "1.15em"
-  },
-*/
 
 export default styles;

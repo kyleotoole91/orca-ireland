@@ -2,6 +2,7 @@ node_modules
 api-express/node_modules
 ui-react/node_modules
 api-express/.env
+api-express/prod-backup
 ui-react/.env
 ui-react/.env.development
 ui-react/.env.production
