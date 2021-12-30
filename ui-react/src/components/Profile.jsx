@@ -38,9 +38,9 @@ function Profile ({ forceUsername }) {
   return (
     <ProfileContainer>
       {isAuthenticated &&
-        <ProfileImage src={profilePic} onClick={() => logout({ returnTo: window.location.origin })} href='./'></ProfileImage>} 
+        <ProfileImage alt="user profile image" src={profilePic} onClick={() => logout({ returnTo: window.location.origin })} href='./'></ProfileImage>} 
       {!isAuthenticated &&
-        <ProfileImage src={profilePic} onClick={() => loginWithRedirect()} href='./'></ProfileImage>}
+        <ProfileImage alt="user profile image" src={profilePic} onClick={() => loginWithRedirect()} href='./'></ProfileImage>}
       {!forceUsername && profileButton()}
       {forceUsername && profileButtonForce()}
     </ProfileContainer>
