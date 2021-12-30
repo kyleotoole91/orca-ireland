@@ -22,7 +22,7 @@ git fetch https://github.com/kyleotoole91/orca-ireland.git
 
 -- Mongo
 https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-18-04-source
-- Allow remote connections (comma seperated binIp. Allow access by adding Add IP of server) 
+--config
 nano /etc/mongod.conf
 
 --pm2 (service manager)
