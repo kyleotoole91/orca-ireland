@@ -22,7 +22,7 @@ export class RaceModel extends BaseModel {
       this.message = 'Please give the race a name'
       return
     } else {
-      return await super.post(user)
+      return await super.post(race)
     }
   }
 
