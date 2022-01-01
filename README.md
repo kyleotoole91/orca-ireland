@@ -24,6 +24,7 @@ git fetch https://github.com/kyleotoole91/orca-ireland.git
 https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-18-04-source
 --config
 nano /etc/mongod.conf
+systemctl restart mongod
 
 --pm2 (service manager)
 -start react app from project folder, name param is an arbitary alias
