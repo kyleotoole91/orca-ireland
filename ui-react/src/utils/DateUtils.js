@@ -1,4 +1,3 @@
-
 export class DateUtils {
   formatDate(date, format) {
     if (!format) {

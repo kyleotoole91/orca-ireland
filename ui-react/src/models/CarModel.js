@@ -1,4 +1,3 @@
-
 import { BaseModel } from './BaseModel'
 
 export class CarModel extends BaseModel {

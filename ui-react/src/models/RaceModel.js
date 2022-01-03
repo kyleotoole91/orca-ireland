@@ -1,4 +1,3 @@
-
 import {BaseModel} from './BaseModel'
 
 export class RaceModel extends BaseModel {

@@ -1,5 +1,4 @@
-
-import {BaseModel} from './BaseModel'
+import { BaseModel } from './BaseModel'
 
 export class ClassModel extends BaseModel {
   
