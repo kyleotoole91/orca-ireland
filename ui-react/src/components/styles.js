@@ -15,4 +15,4 @@ var styles = {
   bmOverlay: { background: "rgba(0, 0, 0, 0.3)" }
 }
 
-export default styles;
+export default styles

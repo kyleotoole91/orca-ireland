@@ -26,20 +26,9 @@ export class BaseModel {
     this.urlParams = '' 
   }
 
-  hasApiToken() {
-    /*if (!this.apiToken || this.apiToken === '') { 
-      this.setErrorMessage('api token not set') 
-      return false
-    } else {
-      return true
-    }*/
-    return true //let server decide
-  }
-
   async get(id) {
     try {
       this.itemId = id
-      if (!this.hasApiToken()) { return }
       await fetch(this.getUrl(), {
                   method: 'GET', 
                   headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})
@@ -59,7 +48,6 @@ export class BaseModel {
   async getUserDocs(userId, itemId) {
     let origEndpoint = this.endpoint
     try {
-      if (!this.hasApiToken()) { return }
       this.itemId = userId 
       this.itemId2 = itemId
       this.endpoint = process.env.REACT_APP_API_USERS
@@ -83,7 +71,6 @@ export class BaseModel {
 
   async put(id, data) {
     try {
-      if (!this.hasApiToken()) { return }
       this.itemId = id
       await fetch(this.getUrl(), {
                   method: 'PUT', 
@@ -104,7 +91,6 @@ export class BaseModel {
   async putUserDoc(userId, itemId, doc) {
     let origEndpoint = this.endpoint
     try {
-      if (!this.hasApiToken()) { return }
       this.itemId = userId
       this.itemId2 = itemId
       this.endpoint = process.env.REACT_APP_API_USERS
@@ -129,7 +115,6 @@ export class BaseModel {
 
   async post(data) {
     try {  
-      if (!this.hasApiToken()) { return }
       await fetch(this.getUrl(), {
                   method: 'POST', 
                   headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
@@ -149,7 +134,6 @@ export class BaseModel {
   async postUserDoc(userId, doc) {
     let origEndpoint = this.endpoint
     try {
-      if (!this.hasApiToken()) { return }
       this.itemId = userId
       this.endpoint = process.env.REACT_APP_API_USERS
       this.endpoint2 = origEndpoint
@@ -176,7 +160,6 @@ export class BaseModel {
   async delete(id) {
     try {
       this.itemId = id
-      if (!this.hasApiToken()) { return }
       await fetch(this.getUrl(), {
                   method: 'DELETE', 
                   headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})
@@ -195,7 +178,6 @@ export class BaseModel {
   async deleteUserDoc(userId, itemId) {
     let origEndpoint = this.endpoint
     try {
-      if (!this.hasApiToken()) { return }
       this.autoReset = false
       this.itemId = userId
       this.itemId2 = itemId
@@ -204,7 +186,6 @@ export class BaseModel {
       if (this.useExtId){
         this.urlParams = '?extLookup=1' 
       } 
-      if (!this.hasApiToken()) { return }
       await fetch(this.getUrl(), {
                   method: 'DELETE', 
                   headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})

@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
-import Loading from '../components/Loading';
+import React, {Component} from 'react'
+import Button from 'react-bootstrap/Button'
+import Card from 'react-bootstrap/Card'
+import Loading from '../components/Loading'
 
 class TextCards extends Component {
   constructor(props) {

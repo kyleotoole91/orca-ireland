@@ -10,6 +10,7 @@ const https = require('https')
 const http = require('http')
 const app = express()
 const cors = require('cors')
+
 const ssl = {key: fs.readFileSync('./SSL/privkey.pem', 'utf8'), 
              cert: fs.readFileSync('./SSL/fullchain.pem', 'utf8')}
 const corsOpts = {
@@ -23,7 +24,7 @@ app.use(express.json());
 app.use(cors(corsOpts));
 app.get('/cors', (req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:3001');
-  res.send({ "msg": "This has CORS enabled" })
+  res.send({ "msg": "CORS enabled" })
 })
 
 async function listMongoCollections() {

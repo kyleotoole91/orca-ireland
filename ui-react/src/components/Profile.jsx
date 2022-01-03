@@ -60,7 +60,7 @@ const ProfileContainer = styled.div`
     text-decoration: none;
     outline-style: none;   
   } 
-`;
+`
 
 const Username = styled.div`
   float: right;
@@ -70,14 +70,14 @@ const Username = styled.div`
   @media (max-width: ${ ({ theme}) => theme.profileButtonMax}) {
     display: none;
   }
-`;
+`
 
 const UsernameForce = styled.div`
   float: right;
   position: 'absolute';
   height: 100%;
   padding: 8px;
-`;
+`
 
 const ProfileImage = styled.img` 
   border-radius: 50%;
@@ -85,6 +85,6 @@ const ProfileImage = styled.img`
   position: 'absolute';
   height: 100%;
   padding: 6px;
-`;
+`
 
 export default Profile

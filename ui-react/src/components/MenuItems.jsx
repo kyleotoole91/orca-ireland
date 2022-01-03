@@ -46,6 +46,6 @@ const MenuItem = styled.div`
   &:hover {
     background: white;
   }
-`;
+`
 
 export default MenuItems
