@@ -4,7 +4,7 @@ orca-ireland
 https://orcaireland.com/
 
 Developed using NodeJS (14.15.4), React and Express. 
-The Database is MongoDB, making it a MERN stack.
+The database is MongoDB, making it a MERN stack.
 It's hosted on a Digital Ocean Droplet (Ubuntu Ubuntu 20.04.2 LTS VM) for $6 per month (this includes a faster CPU for extra $1).
 This droplet hosts both the frontend and backed servers. 
 The database is hosted on this server, but it is not accessible publicly. 
