@@ -150,7 +150,7 @@ function Membership() {
     let found = false
     for (var user of membership.users) {
       found = userExtId === user.extId 
-      if (found) { break }
+      if (found) break 
     }
     return found
   }
@@ -355,12 +355,7 @@ function Membership() {
           </Card.Body>
         </Card>
       )
-    } else {
-      return (
-        <>
-        </>  
-      )
-    }
+    } else return ( <> </> )
   }
 
   function userMembershipDetails(){
@@ -437,8 +432,8 @@ function Membership() {
           </Accordion.Item>
   }
 
-  function getAllMembershipsCards(){
-    function addCard(membership, index){
+  function getAllMembershipsCards() {
+    function addCard(membership, index) {
       let memberCount = 0
       if (membership.hasOwnProperty('user_ids')) {
         memberCount = membership.user_ids.length  
@@ -453,7 +448,7 @@ function Membership() {
                 </Card.Body>
               </Card> 
     }
-    function addMemberCards(users){
+    function addMemberCards(users) {
       return ( users.map((user, index) => (addCard(user, index))) )
     }
     if (loadingAllMembersShips) {
@@ -469,7 +464,7 @@ function Membership() {
     }
   }
 
-  function allMembershipsAccordian(){
+  function allMembershipsAccordian() {
     return <Accordion.Item eventKey="2">
             <StyledAccordionHeader onClick={allMembersShipsClick}>All Memberships</StyledAccordionHeader>
             <Accordion.Body>
@@ -495,7 +490,7 @@ function Membership() {
               {userMembershipDetails()}
             </Accordion.Body>
           </Accordion.Item>
-          {activeMember && allMembersAccordian()}
+          {allowAddMemberships && activeMember && allMembersAccordian()}
           {allowAddMemberships && allMembershipsAccordian()}
         </Accordion>
       </>
@@ -508,7 +503,5 @@ const StyledAccordionHeader = styled(Accordion.Header)`
     z-index: 0
   }
 `
-export default withAuthenticationRequired(Membership, {
-  onRedirecting: () => (<Loading />)  
-});
+export default withAuthenticationRequired(Membership, { onRedirecting: () => (<Loading />) })
 

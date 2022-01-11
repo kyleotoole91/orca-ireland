@@ -114,14 +114,11 @@ function EventDetail() {
 
   function classesWithEntries(classes) {
     let arr = []
-    if (classes && event){
+    if (classes && event) {
       for (var car of event.cars) {
         for (var cls of classes) {
-          if (car.class_id === cls._id) {
-            if (arr.indexOf(cls) === -1) {
-              arr.push(cls)
-            }
-          }
+          if (car.class_id === cls._id && arr.indexOf(cls) === -1)
+            arr.push(cls)
         }
       }
     }
@@ -277,9 +274,7 @@ function EventDetail() {
                  {rows}
                </tbody>
              </Table>
-    } else {
-      return <></>
-    }
+    } else return <></>
   }
 
   function showRoster() {
@@ -324,9 +319,7 @@ function EventDetail() {
               {raceForm()}
             </div>
           </>
-  } else {
-    return <h2>Not found</h2>
-  }
+  } else return <h2>Not found</h2>
 }
 
-export default withAuthenticationRequired(EventDetail, { onRedirecting: () => (<Loading />) });
+export default withAuthenticationRequired(EventDetail, { onRedirecting: () => (<Loading />) })
