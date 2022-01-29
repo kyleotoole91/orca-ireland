@@ -31,7 +31,7 @@ let oneYearFromTodayCtrl = dateUtils.formatDate(oneYearFromToday, 'yyyy-mm-dd')
 const firstNamePH = 'First Name'
 const lastNamePH = 'Last Name'
 const usernamePH = 'Enter nickname'
-const phonePH = 'Enter phone'
+const phonePH = 'Enter phone (optional)'
 const emailPH = 'Enter email'
 
 function Membership() {  
@@ -60,7 +60,7 @@ function Membership() {
   const [startDateCtrl, setStartDateCtrl] = useState(todayDateCtrl)
   const [endDate, setEndDate] = useState(oneYearFromToday)
   const [endDateCtrl, setEndDateCtrl] = useState(oneYearFromTodayCtrl)
-  const [fee, setFee] = useState(200)
+  const [fee, setFee] = useState(150)
   const [allMembersExpanded, setAllMembersExpanded] = useState(false)
   const [allMembersShipsExpanded, setAllMembersShipsExpanded] = useState(false)
   const [allMembersShips, setAllMembersShips] = useState()
@@ -210,7 +210,7 @@ function Membership() {
     setStartDateCtrl(todayDateCtrl) 
     setEndDate(oneYearFromToday)
     setEndDateCtrl(oneYearFromTodayCtrl)
-    setFee(200)
+    setFee(150)
     handleShow()
   }
 
@@ -348,7 +348,7 @@ function Membership() {
           <Card.Header>Current Membership</Card.Header>
           <Card.Body>
             <Card.Title>{currMembership.name}</Card.Title>
-            <Card.Text><b>Valid until: </b> {dateUtils.formatISODate(currMembership.endDate)}</Card.Text>
+            <Card.Text><b>Valid until: </b> { dateUtils.stringToWordDate(currMembership.endDate) }</Card.Text>
             <Card.Text><b>Price:</b> €{currMembership.fee}</Card.Text>
             <Card.Text><b>Status:</b> {membershipState}</Card.Text>
             {!activeMember && activationForm()}
@@ -406,17 +406,13 @@ function Membership() {
                </Card> 
       } 
     }
-    function addMemberCards(users) {
-      return ( users.map((user, index) => (addCard(user, index))) )
-    }
-
     if (loadingAllMembers) {
       return <div className="text-center">
                <Spinner animation="border" variant="primary"/>
              </div>
     } else if (userData && userData.length > 0) {
       return <div style={{display: 'flex', flexFlow: 'wrap'}}>
-              {addMemberCards(userData)}
+              {userData.map((user, index) => (addCard(user, index)))}
             </div> 
     } else { 
       return <h4>No active members</h4> 
@@ -441,15 +437,12 @@ function Membership() {
       return <Card key={user.extId+'-card'+index} style={{minWidth: '300px', maxWidth: '300px', margin: '3px', zIndex: 0}}>
                 <Card.Header key={membership.extId+'-header'+index}>{membership.name}</Card.Header>
                 <Card.Body>
-                  <Card.Text>Start Date: {dateUtils.formatISODate(membership.endDate)}</Card.Text>
-                  <Card.Text>End Date: {dateUtils.formatISODate(membership.endDate)}</Card.Text>
+                  <Card.Text>Start Date: {dateUtils.stringToWordDate(membership.endDate)}</Card.Text>
+                  <Card.Text>End Date: {dateUtils.stringToWordDate(membership.endDate)}</Card.Text>
                   <Card.Text>Price: €{membership.fee}</Card.Text>
                   <Card.Text>Member count: {memberCount}</Card.Text>
                 </Card.Body>
               </Card> 
-    }
-    function addMemberCards(users) {
-      return ( users.map((user, index) => (addCard(user, index))) )
     }
     if (loadingAllMembersShips) {
       return <div className="text-center">
@@ -457,7 +450,7 @@ function Membership() {
              </div>
     } else if (allMembersShips && allMembersShips.length > 0) {
       return <div style={{display: 'flex', flexFlow: 'wrap'}}>
-              {addMemberCards(allMembersShips)}
+              {allMembersShips.map((user, index) => (addCard(user, index)))}
             </div> 
     } else { 
       return <h4>No active members</h4> 
@@ -490,7 +483,7 @@ function Membership() {
               {userMembershipDetails()}
             </Accordion.Body>
           </Accordion.Item>
-          {allowAddMemberships && activeMember && allMembersAccordian()}
+          {allowAddMemberships && allMembersAccordian()}
           {allowAddMemberships && allMembershipsAccordian()}
         </Accordion>
       </>

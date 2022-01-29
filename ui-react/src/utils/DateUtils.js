@@ -1,4 +1,5 @@
 export class DateUtils {
+  
   formatDate(date, format) {
     if (!format) {
       format = 'dd/mm/yyyy'
@@ -11,9 +12,14 @@ export class DateUtils {
     }
     return format.replace(/mm|dd|yyyy/gi, matched => map[matched])
   }
+
   formatISODate(isoDate, format) {
     let date = new Date(isoDate)
     return this.formatDate(date, format)
+  }
+
+  stringToWordDate(isoDateString){
+    return new Date(isoDateString).toString().substring(0,21)
   }
 
   nextDayOfWeekDate(weekdayName){
