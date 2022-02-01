@@ -8,7 +8,6 @@ import Accordion  from 'react-bootstrap/Accordion'
 import FormControl from 'react-bootstrap/FormControl'
 import Loading from '../components/Loading'
 import Header from '../components/Header'
-import dayjs from 'dayjs'
 import { Permissions } from '../utils/permissions'
 import NumberFormat from 'react-number-format'
 import { EventModel } from '../models/EventModel'
@@ -314,7 +313,7 @@ function Events() {
             <div style={{marginBottom: `${margin}`, float: 'right'}} >
               {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
             </div>
-            {currentEvent && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Save</Button> } 
+            {currentEvent && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Registration</Button> } 
             <Button id={event._id} onClick={(e) =>  showEventDetails(e.target.id)} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-secondary">Details</Button>
           </Card.Body>
         </Card>)
@@ -396,7 +395,7 @@ function Events() {
               Close
             </Button>
             <Button variant="outline-primary" onClick={enterEvent}>
-              Enter Event
+              Save
             </Button>
         </Modal.Footer>
       </Modal>   
@@ -441,7 +440,7 @@ const StyledAccordionHeader  = styled(Accordion.Header)`
 
 export default withAuthenticationRequired(Events, { onRedirecting: () => (<Loading />) });
 
-//Alternative to declaring functions in useEffect(). Memoize with useCallback()
+//Alternative to declaring functions and objects in useEffect(). Memoize with useCallback()
 /* 
 function MyComponent() {
 
