@@ -15,10 +15,10 @@ export class EventModel extends BaseModel{
   async post(event) {
     if (event.name === 'Round ' || event.name === 'Round') {
       this.setErrorMessage('Please specify a round name or number')  
-      return
+      return null
     }
     if (!event || event.name === '' || event.location === '' || event.date === '') {
-      return
+      return null
     } else {
       if (typeof event.fee === 'string') {
         event.fee = parseFloat(event.fee.replace('€', ''))
@@ -31,11 +31,11 @@ export class EventModel extends BaseModel{
   async put(eventId, event) {
     if (event.name === 'Round ' || event.name === 'Round') {
       this.setErrorMessage('Please specify a round name or number')  
-      return
+      return null
     }
     if (!event || event.name === '' || event.location === '' || event.date === '') {
       this.setErrorMessage('Please fill in all fields')
-      return
+      return null
     } else {
       if (typeof event.fee === 'string') {
         event.fee = parseFloat(event.fee.replace('€', ''))

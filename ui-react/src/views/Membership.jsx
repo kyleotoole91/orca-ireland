@@ -187,9 +187,9 @@ function Membership() {
 
   function saveButton() {
     if (saveButtonState) {
-      return <Button variant="outline-primary" onClick={updateUserDetails}>Save </Button>
+      return <Button style={{float: 'right'}} variant="outline-primary" onClick={updateUserDetails}>Save </Button>
     } else {
-      return <Button disabled variant="outline-secondary" onClick={updateUserDetails}>Save </Button>
+      return <Button disabled style={{float: 'right'}} variant="outline-secondary" onClick={updateUserDetails}>Save </Button>
     }
   }
   
@@ -314,8 +314,8 @@ function Membership() {
               <input style={{width: '182px'}} value={endDateCtrl} onChange={(e) => endDateChange(e.target.value)} type="date" id="eventDate" name="event-date" />
             </label>
             <label style={{ margin: '3px' }} >
-              Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
+              Fee(&euro;): &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } /*prefix="€"*/ />
             </label>
             <label style={{ margin: '3px' }} >
               Activation Code: &nbsp;
@@ -349,7 +349,7 @@ function Membership() {
           <Card.Body>
             <Card.Title>{currMembership.name}</Card.Title>
             <Card.Text><b>Valid until: </b> { dateUtils.stringToWordDate(currMembership.endDate) }</Card.Text>
-            <Card.Text><b>Price:</b> €{currMembership.fee}</Card.Text>
+            <Card.Text><b>Price:</b> &euro;{currMembership.fee}</Card.Text>
             <Card.Text><b>Status:</b> {membershipState}</Card.Text>
             {!activeMember && activationForm()}
           </Card.Body>
@@ -439,7 +439,7 @@ function Membership() {
                 <Card.Body>
                   <Card.Text>Start Date: {dateUtils.stringToWordDate(membership.endDate)}</Card.Text>
                   <Card.Text>End Date: {dateUtils.stringToWordDate(membership.endDate)}</Card.Text>
-                  <Card.Text>Price: €{membership.fee}</Card.Text>
+                  <Card.Text>Price: &euro;{membership.fee}</Card.Text>
                   <Card.Text>Member count: {memberCount}</Card.Text>
                 </Card.Body>
               </Card> 

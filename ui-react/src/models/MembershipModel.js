@@ -15,7 +15,7 @@ export class MembershipModel extends BaseModel {
   async post(membership) {
     if (!membership || membership.name === '' || membership.secret === '' || membership.fee === '') {
       this.setErrorMessage('Please fill in all fields')
-      return
+      return null
     } else {
       let prc = membership.fee 
       if (typeof prc == 'string') {
@@ -29,7 +29,7 @@ export class MembershipModel extends BaseModel {
   async activateMembership(membershipId, extId, secret) {
     if (!secret || secret === '') {
       this.setErrorMessage('Please supply an activation code')
-      return
+      return null
     } else {
       return super.put(membershipId, {extId, secret})
     }

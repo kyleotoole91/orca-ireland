@@ -15,7 +15,7 @@ export const Footer = () => {
         </div>
         <p>St.Anne's Park, Raheny, Dublin, Ireland</p>
         <span style={{fontSize: '9px'}}>Designed by Kyle O'Toole</span>
-        <span style={{fontSize:'8px'}}>2021</span>
+        <span style={{fontSize:'8px'}}>2022</span>
       </WhiteText>
     </div>
   )

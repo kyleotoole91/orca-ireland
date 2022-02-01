@@ -10,7 +10,7 @@ export class RaceModel extends BaseModel {
   async put(raceId, race) {
     if (race.name) {
       this.message = 'Please give the race a name'
-      return
+      return null
     } else {
       return await super.put(raceId, race)
     }
@@ -19,7 +19,7 @@ export class RaceModel extends BaseModel {
   async post(race) {
     if (race.name === '') {
       this.message = 'Please give the race a name'
-      return
+      return null
     } else {
       let results = race.results
       results.sort((a, b) => parseFloat(a.position) - parseFloat(b.position))
