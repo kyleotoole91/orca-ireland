@@ -21,6 +21,9 @@ export class RaceModel extends BaseModel {
       this.message = 'Please give the race a name'
       return
     } else {
+      let results = race.results
+      results.sort((a, b) => parseFloat(a.position) - parseFloat(b.position))
+      race.results = results
       return await super.post(race)
     }
   }

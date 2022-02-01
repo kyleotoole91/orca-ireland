@@ -314,7 +314,7 @@ function Events() {
             <div style={{marginBottom: `${margin}`, float: 'right'}} >
               {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
             </div>
-            {currentEvent && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Enter Event</Button> } 
+            {currentEvent && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Save</Button> } 
             <Button id={event._id} onClick={(e) =>  showEventDetails(e.target.id)} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-secondary">Details</Button>
           </Card.Body>
         </Card>)

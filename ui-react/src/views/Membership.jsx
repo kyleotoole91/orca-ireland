@@ -30,7 +30,7 @@ let oneYearFromToday = new Date(year+1, month, day-1)
 let oneYearFromTodayCtrl = dateUtils.formatDate(oneYearFromToday, 'yyyy-mm-dd')
 const firstNamePH = 'First Name'
 const lastNamePH = 'Last Name'
-const usernamePH = 'Enter nickname'
+const usernamePH = 'Enter username'
 const phonePH = 'Enter phone (optional)'
 const emailPH = 'Enter email'
 
@@ -378,7 +378,7 @@ function Membership() {
                 <Form.Control type="text" placeholder={phonePH} value={phone} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupUsername">
-                <Form.Label>Nickname</Form.Label>
+                <Form.Label>Username</Form.Label>
                 <Form.Control readOnly type="text" placeholder={usernamePH} value={username} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)}/>
               </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupEmail">

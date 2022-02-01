@@ -15,6 +15,7 @@ import { PlusButton } from '../components/PlusButton'
 import { TrashCan } from '../components/TrashCan'
 
 const raceModel = new RaceModel() 
+const max_per_race = 10
 
 function EventDetail() {
   let { id } = useParams()
@@ -29,14 +30,9 @@ function EventDetail() {
   const [showRaceForm, setShowRaceForm] = useState(false)
   const [raceName, setRaceName] = useState('')
   const [classId, setClassId] = useState('')
-  const [first, setFirst] = useState('')
-  const [second, setSecond] = useState('')
-  const [third, setThird] = useState('')
-  const [firstCar, setFirstCar] = useState('')
-  const [secondCar, setSecondCar] = useState('')
-  const [thirdCar, setThirdCar] = useState('')
   const closeRaceForm = () => setShowRaceForm(false)
   const displayRaceForm = () => setShowRaceForm(true)
+  const [resultsMap, setResultsMap] = useState(new Map())
 
   useEffect(() => {
     async function loadData () {
@@ -126,20 +122,20 @@ function EventDetail() {
   }
 
   function addRace(classId) {
+    resultsMap.clear()
     setClassId(classId)
     displayRaceForm()
   }
 
   async function postRace() {  
-    const raceDate = event.date
+    const date = event.date
     const event_id = event._id
     const class_id = classId 
     const name = raceName
-    const firstCar_id = firstCar
-    const secondCar_id = secondCar
-    const thirdCar_id = thirdCar
     const class_name = getClassName(class_id)
-    await raceModel.post({event_id, class_id, class_name, raceDate, name, first, second, third, firstCar_id, secondCar_id, thirdCar_id})
+    const results = [...resultsMap.values()]
+    const race = {event_id, class_id, class_name, date, name, results} 
+    await raceModel.post(race)
     if (raceModel.success) {
       setRefresh(!refresh)
       setShowRaceForm(false)
@@ -160,47 +156,70 @@ function EventDetail() {
     }
   }
 
-  function onFirstChange(e) {
-    setFirst(e.target.childNodes[e.target.selectedIndex].getAttribute('value'))
-    setFirstCar(e.target.childNodes[e.target.selectedIndex].getAttribute('id'))
-  }
-
-  function onSecondChange(e) {
-    setSecond(e.target.childNodes[e.target.selectedIndex].getAttribute('value'))
-    setSecondCar(e.target.childNodes[e.target.selectedIndex].getAttribute('id'))
-  }
-
-  function onThirdChange(e) {
-    setThird(e.target.childNodes[e.target.selectedIndex].getAttribute('value'))
-    setThirdCar(e.target.childNodes[e.target.selectedIndex].getAttribute('id'))
+  function onRaceInputChange(e) {
+    const position = parseInt(e.target.id)
+    const name = e.target.value
+    const car_id = e.target.childNodes[e.target.selectedIndex].getAttribute('id')
+    resultsMap.set(position, { position, name, car_id } )
+    setResultsMap(resultsMap)
   }
 
   function shouldAdd(cars, position){
     let count = 0
     for (var car of cars) {
       if (car.class_id === classId) {
-        count = count + 1
+        ++count
       } 
     }
     return position <= count
   }
 
   function raceForm() {
-    const checkClass = (car) => {
-      if (car.class_id === classId) { 
-        return <option id={car._id} key={car._id} value={car.user.firstName+' '+car.user.lastName} >{car.user.firstName+' '+car.user.lastName} </option>    
-      } else {
-        return
-      }
-    }
-    function racers(onValueChange) { 
+    function racers(pos, onValueChange) { 
       return (
-        <select onChange={(e) => onValueChange(e)} id={classId} style={{width: '250px', height: '30px'}} > 
+        <select onChange={(e) => onValueChange(e)} key={pos} id={pos} style={{width: '250px', height: '30px'}} > 
           <option value="">--Select racer--</option>
-          {event.cars.map((car) => checkClass(car))}
+          {event.cars.map((car) => {
+            if (car.class_id === classId) { 
+              return <option key={car._id} id={car._id} value={car.user.firstName+' '+car.user.lastName} >{car.user.firstName+' '+car.user.lastName} </option>    
+            } else {
+              return <></>
+            }
+          })}
         </select>  
       )
     }
+    function intToPositionText(int) {
+      let positions = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
+      if (int >= 0 && int <= positions.length) {
+        return positions[int-1]
+      }
+      return ''
+    }
+    function getNbsp(pos) {
+      if (pos >= 10) return ( <> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </> )
+      return ( <> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </> )
+    }
+    function addInput(pos) { 
+      return <label key={'label-'+pos} style={{ margin: '3px' }} >
+              {intToPositionText(pos)+':'} {getNbsp(pos)}
+              {racers(pos, (e) => onRaceInputChange(e))}  
+             </label>
+    }
+    function addInputs(){
+      if (event && event.cars.length !== 0) {
+        var inputs = []
+        for (let i=1; i<=max_per_race; i++) {
+          if (shouldAdd(event.cars, i)) {
+            inputs.push(addInput(i))
+          } else {
+            break
+          }
+        }
+        return inputs
+      }
+    }
+    
     return (  
       <Modal show={showRaceForm} onHide={closeRaceForm} >
         <Modal.Header closeButton>
@@ -211,22 +230,7 @@ function EventDetail() {
             Race Name: &nbsp; 
             <input style={{width: '250px'}} value={raceName} onChange={(e) => setRaceName(e.target.value)} type="text" />
           </label> 
-          <label style={{ margin: '3px' }} >
-            1st: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            {event && event.cars.length !== 0 && racers((e) => onFirstChange(e))}  
-          </label>
-          {shouldAdd(event.cars, 2) &&
-            <label style={{ margin: '3px' }} >
-              2nd: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              {event && event.cars.length !== 0 && racers((e) => onSecondChange(e))}  
-            </label> 
-          }
-          {shouldAdd(event.cars, 3) &&
-            <label style={{ margin: '3px' }} >
-              3rd: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              {event && event.cars.length !== 0 && racers((e) => onThirdChange(e))}  
-            </label> 
-          }
+          {addInputs()}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="outline-secondary" onClick={closeRaceForm}>Close</Button>
@@ -237,44 +241,45 @@ function EventDetail() {
   }
 
   function addRaces(classId) {
-    let rowCount = 0  
-    function addTableRow(race, index) {
-      ++rowCount
+    function addRows(results) {
       return (
-        <tr key={index+'-raceRow'}>
-          <td>{race.name} {allowDelRaces && <TrashCan id={race._id} handleClick={() => deleteRace(race._id)} /> } </td>
-          <td>{race.first}</td>
-          <td>{race.second}</td>
-          <td>{race.third}</td>
-        </tr>
+        results.map((item, index) => (
+          <tr key={item.car_id+'-race-result-row'}>
+            <td>{item.position}</td>
+            <td>{item.name}</td>
+          </tr>
+        ))
+      )
+    }
+    function addRaceResults(race, index) {
+      return (
+        <div key={race._id+'-div'}>
+          <h5 key={race._id+'-race-name'} style={{float: 'left', marginRight: '6px'}}>{race.name}</h5> 
+          {allowDelRaces && <TrashCan key={race._id+'-del-race'} id={race._id} handleClick={() => deleteRace(race._id)} /> }
+          <Table key={race._id+'-race-table'} striped bordered hover size="sm">
+            <thead key={race._id+'-race-head'}>
+              <tr key={race._id+'-race-head-row'}> 
+                <th style={{width: '35px'}}>Pos</th>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {addRows(race.results)}
+            </tbody>
+          </Table>
+        </div>
       )
     } 
     function raceDeleted(race){
       if (race.hasOwnProperty('deleted')) { return race.deleted } else { return false }
     }
-    function addRows(){
-      if (event && event.hasOwnProperty('races')) {
-        return (event.races.map((race, index) => ( 
-          !raceDeleted(race) && race.class_id===classId && addTableRow(race, index) 
-        ))) 
-      } else { return }
-    } 
-    let rows = addRows()
-    if (rowCount !== 0) {
-      return <Table striped bordered hover size="sm" key={classId+'-race-table'}>
-               <thead key={classId+'-race-head'}>
-                 <tr key={classId+'-race-row'}>
-                   <th>Race Name</th>
-                   <th>1st</th>
-                   <th>2nd</th>
-                   <th>3rd</th>
-                 </tr>
-               </thead>
-               <tbody>
-                 {rows}
-               </tbody>
-             </Table>
-    } else return <></>
+
+    if (event && event.hasOwnProperty('races')) {
+      event.races.sort((a, b) => parseFloat(a.position) - parseFloat(b.position)) //sort asc by position
+      return (event.races.map((race, index) => ( 
+        !raceDeleted(race) && race.class_id===classId && addRaceResults(race, index) 
+      ))) 
+    } else { return }
   }
 
   function showRoster() {
@@ -298,7 +303,7 @@ function EventDetail() {
               </tbody>
             </Table>
             <div style={{display: 'flex', flexFlow: 'wrap'}}>
-              <h5 style={{float: 'left'}}>Races</h5>
+              <h4 style={{float: 'left'}}>Race Results</h4>
               {event.cars.length && allowAddRaces && <PlusButton id={carClass._id} handleClick={() => addRace(carClass._id)} /> }
             </div>
             {addRaces(carClass._id)}
