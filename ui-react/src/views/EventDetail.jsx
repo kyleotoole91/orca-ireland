@@ -16,6 +16,7 @@ import { TrashCan } from '../components/TrashCan'
 
 const raceModel = new RaceModel() 
 const max_per_race = 10
+let currentCar = {}
 
 function EventDetail() {
   let { id } = useParams()
@@ -30,9 +31,9 @@ function EventDetail() {
   const [showRaceForm, setShowRaceForm] = useState(false)
   const [raceName, setRaceName] = useState('')
   const [classId, setClassId] = useState('')
+  const [resultsMap, setResultsMap] = useState(new Map())
   const closeRaceForm = () => setShowRaceForm(false)
   const displayRaceForm = () => setShowRaceForm(true)
-  const [resultsMap, setResultsMap] = useState(new Map())
 
   useEffect(() => {
     async function loadData () {
@@ -240,18 +241,33 @@ function EventDetail() {
     )
   }
 
+  function getCar(id) {
+    if (currentCar.hasOwnProperty('_id') && currentCar._id === id){
+      return currentCar
+    } else {
+      for (let i=0; i<event.cars.length; i++) {
+        if (event.cars[i]._id === id) {
+          currentCar = event.cars[i]
+          return event.cars[i]
+        }  
+      }
+    }
+  }
+
   function addRaces(classId) {
     function addRows(results) {
       return (
-        results.map((item, index) => (
+        results.map((item) => (
           <tr key={item.car_id+'-race-result-row'}>
             <td>{item.position}</td>
             <td>{item.name}</td>
+            <td>{getCar(item.car_id).manufacturer}</td>
+            <td>{getCar(item.car_id).model}</td>
           </tr>
         ))
       )
     }
-    function addRaceResults(race, index) {
+    function addRaceResults(race) {
       return (
         <div key={race._id+'-div'}>
           <h5 key={race._id+'-race-name'} style={{float: 'left', marginRight: '6px'}}>{race.name}</h5> 
@@ -261,6 +277,8 @@ function EventDetail() {
               <tr key={race._id+'-race-head-row'}> 
                 <th style={{width: '35px'}}>Pos</th>
                 <th>Name</th>
+                <th>Manufacturer</th>
+                <th>Model</th>
               </tr>
             </thead>
             <tbody>
