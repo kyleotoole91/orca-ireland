@@ -43,14 +43,13 @@ function Rules() {
         </Accordion.Item>
         <Accordion.Item eventKey='1'>
 
-        <StyledAccordionHeader>Rules</StyledAccordionHeader>
+        <StyledAccordionHeader>Club Rules</StyledAccordionHeader>
         <Accordion.Body>
           <Accordion>
             {addAccordianItem('Club Constitution', '2', '/rules/ClubConstitution.pdf')}
             {addAccordianItem('General Rules',     '3', '/rules/GeneralRules.pdf')}
             {addAccordianItem('GP Rules',          '4', '/rules/GPRules.pdf')}
-            {addAccordianItem('GT Pro',            '5', '/rules/GTProRules.pdf')}
-            {addAccordianItem('GT Clubman Rules',  '6', '/rules/GTClubmanRules.pdf')}
+            {addAccordianItem('GT Rules',          '5', '/rules/GTRules.pdf')}
           </Accordion>  
           </Accordion.Body>
         </Accordion.Item>

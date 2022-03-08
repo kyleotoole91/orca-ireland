@@ -22,31 +22,30 @@ git fetch https://github.com/kyleotoole91/orca-ireland.git
 
 -- Mongo
 https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-18-04-source
---config
-nano /etc/mongod.conf
-systemctl restart mongod
+- config
+-- nano /etc/mongod.conf
+-- systemctl restart mongod
 
---pm2 (service manager)
--start react app from project folder, name param is an arbitary alias
-pm2 start --name uireact npm -- start
--save pm2 state for reboots
-pm2 startup ubuntu
+-pm2 (service manager)
+-- start react app from project folder, name param is an arbitary alias
+-- pm2 start --name uireact npm -- start
+-- -save pm2 state for reboots
+-- pm2 startup ubuntu
 
--- nginx 
-- Config proxies
-nano /etc/nginx/sites-available/default
-- Add after server_name in server block for port 443. This will redirect www. to non www. to satisfy CORS policy for rest api
-if ($host = www.orcaireland.com) {
-  return 301 https://orcaireland.com$request_uri;
-}
-- restart the service so changes take effect: service nginx restart
+- nginx 
+-- Config proxies
+--- nano /etc/nginx/sites-available/default
+--- Add after server_name in server block for port 443. This will redirect www. to non www. to satisfy CORS policy for rest api
+--- if ($host = www.orcaireland.com) {
+---   return 301 https://orcaireland.com$request_uri;
+--- }
+--- restart the service so changes take effect: service nginx restart
 
--- .env
-In package.json, to start the react app on desired port use:
--windows
-"set PORT=X && react-scripts start"
--linux
-"export PORT=X && react-scripts start"
+- In package.json, to start the react app on desired port use:
+-- windows
+--- "set PORT=X && react-scripts start"
+-- linux
+--- "export PORT=X && react-scripts start"
 
 https://gist.github.com/bradtraversy/cd90d1ed3c462fe3bddd11bf8953a896
 

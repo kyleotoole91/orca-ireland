@@ -53,7 +53,7 @@ const ProfileContainer = styled.div`
   height: 100%;
   text-align: right;
   padding-left: 12px;
-  padding-right: 6px;
+  padding-right: 2px;
   font-family: ${({ theme}) => theme.profileFont};
   color: ${({ theme}) => theme.primaryLight};
   a {

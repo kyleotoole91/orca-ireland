@@ -305,7 +305,7 @@ function EventDetail() {
     return (
       filteredClasses.map((carClass, index) => (
           <div key={index+'-div'}>
-            <h3 style={{fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={index+'-header-label'}>{carClass.name}</h3> 
+            <h2 style={{fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={index+'-header-label'}>{carClass.name}</h2> 
             <Table striped bordered hover size="sm" key={index+'-roster'}>
               <thead key={index+'-roster-head'}>
                 <tr key={index+'-roster-row'}>
@@ -321,7 +321,7 @@ function EventDetail() {
               </tbody>
             </Table>
             <div style={{display: 'flex', flexFlow: 'wrap'}}>
-              <h4 style={{float: 'left'}}>Race Results</h4>
+              <h5 style={{float: 'left'}}>Race Results</h5>
               {event.cars.length && allowAddRaces && <PlusButton id={carClass._id} handleClick={() => addRace(carClass._id)} /> }
             </div>
             {addRaces(carClass._id)}
@@ -336,11 +336,11 @@ function EventDetail() {
     return <Loading /> 
   } else if (event) {
     return <>
-            <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
-            <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
-              {showRoster()}  
-              {raceForm()}
-            </div>
+      <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
+      <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
+        {showRoster()}  
+        {raceForm()}
+      </div>
           </>
   } else return <h2>Not found</h2>
 }

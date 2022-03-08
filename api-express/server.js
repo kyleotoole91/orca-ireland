@@ -47,6 +47,7 @@ const classesController = new BaseController('classes')
 const carsController = new BaseController('cars')
 const imagesController = new BaseController('images')
 const racesController = new BaseController('races')
+const memberTypesController = new BaseController('memberTypes')
 //races
 app.get('/races', validateJwt, (req, res) => racesController.getAllDocuments(req, res))
 app.get('/races/:id', validateJwt, (req, res) => racesController.getDocument(req, res))
@@ -54,7 +55,7 @@ app.post('/races', validateJwt, (req, res) => racesController.addDocument(req, r
 app.put('/races/:id', validateJwt, (req, res) => racesController.updateEvent(req, res))
 app.delete('/races/:id', validateJwt, (req, res) => racesController.deleteDocument(req, res))
 //events 
-app.get('/events', validateJwt, (req, res) => eventsController.getAllDocuments(req, res))
+app.get('/events', (req, res) => eventsController.getAllDocuments(req, res))
 app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(req, res))
 app.post('/events', validateJwt, (req, res) => eventsController.addDocument(req, res))
 app.put('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
@@ -62,7 +63,6 @@ app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteDocu
 //images
 app.get('/images', (req, res) => imagesController.getAllDocuments(req, res))
 app.get('/images/:id', (req, res) => imagesController.getDocument(req, res))
-app.post('/events', validateJwt, (req, res) => imagesController.addDocument(req, res))
 //users 
 app.get('/users', validateJwt, (req, res) => usersController.getAllDocuments(req, res))
 app.get('/users/:id', validateJwt, (req, res) => usersController.getUserDocument(req, res))
@@ -91,6 +91,8 @@ app.get('/classes/:id', validateJwt, (req, res) => classesController.getDocument
 app.post('/classes', validateJwt, (req, res) => classesController.addDocument(req, res))
 app.put('/classes/:id', validateJwt, (req, res) => classesController.updateDocument(req, res))
 app.delete('/classes/:id', validateJwt, (req, res) => classesController.deleteDocument(req, res))
+//membertypes
+app.get('/membertypes', (req, res) => memberTypesController.getAllDocuments(req, res))
 
 app.use(function (req, res) {
   res.status(404).send({'success': false, 'message': 'not found'})

@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react'
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react"
+import { useAuth0 } from "@auth0/auth0-react"
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
@@ -30,7 +30,7 @@ const defaultEventName = 'Round '
 
 function Events() {
   const history = useHistory()
-  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
+  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0()
   const [name, setName] = useState(defaultEventName)
   const [location, setLocation] = useState("Saint Anne's Park")
   const [date, setDate] = useState(defaultEventDateCtrl)
@@ -62,42 +62,42 @@ function Events() {
   useEffect(() => {
     async function loadData () {
       setLoading(true)
-      if (apiToken !== '' && user) {
-        try {
-          const eventModel = new EventModel(apiToken)
+      try {
+        const eventModel = new EventModel(apiToken)
+        await eventModel.getCurrentEvent()
+        if (eventModel.success) {
+          if (eventModel.responseData.length > 0) {
+            setCurrentEvent(eventModel.responseData)
+            setSelectedEvent(eventModel.responseData[0])
+            setSelectedEventId(eventModel.responseData[0]._id)
+          }
+        } else {
+          window.alert(eventModel.message)
+        } 
+        if (apiToken !== '' && user) {
           const carModel = new CarModel(apiToken)
           const permissions = new Permissions()
           setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
           setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-          await eventModel.getCurrentEvent()
-          if (eventModel.success) {
-            if (eventModel.responseData.length > 0) {
-              setCurrentEvent(eventModel.responseData)
-              setSelectedEvent(eventModel.responseData[0])
-              setSelectedEventId(eventModel.responseData[0]._id)
-            }
-          } else {
-            window.alert(eventModel.message)
-          }
-          await carModel.getUserDocs(user.sub)
-          if (carModel.success) {
-            setCarData(carModel.responseData)
-          }  
-        } catch(e) {
-          window.alert(e)
-        } finally {
-          setAllEventsExpanded(false)
-          setLoading(false)
+          if (user && user.hasOwnProperty('sub')) {
+            await carModel.getUserDocs(user.sub)
+            if (carModel.success) {
+              setCarData(carModel.responseData)
+            } 
+          } 
         }
+      } catch(e) {
+        window.alert(e)
+      } finally {
+        setAllEventsExpanded(false)
+        setLoading(false)
       }
     }  
     loadData()
-  }, [refresh, user, apiToken, user.sub])
+  }, [refresh, user, apiToken])
 
   if (apiToken === '') {
-    if (!isAuthenticated) {
-      loginWithRedirect()
-    } else {
+    if (isAuthenticated) {
       getApiToken()
     }
   } else { 
@@ -306,15 +306,15 @@ function Events() {
           <Card.Header>{event.name}</Card.Header>
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
-            <Card.Text>Entry fee €{event.fee}</Card.Text>
+            {isAuthenticated && <Card.Text>Entry fee €{event.fee}</Card.Text> }
             <div style={{marginBottom: `${margin}`, float: 'left'}}>
               <Card.Text>{dateUtils.stringToWordDate(event.date)}</Card.Text>
             </div>
             <div style={{marginBottom: `${margin}`, float: 'right'}} >
               {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
             </div>
-            {currentEvent && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Registration</Button> } 
-            <Button id={event._id} onClick={(e) =>  showEventDetails(e.target.id)} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-secondary">Details</Button>
+            {currentEvent && isAuthenticated && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Registration</Button> } 
+            {isAuthenticated && <Button id={event._id} onClick={(e) =>  showEventDetails(e.target.id)} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-secondary">Details</Button> }
           </Card.Body>
         </Card>)
       )
@@ -329,7 +329,7 @@ function Events() {
     }
   }
   
-  function modalForm(){
+  function modalAddEventForm(){
     return ( 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
@@ -408,7 +408,7 @@ function Events() {
     return (
       <div>
         <Header props={{header:'Events'}} />
-        {modalForm()}
+        {modalAddEventForm()}
         {modalEnterEvent()}
         {allowAddEvents && <div onClick={addEvent} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
                               <PlusButton >Add Event</PlusButton> 
@@ -438,7 +438,9 @@ const StyledAccordionHeader  = styled(Accordion.Header)`
   }
 `
 
-export default withAuthenticationRequired(Events, { onRedirecting: () => (<Loading />) });
+export default Events;
+
+//export default withAuthenticationRequired(Events, { onRedirecting: () => (<Loading />) });
 
 //Alternative to declaring functions and objects in useEffect(). Memoize with useCallback()
 /* 

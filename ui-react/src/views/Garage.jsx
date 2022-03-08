@@ -133,9 +133,9 @@ function Garage() {
     }  
   }
 
-  function handleChange(e){
+  function handleClassChange(e) {
     const option = e.target.childNodes[e.target.selectedIndex]
-    const class_id =  option.getAttribute('id'); 
+    const class_id =  option.getAttribute('id')
     setClassId(class_id)
   }
 
@@ -170,6 +170,7 @@ function Garage() {
       setModel(car.model)
       setFreq(car.freq)
       setColor(car.color)
+      setClassId(car.class_id)
       setTransponder(car.transponder)
       setCarId(id)
       setEditing(true)
@@ -207,9 +208,9 @@ function Garage() {
   }
 
   function modalForm(){
-    function classesDropDown () {
-      return (
-        <select id={classId} style={{width: '182px', height: '30px'}} onChange={(e) => handleChange(e)} >
+    function classesDropDown() {
+      return ( //TODO: combo box does not set the class item belonging to car when editing (select value atrribute set to classId id did not work)
+        <select id='cb-car-class' style={{width: '182px', height: '30px'}} onChange={(e) => handleClassChange(e)} >
           {classes.map((carClass, index) => 
             <option id={carClass._id} key={index} >{carClass.name}</option> ) }
         </select>  
@@ -244,7 +245,7 @@ function Garage() {
           <label style={{ margin: '3px' }} >
             Transponder ID: <input value={transponder} onChange={(e) => setTransponder(e.target.value)} type="text" />
           </label>  
-          {editing ||
+          {
             <label style={{ margin: '3px' }} >
               Class: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               {classes && classes.length !== 0 && classesDropDown()}  
@@ -303,9 +304,5 @@ function Garage() {
     )
   }
 }
-
-/*
-
-*/
 
 export default withAuthenticationRequired(Garage, { onRedirecting: () => (<Loading />) });

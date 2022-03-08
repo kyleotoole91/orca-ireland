@@ -18,7 +18,7 @@ class MenuItems extends Component {
         <>
           <MenuItem><Link id="home" to='/'>Home</Link></MenuItem>
           <MenuItem><Link id="gallery" to="/gallery">Gallery</Link></MenuItem>
-          {this.props.authenticated && <MenuItem><Link id="events" to='/events'>Events</Link></MenuItem> }
+          {<MenuItem><Link id="events" to='/events'>Events</Link></MenuItem> }
           {this.props.authenticated && <MenuItem><Link id="garage" to='/garage'>Garage</Link></MenuItem> }
           {this.props.authenticated && <MenuItem><Link id="membership" to="/membership">Membership</Link></MenuItem> }
           <MenuItem><Link id="about" to="/about">About</Link></MenuItem> 
@@ -26,7 +26,7 @@ class MenuItems extends Component {
       )
     }
 
-};
+}
 
 const MenuItem = styled.div`
   display: flex;

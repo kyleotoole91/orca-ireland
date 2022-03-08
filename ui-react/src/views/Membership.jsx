@@ -8,6 +8,7 @@ import Header from '../components/Header'
 import { useAuth0 } from "@auth0/auth0-react"
 import { UserModel } from '../models/UserModel'
 import { MembershipModel } from '../models/MembershipModel'
+import { MemberTypes } from '../models/MemberTypes'
 import { DateUtils } from '../utils/DateUtils'
 import { Permissions } from '../utils/permissions'
 import Modal from 'react-bootstrap/Modal'
@@ -29,13 +30,20 @@ let day = d.getDate()
 let oneYearFromToday = new Date(year+1, month, day-1)
 let oneYearFromTodayCtrl = dateUtils.formatDate(oneYearFromToday, 'yyyy-mm-dd')
 const firstNamePH = 'First Name'
+const ecNamePH = 'Enter Full Name'
+const ecPhonePH = 'Enter Emergency Phone'
 const lastNamePH = 'Last Name'
 const usernamePH = 'Enter username'
-const phonePH = 'Enter phone (optional)'
+const phonePH = 'Enter phone'
 const emailPH = 'Enter email'
+const cJuniorYears = 16
+const defaultDOB = new Date()
+defaultDOB.setFullYear(defaultDOB.getFullYear()-cJuniorYears)
+const defaultDOBCtrl = dateUtils.formatDate(defaultDOB, 'yyyy-mm-dd')
 
 function Membership() {  
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
+  const [saveButtonState, setSaveButtonState] = useState(false)
   const [apiToken, setApiToken] = useState('')
   const [loading, setLoading] = useState(true)
   const [firstName, setFirstName] = useState('')
@@ -43,13 +51,13 @@ function Membership() {
   const [phone, setPhone] = useState('')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
+  const [memberDOB, setMemberDOB] = useState(defaultDOB)
+  const [memberDOBCtrl, setMemberDOBCtrl] = useState(defaultDOBCtrl)
   const [currMembership, setCurrMembership] = useState()
   const [activationCode, setActivationCode] = useState('')
   const [activeMember, setActiveMember] = useState(false)
-  const [saveButtonState, setSaveButtonState] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [allowAddMemberships, setAllowAddMemberships] = useState(false)
-  //const [allowReadMemberships, setAllowReadMemberships] = useState(false)
   const [editing, setEditing] = useState(false)
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
@@ -67,6 +75,12 @@ function Membership() {
   const [loadingAllMembers, setLoadingAllMembers] = useState(false)
   const [loadingAllMembersShips, setLoadingAllMembersShips] = useState(false)
   const [userData, setUserData] = useState()
+  const [memberTypes, setMemberTypes] = useState()
+  const [memberTypeID, setMemberTypeID] = useState('')
+  const [memberTypeName, setMemberTypeName] = useState('')
+  const [ecName, setEcName] = useState('')
+  const [ecPhone, setEcPhone] = useState('')
+  const [dobChanged, setDobChanged] = useState(false)
 
   useEffect(() => {
     async function loadData () {
@@ -75,10 +89,23 @@ function Membership() {
         try {
           const userModel = new UserModel(apiToken) 
           const membershipModel = new MembershipModel(apiToken) 
+          const memberTypesModel = new MemberTypes(apiToken) 
           const permissions = new Permissions()
           setAllowAddMemberships(permissions.check(apiToken, 'post', 'memberships'))
-          //setAllowReadMemberships(permissions.check(apiToken, 'get', 'memberships'))
           await userModel.get(user.sub)
+          await memberTypesModel.get()
+          if (memberTypesModel.success && memberTypesModel.responseData.length > 0) {
+            setMemberTypes(memberTypesModel.responseData) 
+            for (let i=0; i<=memberTypesModel.responseData.length; i++) {
+              if (memberTypesModel.responseData[i].default) {
+                setMemberTypeName(memberTypesModel.responseData[i].name)
+                setMemberTypeID(memberTypesModel.responseData[i]._id)
+                break
+              }
+            }    
+          } else {
+            window.alert('Could not load member types: ' + memberTypesModel.message) 
+          }
           if (userModel.success) {
             user.nickname && setUsername(user.nickname) 
             user.email && setEmail(user.email) 
@@ -90,6 +117,11 @@ function Membership() {
             if (userModel.responseData.hasOwnProperty('phone')) {
               setPhone(userModel.responseData.phone)
             } 
+            if (userModel.responseData.hasOwnProperty('dateOfBirth')) {
+              const date = new Date(userModel.responseData.dateOfBirth)
+              setMemberDOB(date)
+              setMemberDOBCtrl(dateUtils.formatDate(date, 'yyyy-mm-dd'))
+            } 
             if (userModel.responseData.hasOwnProperty('firstName')) {
               setFirstName(userModel.responseData.firstName)
             } else if (user.hasOwnProperty('given_name')) {
@@ -100,15 +132,24 @@ function Membership() {
             } else if (user.hasOwnProperty('family_name')) {
               setLastName(user.family_name)  
             }
+            if (userModel.responseData.hasOwnProperty('ecName')) {
+              setEcName(userModel.responseData.ecName)
+            } 
+            if (userModel.responseData.hasOwnProperty('ecPhone')) {
+              setEcPhone(userModel.responseData.ecPhone)
+            } 
+            if (userModel.responseData.hasOwnProperty('memberType')) {
+              setMemberTypeName(userModel.responseData.memberType.name)
+              setMemberTypeID(userModel.responseData.memberType._id)
+            }
           } else {
-            console.log(userModel.message)
             if (user.hasOwnProperty('given_name')) {
               setFirstName(user.given_name) 
             }
             if (user.hasOwnProperty('family_name')) {
               setLastName(user.family_name) 
             }
-            window.alert(userModel.message)
+            window.alert('Error loading user data: ' + userModel.message)
           }
           await membershipModel.getCurrentMembership()
           if (membershipModel.success && membershipModel.responseData.length === 1) {
@@ -135,6 +176,15 @@ function Membership() {
   } else { 
     userModel.setApiToken(apiToken)
     membershipModel.setApiToken(apiToken)
+  }
+
+  function getMemberTypeById(id) {
+    for (let i=0; i<memberTypes.length; i++) {
+      if (memberTypes[i]._id === id) {
+        return memberTypes[i]
+      }
+    } 
+    return null
   }
 
   async function getApiToken() {
@@ -174,7 +224,8 @@ function Membership() {
   async function updateUserDetails() {
     try {
       const extId = user.sub
-      await userModel.put(user.sub, { firstName, lastName, phone, username, email, extId })  
+      await userModel.put(user.sub, { firstName, lastName, phone, username, email, ecName, ecPhone,
+                                      'memberType': getMemberTypeById(memberTypeID), 'dateOfBirth': memberDOB, extId })  
       if (userModel.success) {
         setSaveButtonState(false)
       } else {
@@ -199,10 +250,12 @@ function Membership() {
     if (fieldPlaceholder === usernamePH) { setUsername(value) }
     if (fieldPlaceholder === emailPH) { setEmail(value) }
     if (fieldPlaceholder === phonePH) { setPhone(value) }
+    if (fieldPlaceholder === ecNamePH) { setEcName(value) }
+    if (fieldPlaceholder === ecPhonePH) { setEcPhone(value) }
     setSaveButtonState(true)
   }
 
-  function addMembership() {
+  function addMembershipClick() {
     setEditing(false)
     setSecret('')
     setName('')
@@ -226,6 +279,7 @@ function Membership() {
 
   function saveMembership() {
     if (editing) {
+      //Editing and deleting membership(s) needs to be implemented
       //putMembership(carId)
     } else {
       postMembership()
@@ -237,6 +291,14 @@ function Membership() {
     let date = new Date(stringDate)
     setStartDate(date)
     setStartDateCtrl(stringDate)  
+  }
+
+  function memberDOBChange(stringDate) {
+    let date = new Date(stringDate)
+    setDobChanged(true)
+    setMemberDOB(date)
+    setMemberDOBCtrl(stringDate)
+    setSaveButtonState(true)
   }
 
   function endDateChange(stringDate) {
@@ -287,6 +349,15 @@ function Membership() {
     )
   }
 
+  function memberTypeChange(e) {
+    const option = e.target.childNodes[e.target.selectedIndex]
+    const memberType_id =  option.getAttribute('id')
+    const memberType = getMemberTypeById(memberType_id)
+    setMemberTypeName(memberType.name)
+    setMemberTypeID(memberType_id)
+    setSaveButtonState(true)
+  }
+
   function modalMembershipForm(){
     function headerText(){
       if (editing) {
@@ -323,7 +394,6 @@ function Membership() {
             </label>
           </Modal.Body>
         <Modal.Footer>
-          {/*allowDelEvents && editing && <Button onClick={deleteMembership} variant="outline-danger">Delete</Button>*/}
           <Button variant="outline-secondary" onClick={handleClose}>
             Close
           </Button>
@@ -355,10 +425,35 @@ function Membership() {
           </Card.Body>
         </Card>
       )
-    } else return ( <> </> )
+    } else return <> </> 
   }
 
-  function userMembershipDetails(){
+  function memberDetailsForm(){
+    function allowedDOB(memberType) {
+      if (memberType.hasOwnProperty('junior')) {
+        //TODO: is not exact 16 years from today, eg 02/02/2022 -> 01/01/2007 returns jr but 01/02/2006 doesn't
+        if (dateUtils.yearsSince(memberDOB) < cJuniorYears) { 
+          return memberType.junior
+        } else {
+          return !memberType.junior  
+        }
+      }
+    }
+    function memberTypesDropDown () {
+      let dobHasChanged = dobChanged
+      return (
+        memberTypes.map((memberType) => {
+          if (allowedDOB(memberType) && dobHasChanged) {
+            console.log('Changing selected member type to: '+memberType.name)
+            setMemberTypeName(memberType.name)
+            setMemberTypeID(memberType._id)  
+            setDobChanged(false) //delayed so using dobHasChanged
+            dobHasChanged = false
+          }  
+          return allowedDOB(memberType) && <option id={memberType._id} key={memberType._id} >{memberType.name}</option> 
+        })
+      )
+    }
     return (
       <div style={{display: 'flex', flexFlow: 'wrap'}}> 
         <Card style={{margin: '3px', minWidth: '284px', maxWidth: '284px'}}>
@@ -376,6 +471,24 @@ function Membership() {
               <Form.Group className="mb-3" controlId="formGroupPhone">
                 <Form.Label>Phone</Form.Label>
                 <Form.Control type="text" placeholder={phonePH} value={phone} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formGroupDOB">
+                <Form.Label>Date of Birth</Form.Label>
+                <Form.Control type="date" value={memberDOBCtrl} onChange={(e) => memberDOBChange(e.target.value)} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formGroupUsername">
+                <Form.Label>Member Type</Form.Label>
+                <select className="form-select" value={memberTypeName} onChange={(e) => memberTypeChange(e)} >
+                  {memberTypes && memberTypes.length !== 0 && memberTypesDropDown()} 
+                </select>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formGroupEcName" >
+                <Form.Label>Emergency Contact Name</Form.Label>
+                <Form.Control type="text" placeholder={ecNamePH} value={ecName} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formEcPhone">
+                <Form.Label>Emergenct Contact Phone</Form.Label>
+                <Form.Control type="text" placeholder={ecPhonePH} value={ecPhone} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupUsername">
                 <Form.Label>Username</Form.Label>
@@ -472,15 +585,16 @@ function Membership() {
     return (
       <>
         <Header props={{header:'Membership'}} />
-        {allowAddMemberships && <div onClick={addMembership} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
-                                  <PlusButton >Add Event</PlusButton> 
-                                </div> }
+        {allowAddMemberships && 
+            <div onClick={addMembershipClick} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
+              <PlusButton />
+            </div> }
         {modalMembershipForm()}
         <Accordion defaultActiveKey="0">
           <Accordion.Item eventKey="0">
             <StyledAccordionHeader>My Membership</StyledAccordionHeader>
             <Accordion.Body>
-              {userMembershipDetails()}
+              {memberDetailsForm()}
             </Accordion.Body>
           </Accordion.Item>
           {allowAddMemberships && allMembersAccordian()}

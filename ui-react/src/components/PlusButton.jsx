@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 export const PlusButton = ({id, handleClick = () => {}}) => {
   return (
-    <div style={{marginTop: '3px', height: '15px', maxWidth: '15px'}} >
+    <div style={{height: '15px', maxWidth: '15px'}} >
       <PlusBtn onClick={() => handleClick(id)}></PlusBtn> 
     </div>
   )
