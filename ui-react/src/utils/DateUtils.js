@@ -18,8 +18,12 @@ export class DateUtils {
     return this.formatDate(date, format)
   }
 
-  stringToWordDate(isoDateString) {
+  stringToWordDateTime(isoDateString) {
     return new Date(isoDateString).toString().substring(0,21)
+  }
+
+  stringToWordDate(isoDateString) {
+    return new Date(isoDateString).toString().substring(0,15)
   }
 
   yearsBetween(startDate, endDate) {

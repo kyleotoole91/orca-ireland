@@ -81,6 +81,7 @@ function Membership() {
   const [ecName, setEcName] = useState('')
   const [ecPhone, setEcPhone] = useState('')
   const [dobChanged, setDobChanged] = useState(false)
+  const [allowViewMembers, setAllowViewMembers] = useState(false)
 
   useEffect(() => {
     async function loadData () {
@@ -92,6 +93,7 @@ function Membership() {
           const memberTypesModel = new MemberTypes(apiToken) 
           const permissions = new Permissions()
           setAllowAddMemberships(permissions.check(apiToken, 'post', 'memberships'))
+          setAllowViewMembers(permissions.check(apiToken, 'get', 'users'))
           await userModel.get(user.sub)
           await memberTypesModel.get()
           if (memberTypesModel.success && memberTypesModel.responseData.length > 0) {
@@ -554,7 +556,7 @@ function Membership() {
       return <Card key={user.extId+'-card'+index} style={{minWidth: '300px', maxWidth: '300px', margin: '3px', zIndex: 0}}>
                 <Card.Header key={membership.extId+'-header'+index}>{membership.name}</Card.Header>
                 <Card.Body>
-                  <Card.Text>Start Date: {dateUtils.stringToWordDate(membership.endDate)}</Card.Text>
+                  <Card.Text>Start Date: {dateUtils.stringToWordDate(membership.startDate)}</Card.Text>
                   <Card.Text>End Date: {dateUtils.stringToWordDate(membership.endDate)}</Card.Text>
                   <Card.Text>Price: &euro;{membership.fee}</Card.Text>
                   <Card.Text>Member count: {memberCount}</Card.Text>
@@ -601,7 +603,7 @@ function Membership() {
               {memberDetailsForm()}
             </Accordion.Body>
           </Accordion.Item>
-          {allowAddMemberships && allMembersAccordian()}
+          {allowViewMembers && allMembersAccordian()}
           {allowAddMemberships && allMembershipsAccordian()}
         </Accordion>
       </>

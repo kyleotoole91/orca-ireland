@@ -308,7 +308,7 @@ function Events() {
             <Card.Title>{event.location}</Card.Title>
             {isAuthenticated && <Card.Text>Entry fee €{event.fee}</Card.Text> }
             <div style={{marginBottom: `${margin}`, float: 'left'}}>
-              <Card.Text>{dateUtils.stringToWordDate(event.date)}</Card.Text>
+              <Card.Text>{dateUtils.stringToWordDateTime(event.date)}</Card.Text>
             </div>
             <div style={{marginBottom: `${margin}`, float: 'right'}} >
               {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
