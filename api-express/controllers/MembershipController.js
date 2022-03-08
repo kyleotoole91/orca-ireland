@@ -89,7 +89,7 @@ export class MembershipController extends BaseController {
       }
       let membership = await this.db.getDocument(req.params.id)
       if (addingMember) {
-        if (!user && !user.hasOwnProperty('username') || !user.hasOwnProperty('firstName') || user.username ===''|| user.firstName ==='') {
+        if (!user && !user.hasOwnProperty('username') || !user.hasOwnProperty('firstName') || !user.hasOwnProperty('ecPhone')) {
           return res.status(404).send({
             success: false,
             message: 'Please complete and save the Member Details form before activating membership'

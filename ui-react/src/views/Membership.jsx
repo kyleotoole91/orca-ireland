@@ -509,7 +509,7 @@ function Membership() {
 
   function getAllMembersCards(){
     function addCard(user, index){
-      if (userInMemebership(user.extId, currMembership)){
+      if (userInMemebership(user.extId, currMembership)) {
         return <Card key={user.extId+'-card'+index} style={{minWidth: '300px', maxWidth: '300px', margin: '3px', zIndex: 0}}>
                  <Card.Header key={user.extId+'-header'+index}>{user.firstName+' '+user.lastName}</Card.Header>
                  <Card.Body key={user.extId+'-body'+index}>
