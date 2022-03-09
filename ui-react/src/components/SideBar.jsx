@@ -36,6 +36,7 @@ export default class SideBar extends Component {
       <Menu isOpen={this.state.menuOpen} onStateChange={(state) => this.handleStateChange(state)} styles={ styles } >
         <Link onClick={() => this.closeMenu()} id="home" to="/">Home</Link>
         <Link onClick={() => this.closeMenu()} id="gallery" to="/gallery">Gallery</Link>
+        {!this.props.authenticated && <Link onClick={() => this.closeMenu()} id="events" className="menu-item" to="/events">Events</Link> }
         {!this.props.authenticated && <Link onClick={() => this.closeMenu()} id="about" className="menu-item--small" to="/about">About</Link> }
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="events" className="menu-item" to="/events">Events</Link> }
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="garage" className="menu-item" to="/garage">Garage</Link> }
