@@ -89,7 +89,6 @@ function Garage() {
         await carModel.deleteUserDoc(user.sub, carId)
         if (carModel.success){
           setRefresh(!refresh)
-          handleClose()
         } else {
           window.alert(carModel.message)
         }
@@ -97,7 +96,7 @@ function Garage() {
     } catch(e) {
       window.alert(e)
     } finally {
-      setLoading(false)
+      handleClose()
     }
   }
 

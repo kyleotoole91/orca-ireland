@@ -1,6 +1,7 @@
 import { BaseController } from './controllers/BaseController' 
 import { MembershipController } from './controllers/MembershipController' 
 import { EventsController } from './controllers/EventController' 
+import { CarController } from './controllers/CarController' 
 import validateJwt from './utils/validate-jwt'
 import mongoClient from './mongo-client' 
 require('dotenv').config()
@@ -44,7 +45,7 @@ const eventsController = new EventsController()
 const usersController = new BaseController('users')
 const membershipsController = new MembershipController()
 const classesController = new BaseController('classes')
-const carsController = new BaseController('cars')
+const carsController = new CarController()
 const imagesController = new BaseController('images')
 const racesController = new BaseController('races')
 const memberTypesController = new BaseController('memberTypes')

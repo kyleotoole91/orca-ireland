@@ -4,7 +4,7 @@ import { Permissions } from '../utils/permissions.js'
 export class BaseController {
   constructor (collectionName) {
     this.data = null
-    this.db = null
+    this.db = new BaseModel(collectionName)
     this.setCollectionName(collectionName)
     this.UserDB = new BaseModel('users') 
     this.permissions = new Permissions()
