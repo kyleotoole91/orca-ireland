@@ -210,7 +210,7 @@ function Garage() {
   function modalForm(){
     function classesDropDown() {
       return ( //TODO: combo box does not set the class item belonging to car when editing (select value atrribute set to classId id did not work)
-        <select id='cb-car-class' style={{width: '182px', height: '30px'}} onChange={(e) => handleClassChange(e)} >
+        <select value={getClassName(classId)} disabled={editing} id='cb-car-class' style={{width: '182px', height: '30px'}} onChange={(e) => handleClassChange(e)} >
           {classes.map((carClass, index) => 
             <option id={carClass._id} key={index} >{carClass.name}</option> ) }
         </select>  
@@ -222,18 +222,14 @@ function Garage() {
           <Modal.Title>{headerText()}</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ display: 'grid', fontFamily: "monospace"} } >
-          {editing ||
-            <label style={{ margin: '3px' }} >
-              Manufacturer: &nbsp;&nbsp;
-              <input value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} type="text" id="eventName" name="event-name" />
-            </label>  
-          }
-          {editing ||
-            <label style={{ margin: '3px' }} >
-              Model: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <input value={model} onChange={(e) => setModel(e.target.value)} type="text" />
-            </label>
-          }      
+          <label style={{ margin: '3px' }} >
+            Manufacturer: &nbsp;&nbsp;
+            <input disabled={editing} value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} type="text" id="eventName" name="event-name" />
+          </label>  
+          <label style={{ margin: '3px' }} >
+            Model: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input disabled={editing} value={model} onChange={(e) => setModel(e.target.value)} type="text" />
+          </label>   
           <label style={{ margin: '3px' }} >
             Colour:  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <input value={color} onChange={(e) => setColor(e.target.value)} type="text" />
@@ -245,12 +241,10 @@ function Garage() {
           <label style={{ margin: '3px' }} >
             Transponder ID: <input value={transponder} onChange={(e) => setTransponder(e.target.value)} type="text" />
           </label>  
-          {
-            <label style={{ margin: '3px' }} >
-              Class: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              {classes && classes.length !== 0 && classesDropDown()}  
-            </label>  
-          }     
+          <label style={{ margin: '3px' }} >
+            Class: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            {classes && classes.length !== 0 && classesDropDown()}  
+          </label>   
         </Modal.Body>
         <Modal.Footer>
             {editing && <Button onClick={deleteCar} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }
