@@ -77,7 +77,11 @@ export class BaseModel {
 
   async getAllDocuments() {
     try {
-      this.result = await this.db.find({"deleted": {"$in": [null, false]}}).toArray()
+      let sort = {}
+      if (this.collectionName === 'images') {
+        sort = {"$natural": -1}
+      } 
+      this.result = await this.db.find({"deleted": {"$in": [null, false]}}).sort(sort).toArray()
       if(!this.result) {
         this.message = 'Not found'
       } else {
