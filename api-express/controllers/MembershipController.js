@@ -22,7 +22,7 @@ export class MembershipController extends BaseController {
   async getAllDocuments(req, res, next) {
     try {
       if (req.query.current === '1') {
-        let membership = await this.db.getCurrentMembership()
+        let membership = await this.db.getCurrentMembership(this.permissions.check(this.getToken(req), 'get', 'users')) 
         if (membership) {
           return res.status(200).send({
             success: true,
