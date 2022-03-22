@@ -14,7 +14,8 @@ export class MembershipModel extends BaseModel {
       const sort = {"endDate": 1}
       const where = {"endDate" : {"$gte": new Date()}, "deleted": {"$in": [null, false]}}
       if (!showUserDetail) {
-        fields = { "users._id": 1, "users.extId": 1 }
+        fields = {"_id": 1, "name": 1, "startDate": 1, "endDate": 1, "fee": 1, "user_ids": 1,      
+                  "users._id": 1, "users.extId": 1 }
       }
       this.result = await this.db.aggregate(this.mongoQuickJoin("users", "user_ids")).match(where).project(fields).sort(sort).limit(1).toArray()
       if(!this.result) { 
