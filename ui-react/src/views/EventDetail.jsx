@@ -161,7 +161,11 @@ function EventDetail() {
     const position = parseInt(e.target.id)
     const name = e.target.value
     const car_id = e.target.childNodes[e.target.selectedIndex].getAttribute('id')
-    resultsMap.set(position, { position, name, car_id } )
+    if (name !== '') {
+      resultsMap.set(position, { position, name, car_id } )
+    } else {
+      resultsMap.delete(position)  
+    }
     setResultsMap(resultsMap)
   }
 
