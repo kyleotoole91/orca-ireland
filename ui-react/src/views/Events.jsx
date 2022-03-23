@@ -30,7 +30,7 @@ const defaultEventName = 'Round '
 
 function Events() {
   const history = useHistory()
-  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0()
+  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [name, setName] = useState(defaultEventName)
   const [location, setLocation] = useState("Saint Anne's Park")
   const [date, setDate] = useState(defaultEventDateCtrl)
@@ -110,9 +110,13 @@ function Events() {
     setApiToken(token)   
   }
 
-  async function handleShowEnter (e) { 
-    await selectEvent(e.target.id.toString())
-    setShowEnter(true) 
+  async function handleShowEnter(e) { 
+    if (!isAuthenticated) {
+      loginWithRedirect({ appState: { targetUrl: window.location.pathname } })
+    } else {
+      await selectEvent(e.target.id.toString())
+      setShowEnter(true) 
+    }  
   }
 
   async function selectEvent(eventId){
@@ -229,7 +233,11 @@ function Events() {
   }
 
   function showEventDetails(id) {
-    history.push('/events/'+id)
+    if (!isAuthenticated) {
+      loginWithRedirect({ appState: { targetUrl: window.location.pathname+'/'+id } })
+    } else {
+      history.push('/events/'+id)
+    }
   }
 
   function getCurrentEventCard(){
@@ -261,17 +269,21 @@ function Events() {
   }
 
   async function editEvent(id) {
-    let selEvent = await selectEvent(id)
-    if (selEvent) {
-      setEditing(true)
-      setName(selEvent.name)
-      setLocation(selEvent.location)
-      setEventDate(new Date(selEvent.date))
-      setDate(dateUtils.formatDate(new Date(selEvent.date), 'yyyy-mm-dd')) 
-      setFee(selEvent.fee)
-      handleShow()
+    if (!isAuthenticated) {
+      loginWithRedirect({ appState: { targetUrl: window.location.pathname } })
     } else {
-      window.alert('Error loading event')
+      let selEvent = await selectEvent(id)
+      if (selEvent) {
+        setEditing(true)
+        setName(selEvent.name)
+        setLocation(selEvent.location)
+        setEventDate(new Date(selEvent.date))
+        setDate(dateUtils.formatDate(new Date(selEvent.date), 'yyyy-mm-dd')) 
+        setFee(selEvent.fee)
+        handleShow()
+      } else {
+        window.alert('Error loading event')
+      }
     }
   } 
 
@@ -306,15 +318,20 @@ function Events() {
           <Card.Header>{event.name}</Card.Header>
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
-            {isAuthenticated && <Card.Text>Entry fee €{event.fee}</Card.Text> }
+            <Card.Text>Entry fee &euro;{event.fee}</Card.Text>
             <div style={{marginBottom: `${margin}`, float: 'left'}}>
               <Card.Text>{dateUtils.stringToWordDateTime(event.date)}</Card.Text>
             </div>
             <div style={{marginBottom: `${margin}`, float: 'right'}} >
               {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
             </div>
-            {currentEvent && isAuthenticated && <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">Registration</Button> } 
-            {isAuthenticated && <Button id={event._id} onClick={(e) =>  showEventDetails(e.target.id)} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-secondary">Details</Button> }
+            {currentEvent && 
+              <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">
+                Registration
+              </Button>} 
+            <Button id={event._id} onClick={(e) => showEventDetails(e.target.id)} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-primary">
+              Details
+            </Button> 
           </Card.Body>
         </Card>)
       )
@@ -438,7 +455,7 @@ const StyledAccordionHeader  = styled(Accordion.Header)`
   }
 `
 
-export default Events;
+export default Events
 
 //export default withAuthenticationRequired(Events, { onRedirecting: () => (<Loading />) });
 

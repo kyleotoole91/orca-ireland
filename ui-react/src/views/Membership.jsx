@@ -36,9 +36,9 @@ const lastNamePH = 'Last Name'
 const usernamePH = 'Enter username'
 const phonePH = 'Enter phone'
 const emailPH = 'Enter email'
-const cJuniorYears = 16
 const defaultDOB = new Date()
-defaultDOB.setFullYear(defaultDOB.getFullYear()-cJuniorYears)
+const cJuniorYears = 16
+defaultDOB.setFullYear(defaultDOB.getFullYear()-18)
 const defaultDOBCtrl = dateUtils.formatDate(defaultDOB, 'yyyy-mm-dd')
 
 function Membership() {  

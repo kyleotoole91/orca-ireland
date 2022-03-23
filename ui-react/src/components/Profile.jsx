@@ -21,7 +21,12 @@ function Profile ({ forceUsername }) {
     return (
       <Username>
         {isAuthenticated && <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>{username}</button>}  
-        {!isAuthenticated && <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => loginWithRedirect()} href='./'>{username}</button>}
+        {!isAuthenticated && 
+          <button className="btn btn-outline-primary btn-block btn-sm" 
+                  onClick={() => loginWithRedirect({ appState: { targetUrl: window.location.pathname } })} href='./'>
+            {username}
+          </button>
+        }
       </Username>   
     )
   }
@@ -29,18 +34,25 @@ function Profile ({ forceUsername }) {
   function profileButtonForce(){
     return (
       <UsernameForce>
-        {isAuthenticated && <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>{username}</button>}  
-        {!isAuthenticated && <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => loginWithRedirect()} href='./'>{username}</button>}
+        {isAuthenticated && 
+          <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>
+            {username}   
+          </button>
+        }  
+        {!isAuthenticated && 
+          <button className="btn btn-outline-primary btn-block btn-sm" 
+                  onClick={() => loginWithRedirect({ appState: { targetUrl: window.location.pathname } })} href='./'>{username}
+        </button>}
       </UsernameForce>   
     )
   }
-
+  
   return (
     <ProfileContainer>
       {isAuthenticated &&
         <ProfileImage alt="user profile image" src={profilePic} onClick={() => logout({ returnTo: window.location.origin })} href='./'></ProfileImage>} 
       {!isAuthenticated &&
-        <ProfileImage alt="user profile image" src={profilePic} onClick={() => loginWithRedirect()} href='./'></ProfileImage>}
+        <ProfileImage alt="user profile image" src={profilePic} onClick={() => loginWithRedirect({ appState: { targetUrl: window.location.pathname } })} href='./'></ProfileImage>}
       {!forceUsername && profileButton()}
       {forceUsername && profileButtonForce()}
     </ProfileContainer>

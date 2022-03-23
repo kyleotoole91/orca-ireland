@@ -6,7 +6,6 @@ import { ThemeProvider } from 'styled-components'
 import { theme } from './theme'
 import { MenuBar} from './components'
 import styled from 'styled-components'
-//import ProtectedRoute from './auth/protected-route';
 import Homepage from './views/Home'
 import Events from './views/Events'
 import EventDetail from './views/EventDetail'
@@ -15,7 +14,6 @@ import Membership from './views/Membership'
 import Gallery from './views/Gallery'
 import About from './views/About'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
-//import { useAuth0 } from '@auth0/auth0-react';
 import Loading from './components/Loading'
 
 require('dotenv').config()
@@ -25,7 +23,7 @@ function App() {
   const history = useHistory()
   
   useEffect(() => {
-    async function loadPage () {
+    async function loadPage() {
       setLoading(true)
       try {
         //
@@ -36,17 +34,12 @@ function App() {
     loadPage()
   }, [])
 
-  const onRedirectCallback = (appState) => {
-   history.push(appState?.returnTo || window.location.pathname);
-  }
-
   if (loading) {
     return ( <Loading /> )
   } else {
     return ( 
       <Router> 
-        <Auth0ProviderWithHistory
-          onRedirectCallback={onRedirectCallback} >
+        <Auth0ProviderWithHistory >
           <ThemeProvider theme={theme} className="App">
             <MenuBar />   
             <AppContainer className="content">
