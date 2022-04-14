@@ -48,9 +48,14 @@ function Garage() {
   }
 
   async function getApiToken() {
-    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
-    carModel.setApiToken(token)
-    setApiToken(token)   
+    try{ 
+      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+      carModel.setApiToken(token)
+      setApiToken(token)
+    } catch(e) {
+      console.log(e)
+      loginWithRedirect()
+    }   
   }
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import './App.css'
 import React, { useEffect, useState } from 'react'
-import { BrowserRouter as Router, Route, Switch, useHistory } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import Auth0ProviderWithHistory from './auth/auth0-provider-with-history'
 import { ThemeProvider } from 'styled-components'
 import { theme } from './theme'
@@ -20,7 +20,6 @@ require('dotenv').config()
 
 function App() {
   const [loading, setLoading] = useState(true)
-  const history = useHistory()
   
   useEffect(() => {
     async function loadPage() {

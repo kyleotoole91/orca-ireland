@@ -13,6 +13,7 @@ import dayjs from 'dayjs'
 import { Permissions } from '../utils/permissions'
 import { PlusButton } from '../components/PlusButton'
 import { TrashCan } from '../components/TrashCan'
+import { useHistory } from 'react-router-dom'
 
 const raceModel = new RaceModel() 
 const max_per_race = 10
@@ -20,6 +21,7 @@ let currentCar = {}
 
 function EventDetail() {
   let { id } = useParams()
+  const history = useHistory()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [apiToken, setApiToken] = useState('')
   const [event, setEvent] = useState()
@@ -56,6 +58,8 @@ function EventDetail() {
             }
           } else {
             setEvent()
+            window.alert(eventModel.message)
+            history.push('/events')
           }
         } finally {
           setLoading(false)
@@ -63,7 +67,7 @@ function EventDetail() {
       }
     }  
     loadData()
-  }, [id, apiToken, user.sub, refresh])
+  }, [id, apiToken, user.sub, refresh, history])
 
   if (apiToken === '') {
     if (!isAuthenticated) {
@@ -88,8 +92,13 @@ function EventDetail() {
   }
 
   async function getApiToken() {
-    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
-    setApiToken(token)   
+    try { 
+      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+      setApiToken(token)   
+    } catch(e) {
+      console.log(e)
+      loginWithRedirect()
+    }
   }
 
   function addRacers(class_id) {

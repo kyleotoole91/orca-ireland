@@ -190,12 +190,16 @@ function Membership() {
   }
 
   async function getApiToken() {
-    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
-    setApiToken(token) 
-    userModel.setApiToken(token)
-    membershipModel.setApiToken(token)
-    console.log(token)
-    console.log(user)
+    try {
+      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+      setApiToken(token) 
+      userModel.setApiToken(token)
+      membershipModel.setApiToken(token)
+      console.log(token)
+    } catch(e) {
+      console.log(e)
+      loginWithRedirect()
+    }
   }
 
   function userInMemebership(userExtId, membership) {
@@ -210,7 +214,7 @@ function Membership() {
   async function activateMembership() {
     try {
       if (!user.email_verified) {
-        window.alert('Please verify your email, check your inbox')
+        window.alert('Please verify your email, check your inbox. You may need to log out and log back in again to get rid of this error.')
       } else {
         await membershipModel.activateMembership(currMembership._id, user.sub, activationCode)  
         if (!membershipModel.success) {
@@ -387,7 +391,7 @@ function Membership() {
               <input style={{width: '182px'}} value={endDateCtrl} onChange={(e) => endDateChange(e.target.value)} type="date" id="eventDate" name="event-date" />
             </label>
             <label style={{ margin: '3px' }} >
-              Fee(&euro;): &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              Fee (&euro;): &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } /*prefix="€"*/ />
             </label>
             <label style={{ margin: '3px' }} >

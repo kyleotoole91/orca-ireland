@@ -14,6 +14,30 @@ export class EventsController extends BaseController {
     this.carDb = new BaseModel('cars') 
   }
 
+  async getDocument(req, res) {
+    try {
+      let user = await this.getUser(req, res, false)
+      let hasMembership = false
+      if (user && user.hasOwnProperty('extId')) {
+        hasMembership = await this.membershipController.extIdActiveMember(user.extId)
+      }
+      if (!hasMembership) {
+        return res.status(403).send({
+          success: false,
+          message: 'You must have an active membership to use this feature'
+        })    
+      } else {
+        super.getDocument(req, res)
+      }
+    } catch(e) {
+      console.log(e)
+      return res.status(500).send({
+        success: false,
+        message: e.message
+      }) 
+    }
+  }
+
   async getAllDocuments(req, res, next) {
     try {
       if (req.query.current === '1') {
@@ -72,7 +96,7 @@ export class EventsController extends BaseController {
         if (!hasMembership) {
           return res.status(403).send({
             success: false,
-            message: 'You need to activate your membership before you can enter events'
+            message: 'You must have an active membership to use this feature'
           })    
         }
         let classIds = []
@@ -95,7 +119,7 @@ export class EventsController extends BaseController {
             }
           }
         }
-
+        
         if (!event.hasOwnProperty('car_ids')) {  
           event.car_ids = []
         } else {

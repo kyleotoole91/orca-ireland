@@ -68,7 +68,7 @@ export class BaseController {
     }
   }
 
-  async getDocument(req, res, next) {
+  async getDocument(req, res) {
     try {
       this.data = await this.db.getDocument(req.params.id) 
       if (this.data) {

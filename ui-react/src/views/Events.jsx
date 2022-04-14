@@ -105,17 +105,24 @@ function Events() {
   }
 
   async function getApiToken() {
-    let token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
-    eventModel.setApiToken(token)
-    setApiToken(token)   
+    try { 
+      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+      eventModel.setApiToken(token)
+      setApiToken(token)   
+    } catch(e) {
+      console.log(e)
+      loginWithRedirect()
+    }
   }
 
   async function handleShowEnter(e) { 
     if (!isAuthenticated) {
       loginWithRedirect({ appState: { targetUrl: window.location.pathname } })
     } else {
-      await selectEvent(e.target.id.toString())
-      setShowEnter(true) 
+      let event = await selectEvent(e.target.id.toString())
+      if (event) {
+        setShowEnter(true) 
+      }
     }  
   }
 
@@ -126,6 +133,7 @@ function Events() {
       setSelectedEvent(eventModel.responseData)   
       return eventModel.responseData
     } else {
+      window.alert(eventModel.message)
       setSelectedEventId('')
       setSelectedEvent() 
       return
@@ -203,6 +211,12 @@ function Events() {
   async function enterEvent() {  
     await eventModel.enterEvent(selectedEventId, car_ids)
     if (eventModel.success) {
+      if ((car_ids && car_ids.length > 0) &&
+          (window.confirm('You have sucessfully registered for this event! \n\n'+
+                          'The race entry fee is now due to be paid. \n'+
+                          'Would you like to be redirected to PayPal to make this payment now? '))) {
+        window.location.href=process.env.REACT_APP_PAYPAL_PAYMENT_LINK
+      }
       setRefresh(!refresh)
       handleCloseEnter()
     } else {
