@@ -141,6 +141,7 @@ function Events() {
   }
 
   function addCar(id){
+    setCar_ids(car_ids)
     if (car_ids.indexOf(id) === -1) {
       car_ids.push(id)   
     } else {
@@ -213,12 +214,18 @@ function Events() {
     if (eventModel.success) {
       if ((car_ids && car_ids.length > 0) &&
           (window.confirm('You have successfully registered for this event! \n\n'+
-                          'The race entry fee is now due to be paid. \n'+
+                          'The race entry fee is now due to be paid. \n\n'+
+                          'One class: €10 \n'+
+                          'Two classes: €15 \n\n'+
                           'Would you like to be redirected to PayPal to make this payment now? '))) {
         window.location.href=process.env.REACT_APP_PAYPAL_PAYMENT_LINK
       }
-      setRefresh(!refresh)
-      handleCloseEnter()
+      if (car_ids && car_ids.length > 0) {
+        history.push('/events/'+selectedEventId)
+      } else {
+        setRefresh(!refresh)
+        handleCloseEnter() 
+      }
     } else {
       window.alert(eventModel.message)  
     }
