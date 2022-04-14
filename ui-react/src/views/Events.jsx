@@ -212,7 +212,7 @@ function Events() {
     await eventModel.enterEvent(selectedEventId, car_ids)
     if (eventModel.success) {
       if ((car_ids && car_ids.length > 0) &&
-          (window.confirm('You have sucessfully registered for this event! \n\n'+
+          (window.confirm('You have successfully registered for this event! \n\n'+
                           'The race entry fee is now due to be paid. \n'+
                           'Would you like to be redirected to PayPal to make this payment now? '))) {
         window.location.href=process.env.REACT_APP_PAYPAL_PAYMENT_LINK
