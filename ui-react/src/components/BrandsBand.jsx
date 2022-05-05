@@ -7,6 +7,7 @@ import XrayLogo from './images/xray-logo.png'
 import CapricornLogo from './images/capricorn-logo.png'
 import SerpentLogo from './images/serpent-logo.png'
 import RccaoiLogo from './images/rccaoi.jpg'
+import EireRCLogo from './images/EireRC.jpg'
 import styled from 'styled-components'
 
 export const BrandsBand = () => {
@@ -30,8 +31,11 @@ export const BrandsBand = () => {
       <a href='https://www.serpent.com/'>
         <Banding style={{maxHeight: '18px'}} alt='serpent' src={SerpentLogo} />
       </a>
-      <a href='https://www.xtr-rc.com/en/brand/11-shoot-fuel/'>
+      <a href='https://eirerc.com/collections/nitro-fuel'>
         <Banding style={{maxHeight: '18px'}} alt='shoot fuel' src={ShootLogo} />
+      </a>
+      <a href='http://eirerc.com/'>
+        <Banding style={{maxHeight: '18px'}} alt='EireRC' src={EireRCLogo} />
       </a>
       <a href='http://www.rccaoi.com/'>
         <Banding style={{maxHeight: '18px'}} alt='RCCAOI' src={RccaoiLogo} />

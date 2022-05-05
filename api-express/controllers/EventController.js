@@ -4,6 +4,8 @@ import { EventModel } from '../models/EventModel'
 import { ObjectId } from 'bson'
 import { MembershipController } from './MembershipController.js'
 
+const cRegistrationHours = 40
+
 export class EventsController extends BaseController { 
 
   constructor () {
@@ -97,6 +99,12 @@ export class EventsController extends BaseController {
           return res.status(403).send({
             success: false,
             message: 'You must have an active membership to use this feature'
+          })    
+        }
+        if (((event.date - new Date()) / 36e5) < cRegistrationHours) {
+          return res.status(403).send({
+            success: false,
+            message: 'Registration has now closed'
           })    
         }
         let classIds = []

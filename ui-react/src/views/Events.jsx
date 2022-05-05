@@ -215,9 +215,10 @@ function Events() {
     if (eventModel.success) {
       if (car_ids && car_ids.length > 0) {
         payNow = window.confirm('You have successfully registered for this event! \n\n'+
-                                'The race entry fee is now due to be paid. \n\n'+
+                                'The race entry fee is now due to be paid: \n'+
                                 'One class: €10 \n'+
                                 'Two classes: €15 \n\n'+
+                                'Please use the Friends and Family option when paying with PayPal. \n\n'+
                                 'Would you like to be redirected to PayPal to make this payment now? ') 
       }
       if (payNow) {
