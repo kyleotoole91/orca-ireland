@@ -44,6 +44,7 @@ const MenuBarContainer = styled.div`
 background: ${({theme}) => theme.colorWhite};
   position: sticky;
   height: 48px;
+  top: 0px;
   a {
     color: ${({theme}) => theme.primaryLight};
     text-decoration: none;
