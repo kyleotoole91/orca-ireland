@@ -2,11 +2,13 @@ import React from 'react'
 import styled from 'styled-components'
 import { useAuth0 } from "@auth0/auth0-react"
 import DefaultProfilePng from './images/default-profile-image.png'
+import { useWindowDimensions } from '../utils/WindowSize'
 
 function Profile ({ forceUsername }) {
   const { logout, loginWithRedirect,  user, isAuthenticated } = useAuth0()
   var profilePic = DefaultProfilePng
-  var username = 'Sign In'
+  var username = 'Log In'
+  const { width } = useWindowDimensions()
 
   if (user != null) {
     profilePic = user.picture
@@ -19,40 +21,48 @@ function Profile ({ forceUsername }) {
 
   function profileButton(){
     return (
-      <Username>
-        {isAuthenticated && <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>{username}</button>}  
-        {!isAuthenticated && 
-          <button className="btn btn-outline-primary btn-block btn-sm" 
-                  onClick={() => loginWithRedirect({ appState: { targetUrl: window.location.pathname } })} href='./'>
-            {username}
-          </button>
+      <>
+        {(isAuthenticated || width > 1050) && 
+          <ProfileImage alt="user profile image" src={profilePic} onClick={() => logout({ returnTo: window.location.origin })} href='./'></ProfileImage>
         }
-      </Username>   
+        <Username> 
+          {!isAuthenticated &&
+            <button className="btn btn-outline-primary btn-block btn-sm" 
+                    onClick={() => loginWithRedirect({ appState: { targetUrl: window.location.pathname } })} href='./'>
+              {username}
+            </button>
+          }
+          {isAuthenticated && width > 1050 &&
+            <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>
+              Log Out  
+            </button>
+          }  
+        </Username>   
+      </>
     )
   }
 
   function profileButtonForce(){
     return (
-      <UsernameForce>
-        {isAuthenticated && 
-          <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>
-            {username}   
-          </button>
-        }  
-        {!isAuthenticated && 
-          <button className="btn btn-outline-primary btn-block btn-sm" 
-                  onClick={() => loginWithRedirect({ appState: { targetUrl: window.location.pathname } })} href='./'>{username}
-        </button>}
-      </UsernameForce>   
+      <>
+        <ProfileImage alt="user profile image" src={profilePic} onClick={() => logout({ returnTo: window.location.origin })} href='./'></ProfileImage>
+        <UsernameForce>
+          {isAuthenticated && 
+            <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>
+              Log Out  
+            </button>
+          }  
+          {!isAuthenticated && 
+            <button className="btn btn-outline-primary btn-block btn-sm" 
+                    onClick={() => loginWithRedirect({ appState: { targetUrl: window.location.pathname } })} href='./'>{username}
+          </button>}
+        </UsernameForce>
+      </>
     )
   }
   
   return (
-    <ProfileContainer>
-      {isAuthenticated &&
-        <ProfileImage alt="user profile image" src={profilePic} onClick={() => logout({ returnTo: window.location.origin })} href='./'></ProfileImage>} 
-      {!isAuthenticated &&
-        <ProfileImage alt="user profile image" src={profilePic} onClick={() => loginWithRedirect({ appState: { targetUrl: window.location.pathname } })} href='./'></ProfileImage>}
+    <ProfileContainer> 
       {!forceUsername && profileButton()}
       {forceUsername && profileButtonForce()}
     </ProfileContainer>
@@ -65,7 +75,6 @@ const ProfileContainer = styled.div`
   height: 100%;
   text-align: right;
   padding-left: 12px;
-  padding-right: 2px;
   font-family: ${({ theme}) => theme.profileFont};
   color: ${({ theme}) => theme.primaryLight};
   a {
@@ -79,9 +88,6 @@ const Username = styled.div`
   position: 'absolute';
   height: 100%;
   padding: 8px;
-  @media (max-width: ${ ({ theme}) => theme.profileButtonMax}) {
-    display: none;
-  }
 `
 
 const UsernameForce = styled.div`

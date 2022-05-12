@@ -11,7 +11,7 @@ export const theme = {
   mobileS: '319px',
   mobileXS: '250px',
   mobileM: '666px',
-  menuItemsMax: '780px',
+  menuItemsMax: '700px',
   profileButtonMax: '1050px',
   companyFont: '"Trebuchet MS", Helvetica, sans-serif',
   menuFont: '"Trebuchet MS", Helvetica, sans-serif',
