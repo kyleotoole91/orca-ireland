@@ -68,11 +68,15 @@ export class EventsController extends BaseController {
   }
 
   removeUsersCars(user_id, event) {
+    let userCarIdx = -1
     for (var car of event.cars) {
       if (car.user._id.toString() === user_id.toString()) {
-        event.car_ids.splice(event.car_ids.indexOf(car._id), 1)
+        userCarIdx = this.indexOfObjectId(event.car_ids, car._id)
+        if (userCarIdx >= 0) {
+          console.log(event.car_ids.splice(userCarIdx, 1))
+        }
       }
-    }   
+    } 
   }
 
   async updateEvent(req, res) {
@@ -104,7 +108,7 @@ export class EventsController extends BaseController {
         if (((event.date - new Date()) / 36e5) < cRegistrationHours) {
           return res.status(403).send({
             success: false,
-            message: 'Registration has now closed'
+            message: 'Registration is closed'
           })    
         }
         let classIds = []

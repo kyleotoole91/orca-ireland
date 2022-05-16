@@ -19,6 +19,15 @@ export class BaseController {
     return false
   }
 
+  indexOfObjectId(objIdList, targetObjId){
+    for (let i = 0; i < objIdList.length; i++) {
+      if (objIdList[i].toString() === targetObjId.toString()){
+        return i
+      }
+    }
+    return -1
+  }
+
   setCollectionName(name) {
     if (name && name !== '') {
       this.collectionName = name
