@@ -5,7 +5,7 @@ var styles = {
     left: "14px",
     top: "14px"
   },
-  bmBurgerBars: { background: "#2B83CD", height: "2px", width: "18px" },
+  bmBurgerBars: {borderRadius: "6px", background: "#2B83CD", height: "2px", width: "18px" },
   bmCrossButton: { height: "24px", width: "24px" },
   bmCross: { background: "#bdc3c7" },
   bmMorphShape: { fill: "#373a47" },
