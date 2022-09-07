@@ -12,6 +12,7 @@ import EventDetail from './views/EventDetail'
 import Garage from './views/Garage'
 import Membership from './views/Membership'
 import Gallery from './views/Gallery'
+import Polls from './views/Polls'
 import About from './views/About'
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css'
 import Loading from './components/Loading'
@@ -48,8 +49,9 @@ function App() {
                 <Route path="/events/:id" component={EventDetail} />
                 <Route path="/events" component={Events} />
                 <Route path="/gallery" component={Gallery} />
-                <Route path="/membership" component={Membership} /> 
                 <Route path="/garage" component={Garage} />
+                <Route path="/polls" component={Polls} /> 
+                <Route path="/membership" component={Membership} />
                 <Route path="/about" component={About} />
               </Switch>   
             </AppContainer>

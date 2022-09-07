@@ -42,10 +42,11 @@ async function listMongoCollections() {
 listMongoCollections()
 
 const eventsController = new EventsController()
-const usersController = new BaseController('users')
 const membershipsController = new MembershipController()
-const classesController = new BaseController('classes')
 const carsController = new CarController()
+const usersController = new BaseController('users')
+const pollsController = new BaseController('polls')
+const classesController = new BaseController('classes')
 const imagesController = new BaseController('images')
 const racesController = new BaseController('races')
 const memberTypesController = new BaseController('memberTypes')
@@ -94,6 +95,12 @@ app.put('/classes/:id', validateJwt, (req, res) => classesController.updateDocum
 app.delete('/classes/:id', validateJwt, (req, res) => classesController.deleteDocument(req, res))
 //membertypes
 app.get('/membertypes', (req, res) => memberTypesController.getAllDocuments(req, res))
+//polls
+app.get('/polls', validateJwt, (req, res) => pollsController.getAllDocuments(req, res))
+app.get('/polls/:id', validateJwt, (req, res) => pollsController.getDocument(req, res))
+app.post('/polls', validateJwt, (req, res) => pollsController.addDocument(req, res))
+app.put('/polls/:id', validateJwt, (req, res) => pollsController.updateDocument(req, res))
+app.delete('/polls/:id', validateJwt, (req, res) => pollsController.deleteDocument(req, res))
 
 app.use(function (req, res) {
   res.status(404).send({'success': false, 'message': 'not found'})

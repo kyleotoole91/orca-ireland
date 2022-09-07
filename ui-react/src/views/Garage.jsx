@@ -207,13 +207,13 @@ function Garage() {
     if (editing) {
       return manufacturer+' '+model
     } else {
-      return 'Add car'
+      return 'New Car'
     }
   }
 
   function modalForm(){
     function classesDropDown() {
-      return ( //TODO: combo box does not set the class item belonging to car when editing (select value atrribute set to classId id did not work)
+      return ( 
         <select value={getClassName(classId)} disabled={editing} id='cb-car-class' style={{width: '182px', height: '30px'}} onChange={(e) => handleClassChange(e)} >
           {classes.map((carClass, index) => 
             <option id={carClass._id} key={index} >{carClass.name}</option> ) }
@@ -280,9 +280,9 @@ function Garage() {
         </div>
         {modalForm()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
-          {data.map((car, index) => (
+          {data && data.length > 0 && data.map((car, index) => (
             <Card style={{width: '240px', margin: '3px', zIndex: 0}} key={index}>
-              <Card.Header>{car.manufacturer}</Card.Header>
+              <Card.Header><b>{car.manufacturer}</b></Card.Header>
               <Card.Body>
                 <Card.Title>{car.model}</Card.Title>
                 <Card.Text>Color: {car.hasOwnProperty('color') && car.color}</Card.Text>

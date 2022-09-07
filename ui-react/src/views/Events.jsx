@@ -45,7 +45,7 @@ function Events() {
   const [allowAddEvents, setAllowAddEvents] = useState(false)
   const [allowDelEvents, setAllowDelEvents] = useState(false)
   const [show, setShow] = useState(false)
-  const [showEnter, setShowEnter] = useState(false)
+  const [showRegistration, setShowRegistration] = useState(false)
   const [selectedEventId, setSelectedEventId] = useState('')
   const [selectedEvent, setSelectedEvent] = useState()
   const [refresh, setRefresh] = useState(false)
@@ -54,9 +54,9 @@ function Events() {
   const [editing, setEditing] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
-  const handleCloseEnter = () => { 
+  const handleCloseRegistration = () => { 
     setCar_ids([])
-    setShowEnter(false) 
+    setShowRegistration(false) 
   }
 
   useEffect(() => {
@@ -115,13 +115,13 @@ function Events() {
     }
   }
 
-  async function handleShowEnter(e) { 
+  async function handleShowRegistration(e) { 
     if (!isAuthenticated) {
       loginWithRedirect({ appState: { targetUrl: window.location.pathname } })
     } else {
       let event = await selectEvent(e.target.id.toString())
       if (event) {
-        setShowEnter(true) 
+        setShowRegistration(true) 
       }
     }  
   }
@@ -215,11 +215,11 @@ function Events() {
     if (eventModel.success) {
       if (car_ids && car_ids.length > 0) {
         payNow = window.confirm('You have successfully registered for this event! \n\n'+
-                                'The race entry fee is now due to be paid: \n'+
-                                'One class: €10 \n'+
-                                'Two classes: €15 \n\n'+
-                                'Please use the Friends and Family option when paying with PayPal. \n\n'+
-                                'Would you like to be redirected to PayPal to make this payment now? ') 
+                                'Club rounds: \u20AC10 \n'+
+                                'National rounds: \u20AC20 \n'+
+                                'Two classes: Club \u20AC15 National \u20AC30 \n'+
+                                'Cadet: Half price \n\n'+
+                                'Would you like to be redirected to PayPal to make this payment now?\nUse "Friends and Family" for no fees') 
       }
       if (payNow) {
         window.location.href=process.env.REACT_APP_PAYPAL_PAYMENT_LINK  
@@ -227,7 +227,7 @@ function Events() {
         history.push('/events/'+selectedEventId)   
       } else {
         setRefresh(!refresh)
-        handleCloseEnter() 
+        handleCloseRegistration() 
       }
     } else {
       window.alert(eventModel.message)  
@@ -339,7 +339,7 @@ function Events() {
     return (
       events.map((event) => (
         <Card style={{minWidth: '225px', maxWidth: '225px', margin: '3px', zIndex: 0}} key={event._id}>
-          <Card.Header>{event.name}</Card.Header>
+          <Card.Header><b>{event.name}</b></Card.Header>
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
             <Card.Text>Entry fee &euro;{event.fee}</Card.Text>
@@ -350,7 +350,7 @@ function Events() {
               {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
             </div>
             {currentEvent && 
-              <Button onClick={handleShowEnter} id={event._id}  style={{width: "100%"}} variant="outline-primary">
+              <Button onClick={handleShowRegistration} id={event._id}  style={{width: "100%"}} variant="outline-primary">
                 Registration
               </Button>} 
             <Button id={event._id} onClick={(e) => showEventDetails(e.target.id)} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-primary">
@@ -406,7 +406,7 @@ function Events() {
     )
   }
 
-  function modalEnterEvent(){
+  function modalRegistration(){
     function carCheckList () {
       function carItem(car, index) {
         return (
@@ -423,7 +423,7 @@ function Events() {
       )
     }
     return ( 
-      <Modal show={showEnter} onHide={handleCloseEnter}>
+      <Modal show={showRegistration} onHide={handleCloseRegistration}>
         <Modal.Header closeButton>
           <Modal.Title>Enter Event</Modal.Title>
         </Modal.Header>
@@ -432,7 +432,7 @@ function Events() {
           {carCheckList()}
         </Modal.Body>
         <Modal.Footer>
-            <Button variant="outline-secondary" onClick={handleCloseEnter}>
+            <Button variant="outline-secondary" onClick={handleCloseRegistration}>
               Close
             </Button>
             <Button variant="outline-primary" onClick={enterEvent}>
@@ -450,7 +450,7 @@ function Events() {
       <div>
         <Header props={{header:'Events'}} />
         {modalAddEventForm()}
-        {modalEnterEvent()}
+        {modalRegistration()}
         {allowAddEvents && <div onClick={addEvent} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
                               <PlusButton >Add Event</PlusButton> 
                            </div> }

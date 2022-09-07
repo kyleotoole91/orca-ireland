@@ -350,7 +350,10 @@ function Membership() {
           <Form.Label>Activation code</Form.Label>
           <Form.Control type="password" placeholder="Enter activation code" value={activationCode} onChange={(e) => setActivationCode(e.target.value)}/>
         </Form.Group>
-        <Button variant="outline-primary" onClick={activateMembership}> Activate</Button>
+        <Button variant="outline-primary" style={{width: '252px'}} onClick={activateMembership}> Activate</Button>
+        <a href={process.env.REACT_APP_PAYPAL_PAYMENT_LINK}>
+          <Button variant="outline-primary" style={{width: '252px', marginTop: '6px'}}> Pay with PayPal</Button>
+        </a>
       </>
     )
   }
@@ -391,7 +394,7 @@ function Membership() {
               <input style={{width: '182px'}} value={endDateCtrl} onChange={(e) => endDateChange(e.target.value)} type="date" id="eventDate" name="event-date" />
             </label>
             <label style={{ margin: '3px' }} >
-              Fee (&euro;): &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              Fee (&euro;): &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } /*prefix="€"*/ />
             </label>
             <label style={{ margin: '3px' }} >
@@ -410,11 +413,11 @@ function Membership() {
       </Modal>   
     )
   }
-
+  
   function membershipCard(){
     if (currMembership) {
       let membershipState = 'Inactive'  
-      let cardHeight = '330px'
+      let cardHeight = '369px'
       if (activeMember) {
         membershipState = 'Active'
         cardHeight = '200px' 
@@ -493,7 +496,7 @@ function Membership() {
                 <Form.Control type="text" placeholder={ecNamePH} value={ecName} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formEcPhone">
-                <Form.Label>Emergenct Contact Phone</Form.Label>
+                <Form.Label>Emergency Contact Phone</Form.Label>
                 <Form.Control type="text" placeholder={ecPhonePH} value={ecPhone} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupUsername">

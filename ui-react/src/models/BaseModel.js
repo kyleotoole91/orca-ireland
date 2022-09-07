@@ -104,6 +104,8 @@ export class BaseModel {
             .then((response) => {
               this.setResponseData(response)
             }) 
+    } catch(e) {
+      this.setErrorMessage(e)
     } finally {
       this.reset()
       this.endpoint = origEndpoint

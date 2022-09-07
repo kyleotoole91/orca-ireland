@@ -30,19 +30,22 @@ function Rules() {
           <Accordion.Body>
           <div style={{maxWidth: '400px'}}> 
             <p>
-              ORCA was founded in 1997, but some of our members have been involved in model car racing since the late 80's. 
-              Back then the club was racing in what was then the main car park in University College Dublin. Racing is now at St. Annes Park, Raheny.
+              ORCA was founded in 1997. Some of our members have been involved in model car racing since the late 80's. 
+              Back then the club was racing in the main car park of University College Dublin. Racing is now at St. Annes Park, Raheny.
             </p>
             <p>
-              We, the club members primarily race 1/8 scale nitro machines with the GT class becoming very popular due to their
+              ORCA members race 1/8 scale nitro machines with the GT class becoming very popular due to their
               predictable handling in all weather conditions. We also have a faster GP class, also known as 1/8 On Road. 
               These cars use foam tyres that offer incredible traction, especially on dry surfaces.
+            </p>
+            <p>
+              Please find the rules below. Contact us via email or facebook for more information. 
+              Links are available at the bottom of the homepage.
             </p>
           </div>   
           </Accordion.Body>
         </Accordion.Item>
         <Accordion.Item eventKey='1'>
-
         <StyledAccordionHeader>Club Rules</StyledAccordionHeader>
         <Accordion.Body>
           <Accordion>
@@ -56,7 +59,6 @@ function Rules() {
       </Accordion>   
     </Worker>
   )
-
 }
 
 const StyledAccordionHeader = styled(Accordion.Header)`

@@ -37,8 +37,8 @@ function Home() {
   } else {
     return (
       <>
-        <div style={{width:'100%', height:'100%', alignItems: 'center', position: 'relative'}}> 
-          <ImageGallery items={images} /> 
+        <div style={{width:'100%', height:'100%', alignItems: 'center', position: 'absolute'}}> 
+          <ImageGallery items={images} lazyLoad={true} thumbnailPosition='left' /> 
         </div>
       </>
     )

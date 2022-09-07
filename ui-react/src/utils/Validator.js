@@ -11,7 +11,7 @@ export class Validator {
   }
 
   validatePhone = (phone) => {
-    this.init() 
+    this.init() //  ^(?:\([0-9]{1,6}\)|\([\+ 0-9]{1,7}\)|[\+ 0-9]*\([\+ 0-9]{1,4}\)*[\/ \- 0-9]{4,25}|[\/ \+ \-  0-9]{4,26})$
     this.reqEx = /^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s/0-9]*$/
     this.valid = this.reqEx.test(phone)
     if (!this.valid) {

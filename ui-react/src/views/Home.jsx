@@ -28,7 +28,7 @@ function Home() {
   } else {
     return (
       <div style={{textAlign: 'center', display: 'grid', justifyContent:'center'}}> 
-        <h1>On Road Circuit Association</h1>
+        <h1>On Road Circuit Associations</h1>
         <div style={{width: '100%', height: '240px'}}>
           <img style={{maxWidth: '100%', maxHeight: '100%'}} src={orcaLogo} alt="Circuit Logo"></img>
         </div>  
