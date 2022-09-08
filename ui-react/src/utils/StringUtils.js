@@ -1,5 +1,6 @@
 export class StringUtils {
   intToPositionText (positionInt) {
+    let position = ''
     switch(positionInt) {
       case 1:
         position = positionInt+'st'
