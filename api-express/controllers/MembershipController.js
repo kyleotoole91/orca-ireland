@@ -1,3 +1,4 @@
+import { BaseModel } from '../models/BaseModel'
 import { MembershipModel } from '../models/MembershipModel'
 import { BaseController } from './BaseController.js'
 
@@ -7,6 +8,7 @@ export class MembershipController extends BaseController {
     super()
     this.setCollectionName('memberships')
     this.db = new MembershipModel() 
+    this.memberTypesDb = new BaseModel('memberTypes')
   }
 
   async extIdActiveMember(extId) {
@@ -14,6 +16,20 @@ export class MembershipController extends BaseController {
     let membership = await this.db.getCurrentMembership()
     if (user && membership[0] && membership[0].hasOwnProperty('user_ids')){
       return this.objectIdExists(membership[0].user_ids, user._id) 
+    } else {
+      return false
+    }
+  }
+
+  async extIdCanVote(extId) {
+    let user = await this.UserDB.getDocumentByExtId(extId, false)
+    if (!user) {
+      return false
+    }
+    let memberType = this.memberTypesDb.getDocument(user.memberType._id)
+    let membership = await this.db.getCurrentMembership()
+    if (membership[0] && membership[0].hasOwnProperty('user_ids')){
+      return this.objectIdExists(membership[0].user_ids, user._id) && memberType.hasOwnProperty('canVote') && memberType.canVote
     } else {
       return false
     }

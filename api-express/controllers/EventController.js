@@ -6,7 +6,7 @@ import { MembershipController } from './MembershipController.js'
 
 const cRegistrationHours = 40
 
-export class EventsController extends BaseController { 
+export class EventController extends BaseController { 
 
   constructor () {
     super()

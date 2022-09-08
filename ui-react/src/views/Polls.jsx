@@ -54,6 +54,7 @@ function Polls() {
   }
   const handleCloseCastVote = () => { 
     setShowCastVote(false) 
+    setSelectedOption('')
   }
   const handleSetOption = (optionName) => {
     setSelectedOption(optionName) 
@@ -124,6 +125,21 @@ function Polls() {
       if (pollModel.success) {
         setRefresh(!refresh)
         handleClose()
+      } else {
+        window.alert(pollModel.message)
+      }
+    } catch(e) {
+      window.alert(e)
+    } finally {
+      setLoading(false)
+    }  
+  }
+
+  async function castVote(){
+    try {
+      await pollModel.put(Id.toString(), {selectedOption})  
+      if (pollModel.success) {
+        handleCloseCastVote()
       } else {
         window.alert(pollModel.message)
       }
@@ -231,7 +247,7 @@ function Polls() {
             </Form.Group> 
             <Form.Group className="mb-3" controlId="formDescription">
               <Form.Label>Options</Form.Label>
-              <Form.Control disabled={editing} value={options} type="text" name="options" onChange={(e) => setOptions(e.target.value)} />
+              <Form.Control value={options} type="text" name="options" onChange={(e) => setOptions(e.target.value)} />
             </Form.Group>
             <Form.Group className="mb-3" controlId="formEndDate">
               <Form.Label>End Date</Form.Label>
@@ -269,7 +285,7 @@ function Polls() {
       }    
       return (
         <>
-          {poll && poll.options.map((option, index) => optionItem(option, index) ) }
+          {poll && poll.hasOwnProperty('options') && poll.options.map((option, index) => optionItem(option, index) ) }
         </>  
       )
     }
@@ -286,7 +302,7 @@ function Polls() {
             <Button variant="outline-secondary" onClick={handleCloseCastVote}>
               Close
             </Button>
-            <Button variant="outline-primary" >
+            <Button variant="outline-primary" onClick={castVote}>
               Save
             </Button>
         </Modal.Footer>

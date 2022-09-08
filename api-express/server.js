@@ -1,7 +1,8 @@
 import { BaseController } from './controllers/BaseController' 
 import { MembershipController } from './controllers/MembershipController' 
-import { EventsController } from './controllers/EventController' 
+import { EventController } from './controllers/EventController' 
 import { CarController } from './controllers/CarController' 
+import { PollController } from './controllers/PollController' 
 import validateJwt from './utils/validate-jwt'
 import mongoClient from './mongo-client' 
 require('dotenv').config()
@@ -41,11 +42,11 @@ async function listMongoCollections() {
 
 listMongoCollections()
 
-const eventsController = new EventsController()
+const eventsController = new EventController()
 const membershipsController = new MembershipController()
 const carsController = new CarController()
 const usersController = new BaseController('users')
-const pollsController = new BaseController('polls')
+const pollsController = new PollController()
 const classesController = new BaseController('classes')
 const imagesController = new BaseController('images')
 const racesController = new BaseController('races')
