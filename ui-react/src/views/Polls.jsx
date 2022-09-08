@@ -46,19 +46,20 @@ function Polls() {
   const [refresh, setRefresh] = useState(false)
   const [showCastVote, setShowCastVote] = useState(false)
   const [selectedOption, setSelectedOption] = useState('')
-  const handleClose = () => {
-    setShow(false)
-  }
-  const handleShow = () => {
-    setShow(true)
+  const [selectedPollId, setSelectedPollId] = useState('')
+  const [showResults, setShowResults] = useState(false)
+  const handleSetOption = (optionName) => setSelectedOption(optionName)
+  const handleClose = () => setShow(false)
+  const handleShow = () => setShow(true)
+  const handleCloseResults = () => setShowResults(false)
+  const handleShowResults = (e) => { 
+    setSelectedPollId(e.target.id.toString())
+    setShowResults(true) 
   }
   const handleCloseCastVote = () => { 
     setShowCastVote(false) 
     setSelectedOption('')
-  }
-  const handleSetOption = (optionName) => {
-    setSelectedOption(optionName) 
-  }
+  } 
 
   if (apiToken === '') {
     if (!isAuthenticated) {
@@ -135,10 +136,11 @@ function Polls() {
     }  
   }
 
-  async function castVote(){
+  async function castVote() {
     try {
       await pollModel.put(Id.toString(), {selectedOption})  
       if (pollModel.success) {
+        setRefresh(!refresh)
         handleCloseCastVote()
       } else {
         window.alert(pollModel.message)
@@ -174,7 +176,7 @@ function Polls() {
     }
   }
 
-  function editDoc(id){
+  function editDoc(id) {
     let poll = findDoc(id) 
     if (poll) {
       setTitle(poll.title)
@@ -188,7 +190,7 @@ function Polls() {
     }
   } 
 
-  function addDoc(){
+  function addDoc() {
     setEditing(false)
     setTitle('')
     setDescription('')
@@ -197,7 +199,7 @@ function Polls() {
     handleShow()
   } 
 
-  function saveDoc(){
+  function saveDoc() {
     if (editing) {
       putDoc(Id)
     } else {
@@ -205,7 +207,7 @@ function Polls() {
     }
   }
 
-  function headerText(){
+  function headerText() {
     if (editing) {
       return title
     } else {
@@ -229,7 +231,7 @@ function Polls() {
     setEndTimeCtrl(stringTime)  
   }
 
-  function modalForm(){
+  function modalForm() {
     return (  
       <Modal show={show} onHide={handleClose} >
         <Modal.Header closeButton>
@@ -268,7 +270,7 @@ function Polls() {
     )
   }
   
-  function modalCastVote(){
+  function modalCastVote() {
     let poll = findDoc(Id) 
     let title = ''
     if (poll && poll.hasOwnProperty('title')) {
@@ -310,6 +312,38 @@ function Polls() {
     )
   } 
 
+  function modalResults() {
+    const poll = findDoc(selectedPollId)
+    if (process.env.REACT_APP_SHOW_CONSOLE_LOGS) {
+      console.log(poll)
+    }
+    function calcResult(option) {
+      if (option.hasOwnProperty('user_ids')) {
+        return option.user_ids.length
+      } 
+      return 0
+    }
+    return <>
+      <Modal show={showResults} onHide={handleCloseResults}>
+        <Modal.Header closeButton>
+          <Modal.Title>{poll && poll.hasOwnProperty('title') && poll.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
+          {poll && 
+           poll.hasOwnProperty('options') && 
+           poll.options.length > 0 && poll.options.map((option, index) => (
+             <p key={option.name}>{option.name+': ' + calcResult(option)}</p>
+          ))}    
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="outline-secondary" onClick={handleCloseResults}>
+              Close
+            </Button>
+        </Modal.Footer>
+      </Modal> 
+    </>    
+  }
+
   async function handleShowCastVote(e) { 
     if (!isAuthenticated) {
       loginWithRedirect({ appState: { targetUrl: window.location.pathname } })
@@ -319,8 +353,19 @@ function Polls() {
     }  
   }
 
+  function voteCasted(poll) {
+    if (poll && poll.hasOwnProperty('options')){
+      for (var option of poll.options) {
+        if (option.hasOwnProperty('extIds') && option.extIds.indexOf(user.sub) >= 0) {
+          return true
+        }
+      }
+    } 
+    return false
+  }
+
   function voteButton(poll) {
-    if (dateUtils.stringToDate(poll.endDate) >= Date.now()) {
+    if (!voteCasted(poll) && dateUtils.stringToDate(poll.endDate) >= Date.now()) {
       return (
         <Button id={poll._id} style={{width: "100%"}} variant="outline-primary" onClick={handleShowCastVote}>
           Vote
@@ -332,8 +377,23 @@ function Polls() {
           Vote
         </Button>
       )
+      }
+  }
+
+  function resultsButton(poll) {
+    if (voteCasted(poll)) {
+      return (
+        <Button id={poll._id} style={{width: "100%", marginTop: '6px'}} variant="outline-primary" onClick={handleShowResults}>
+          Results
+        </Button>
+      )
+    } else {
+      return (
+        <Button id={poll._id} style={{width: "100%", marginTop: '6px'}} disabled variant="outline-secondary">
+          Results
+        </Button>
+      )
     }
-       
   }
 
   if (loading) {
@@ -346,6 +406,7 @@ function Polls() {
         {allowAddPolls && <PlusButton /> }
         </div>
         {modalForm()}
+        {modalResults()}
         {modalCastVote()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data && data.length > 0 && data.map((doc, index) => (
@@ -356,9 +417,7 @@ function Polls() {
                 <b>End Date:</b>
                 <Card.Text>{dateUtils.stringToWordDateTime(doc.endDate)}</Card.Text>
                 {voteButton(doc)}
-                <Button id={doc._id} variant='outline-primary' style={{marginTop: '6px', width: '100%'}}>
-                  Details
-                </Button>
+                {resultsButton(doc)}
                 {allowAddPolls && 
                   <div style={{float: 'right'}} >
                     <GearButton id={doc._id} handleClick={() => editDoc(doc._id)}/>

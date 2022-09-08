@@ -204,11 +204,22 @@ function EventDetail() {
       )
     }
     function intToPositionText(int) {
-      let positions = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th']
-      if (int >= 0 && int <= positions.length) {
-        return positions[int-1]
+      let position = ''
+      switch(int) {
+        case 1:
+          position = int+'st'
+          break;
+        case 2:
+          position = int+'nd'
+          break;
+        case 3:
+          position = int+'rd'
+          break;
+        default:
+          position = int+'th'
+          break;
       }
-      return ''
+      return position
     }
     function getNbsp(pos) {
       if (pos >= 10) return ( <> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </> )

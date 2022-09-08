@@ -8,7 +8,7 @@ export class RaceModel extends BaseModel {
   }
 
   async put(raceId, race) {
-    if (race.name) {
+    if (race.name === '') {
       this.message = 'Please give the race a name'
       return null
     } else {
@@ -23,6 +23,7 @@ export class RaceModel extends BaseModel {
     } else {
       let results = race.results
       results.sort((a, b) => parseFloat(a.position) - parseFloat(b.position))
+      console.log(results)
       race.results = results
       return await super.post(race)
     }

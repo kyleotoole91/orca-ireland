@@ -195,7 +195,9 @@ function Membership() {
       setApiToken(token) 
       userModel.setApiToken(token)
       membershipModel.setApiToken(token)
-      console.log(token)
+      if (process.env.REACT_APP_SHOW_TOKEN) {
+        console.log(token)
+      }
     } catch(e) {
       console.log(e)
       loginWithRedirect()

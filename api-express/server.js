@@ -4,7 +4,6 @@ import { EventController } from './controllers/EventController'
 import { CarController } from './controllers/CarController' 
 import { PollController } from './controllers/PollController' 
 import validateJwt from './utils/validate-jwt'
-import mongoClient from './mongo-client' 
 require('dotenv').config()
 const fs = require('fs')
 const express = require('express')
@@ -12,6 +11,8 @@ const https = require('https')
 const http = require('http')
 const app = express()
 const cors = require('cors')
+const httpPort = 8000
+const httpsPort = 8001
 
 const ssl = {key: fs.readFileSync('./SSL/privkey.pem', 'utf8'), 
              cert: fs.readFileSync('./SSL/fullchain.pem', 'utf8')}
@@ -28,7 +29,8 @@ app.get('/cors', (req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:3001');
   res.send({ "msg": "CORS enabled" })
 })
-
+/*
+import mongoClient from './mongo-client' 
 async function listMongoCollections() {
   await mongoClient.db(process.env.MONGO_DB_NAME)
                    .listCollections()
@@ -37,11 +39,11 @@ async function listMongoCollections() {
                      console.log('MongoDB Collections:')
                      for (var collection of collections) {
                        console.log(collection.name)
-                    }})
+                     }
+                   })
 }
-
 listMongoCollections()
-
+*/
 const eventsController = new EventController()
 const membershipsController = new MembershipController()
 const carsController = new CarController()
@@ -115,9 +117,7 @@ app.use(function (err, req, res) {
   }
 }) 
 
-http.createServer(app).listen(8000)
-https.createServer(ssl, app).listen(8001)
-
-//app.listen(8000, () => {
-//  console.log('ORCA REST API server listening on port 8000')
-//})
+console.log('NodeJS Express server for orcaireland.com')
+http.createServer(app).listen(httpPort)
+https.createServer(ssl, app).listen(httpsPort)
+console.log('Listening on port '+httpPort+' for HTTP and '+httpsPort+' for HTTPS')

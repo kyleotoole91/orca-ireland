@@ -12,8 +12,12 @@ export class MembershipController extends BaseController {
   }
 
   async extIdActiveMember(extId) {
-    let user = await this.UserDB.getDocumentByExtId(extId, false)
-    let membership = await this.db.getCurrentMembership()
+    const user = await this.UserDB.getDocumentByExtId(extId, false)
+    return this.userIsActiveMember(user)
+  }
+
+  async userIsActiveMember(user) {
+    const membership = await this.db.getCurrentMembership()
     if (user && membership[0] && membership[0].hasOwnProperty('user_ids')){
       return this.objectIdExists(membership[0].user_ids, user._id) 
     } else {
@@ -21,13 +25,9 @@ export class MembershipController extends BaseController {
     }
   }
 
-  async extIdCanVote(extId) {
-    let user = await this.UserDB.getDocumentByExtId(extId, false)
-    if (!user) {
-      return false
-    }
-    let memberType = this.memberTypesDb.getDocument(user.memberType._id)
-    let membership = await this.db.getCurrentMembership()
+  async userCanVote(user) {
+    const memberType = this.memberTypesDb.getDocument(user.memberType._id)
+    const membership = await this.db.getCurrentMembership()
     if (membership[0] && membership[0].hasOwnProperty('user_ids')){
       return this.objectIdExists(membership[0].user_ids, user._id) && memberType.hasOwnProperty('canVote') && memberType.canVote
     } else {
@@ -38,7 +38,7 @@ export class MembershipController extends BaseController {
   async getAllDocuments(req, res, next) {
     try {
       if (req.query.current === '1') {
-        let membership = await this.db.getCurrentMembership(this.permissions.check(this.getToken(req), 'get', 'users')) 
+        const membership = await this.db.getCurrentMembership(this.permissions.check(this.getToken(req), 'get', 'users')) 
         if (membership) {
           return res.status(200).send({
             success: true,
@@ -94,9 +94,9 @@ export class MembershipController extends BaseController {
   */
   async updateDocument(req, res) {
     try {
-      let user = await this.getUser(req, res, false)
-      let addingMember = Object.keys(req.body).length === 2 && req.body.hasOwnProperty('secret') && req.body.hasOwnProperty('extId')
-      let hasPermission = (addingMember && user && user.extId === req.body.extId) || this.permissions.check(this.getToken(req), 'put', this.collectionName)
+      const user = await this.getUser(req, res, false)
+      const addingMember = Object.keys(req.body).length === 2 && req.body.hasOwnProperty('secret') && req.body.hasOwnProperty('extId')
+      const hasPermission = (addingMember && user && user.extId === req.body.extId) || this.permissions.check(this.getToken(req), 'put', this.collectionName)
       if (!hasPermission) {
         return res.status(403).send({
           success: false,

@@ -40,7 +40,6 @@ export class PollModel extends BaseModel {
     try {
       if (this.isValid(poll)) {
         this.buildOptions(poll)
-        console.log(poll)
         await super.post(poll)
       }
     } finally {
