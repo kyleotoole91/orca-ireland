@@ -13,6 +13,7 @@ import { DateUtils } from '../utils/DateUtils'
 import { Permissions } from '../utils/permissions'
 import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
+import { PieChart } from 'react-minimal-pie-chart'
 
 const pollModel = new PollModel()
 const dateUtils = new DateUtils()
@@ -269,6 +270,68 @@ function Polls() {
       </Modal>   
     )
   }
+
+  function textResults(options) {
+    return <>
+      {options.length > 0 && options.map((option, index) => (
+        <p key={option.name}>{option.name+': ' + calcResult(option)}</p>
+      ))}  
+    </>
+  }
+
+  function pieChart(options) {
+    const chartData = []
+    let colorIdx = 0
+    let colorHexStr = ''
+    for (var option of options) {
+      colorIdx++ 
+      if (option.hasOwnProperty('user_ids')) {
+        switch(colorIdx) {
+          case 1:
+            colorHexStr = '#82E0AA' 
+            break;
+          case 2:
+            colorHexStr = '#F8C471' 
+            break;
+          case 3:
+            colorHexStr = '#AED6F1' 
+            break;
+          default:
+            colorHexStr = '#D2B4DE' 
+            break;
+          case 4:
+            colorHexStr = '#E6B0AA' 
+            break;
+          case 5:
+            colorHexStr = '##C0392B' 
+            break;
+          case 6:
+            colorHexStr = '#ABB2B9' 
+            break;
+          case 7:
+            colorHexStr = '#566573'
+            break;
+        }
+        chartData.push({
+          label: option.name,
+          value: option.user_ids.length, 
+          color: colorHexStr 
+        })  
+      }
+    }
+    return <PieChart data={chartData} label={({ dataEntry }) => dataEntry.label} />
+  }
+
+  function resultsData(options) {
+    return <>
+       <div>
+         {textResults(options)}
+       </div>
+       <div>
+        {pieChart(options)}
+      </div>
+    </>
+  }
   
   function modalCastVote() {
     let poll = findDoc(Id) 
@@ -312,16 +375,17 @@ function Polls() {
     )
   } 
 
+  function calcResult(option) {
+    if (option.hasOwnProperty('user_ids')) {
+      return option.user_ids.length
+    } 
+    return 0
+  }
+
   function modalResults() {
     const poll = findDoc(selectedPollId)
     if (process.env.REACT_APP_SHOW_CONSOLE_LOGS) {
       console.log(poll)
-    }
-    function calcResult(option) {
-      if (option.hasOwnProperty('user_ids')) {
-        return option.user_ids.length
-      } 
-      return 0
     }
     return <>
       <Modal show={showResults} onHide={handleCloseResults}>
@@ -331,9 +395,8 @@ function Polls() {
         <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
           {poll && 
            poll.hasOwnProperty('options') && 
-           poll.options.length > 0 && poll.options.map((option, index) => (
-             <p key={option.name}>{option.name+': ' + calcResult(option)}</p>
-          ))}    
+           poll.options.length > 0 && 
+           resultsData(poll.options) }    
         </Modal.Body>
         <Modal.Footer>
             <Button variant="outline-secondary" onClick={handleCloseResults}>
@@ -406,7 +469,7 @@ function Polls() {
         {allowAddPolls && <PlusButton /> }
         </div>
         {modalForm()}
-        {modalResults()}
+        {modalResults()}            
         {modalCastVote()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data && data.length > 0 && data.map((doc, index) => (
@@ -425,7 +488,7 @@ function Polls() {
               </Card.Body>
             </Card>
           ))}    
-        </div> 
+        </div>                                  
       </div>
     )
   }

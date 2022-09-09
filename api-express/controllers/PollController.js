@@ -13,23 +13,18 @@ export class PollController extends BaseController {
     this.memberTypesController = new BaseController('memberTypes')
     this.membershipController = new MembershipController()
   }
-
-  async hasMembership(user, msg){
-    const hasMembership = await this.membershipController.userIsActiveMember(user)
-    if (!hasMembership) {
-      return res.status(403).send({
-        success: false,
-        message: msg
-      }) 
-    }
-  } 
-
   //todo: protect adding polls by permissions found in token 
 
   async updateDocument(req, res) {
     try { 
       let user = await this.getUser(req, res, false)
-      this.hasMembership(user, noMemberShipMsg)
+      const hasMembership = await this.membershipController.userIsActiveMember(user)
+      if (!hasMembership) {
+        return res.status(403).send({
+          success: false,
+          message: 'You need an active membership for this feature'
+        }) 
+      }
       const userCastingVote = req.body.hasOwnProperty('selectedOption') 
       const hasPermission = userCastingVote || this.permissions.check(this.getToken(req), 'put', this.collectionName)
       if (!hasPermission) {
@@ -89,7 +84,13 @@ export class PollController extends BaseController {
       })    
     }
     const user = await this.getUser(req, res, false)
-    this.hasMembership(user, noMemberShipMsg)
+    const hasMembership = await this.membershipController.userIsActiveMember(user)
+    if (!hasMembership) {
+      return res.status(403).send({
+        success: false,
+        message: 'You need an active membership for this feature'
+      }) 
+    }
     if (!this.membershipController.userCanVote(user)) {
       return res.status(403).send({
         success: false,
