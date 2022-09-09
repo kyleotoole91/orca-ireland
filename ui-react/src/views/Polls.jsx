@@ -319,7 +319,7 @@ function Polls() {
         })  
       }
     }
-    return <PieChart data={chartData} label={({ dataEntry }) => dataEntry.label} />
+    return <PieChart data={chartData} animate label={({ dataEntry }) => dataEntry.label} />
   }
 
   function resultsData(options) {
