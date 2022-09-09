@@ -319,7 +319,7 @@ function Polls() {
         })  
       }
     }
-    return <PieChart data={chartData} animate label={({ dataEntry }) => dataEntry.label} />
+    return <PieChart data={chartData} animate animationDuration={750} labelStyle={{fontSize: '6px'}} label={({ dataEntry }) => dataEntry.label} />
   }
 
   function resultsData(options) {
@@ -359,7 +359,7 @@ function Polls() {
         <Modal.Header closeButton>
           <Modal.Title>{title}</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
+        <Modal.Body style={{ display: 'grid'}} >
           <p>Select one</p>
           {radioList()}
         </Modal.Body>
@@ -392,7 +392,7 @@ function Polls() {
         <Modal.Header closeButton>
           <Modal.Title>{poll && poll.hasOwnProperty('title') && poll.title}</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
+        <Modal.Body style={{ display: 'grid'}} >
           {poll && 
            poll.hasOwnProperty('options') && 
            poll.options.length > 0 && 
