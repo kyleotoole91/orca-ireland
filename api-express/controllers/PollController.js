@@ -1,6 +1,6 @@
 import { BaseController } from './BaseController.js'
 import { MembershipController } from './MembershipController.js'
-import { PollModel } from '../models/PopllModel.js'
+import { PollModel } from '../models/PollModel.js'
 
 const noMemberShipMsg='You must have an active membership in order to cast votes'
 
@@ -90,7 +90,9 @@ export class PollController extends BaseController {
         message: 'You need an active membership for this feature'
       }) 
     }
-    if (!this.membershipController.userCanVote(user)) {
+    console.log('can vote?')
+    let canVote = await this.membershipController.userCanVote(user)
+    if (!canVote) {
       return res.status(403).send({
         success: false,
         message: 'You are not eligable to cast votes'

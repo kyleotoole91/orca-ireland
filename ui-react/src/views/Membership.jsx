@@ -195,7 +195,7 @@ function Membership() {
       setApiToken(token) 
       userModel.setApiToken(token)
       membershipModel.setApiToken(token)
-      if (process.env.REACT_APP_SHOW_TOKEN) {
+      if (process.env.REACT_APP_SHOW_CONSOLE_LOGS===true) {
         console.log(token)
       }
     } catch(e) {
@@ -489,7 +489,7 @@ function Membership() {
               </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupUsername">
                 <Form.Label>Member Type</Form.Label>
-                <select className="form-select" value={memberTypeName} onChange={(e) => memberTypeChange(e)} >
+                <select className="form-select" disabled={activeMember} value={memberTypeName} onChange={(e) => memberTypeChange(e)} >
                   {memberTypes && memberTypes.length !== 0 && memberTypesDropDown()} 
                 </select>
               </Form.Group>

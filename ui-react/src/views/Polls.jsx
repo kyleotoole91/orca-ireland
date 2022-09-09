@@ -15,6 +15,8 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import { PieChart } from 'react-minimal-pie-chart'
 
+const cPieAnimationSpeedMs = 800
+const cMaxPieSegments = 7
 const pollModel = new PollModel()
 const dateUtils = new DateUtils()
 const cEndDateHours = 18
@@ -47,14 +49,14 @@ function Polls() {
   const [refresh, setRefresh] = useState(false)
   const [showCastVote, setShowCastVote] = useState(false)
   const [selectedOption, setSelectedOption] = useState('')
-  const [selectedPollId, setSelectedPollId] = useState('')
+  const [selectedPoll, setSelectedPoll] = useState({})
   const [showResults, setShowResults] = useState(false)
   const handleSetOption = (optionName) => setSelectedOption(optionName)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
   const handleCloseResults = () => setShowResults(false)
   const handleShowResults = (e) => { 
-    setSelectedPollId(e.target.id.toString())
+    setSelectedPoll(getDoc(e.target.id.toString()))
     setShowResults(true) 
   }
   const handleCloseCastVote = () => { 
@@ -119,6 +121,21 @@ function Polls() {
     } finally {
       handleClose()
     }
+  }
+
+  async function getDoc(id) {
+    try {
+      const poll = await pollModel.get(id)  
+      if (pollModel.success) {
+        setSelectedPoll(poll)
+      } else {
+        window.alert(pollModel.message)
+      }
+    } catch(e) {
+      window.alert(e)
+    } finally {
+      setLoading(false)
+    }  
   }
 
   async function postDoc() {
@@ -303,12 +320,12 @@ function Polls() {
             colorHexStr = '#E6B0AA' 
             break;
           case 5:
-            colorHexStr = '##C0392B' 
+            colorHexStr = '#C0392B' 
             break;
           case 6:
             colorHexStr = '#ABB2B9' 
             break;
-          case 7:
+          case cMaxPieSegments:
             colorHexStr = '#566573'
             break;
         }
@@ -319,7 +336,12 @@ function Polls() {
         })  
       }
     }
-    return <PieChart data={chartData} animate animationDuration={750} labelStyle={{fontSize: '6px'}} label={({ dataEntry }) => dataEntry.label} />
+    if (colorIdx <= cMaxPieSegments) {
+      return <PieChart data={chartData} animate animationDuration={cPieAnimationSpeedMs} labelStyle={{fontSize: '5px'}} label={({ dataEntry }) => dataEntry.label} />
+    } else {
+      return <></> 
+    }
+    
   }
 
   function resultsData(options) {
@@ -383,28 +405,29 @@ function Polls() {
   }
 
   function modalResults() {
-    const poll = findDoc(selectedPollId)
-    if (process.env.REACT_APP_SHOW_CONSOLE_LOGS) {
-      console.log(poll)
+    if (selectedPoll) {
+      if (process.env.REACT_APP_SHOW_CONSOLE_LOGS) {
+        console.log(selectedPoll)
+      }
+      return <>
+        <Modal show={showResults} onHide={handleCloseResults}>
+          <Modal.Header closeButton>
+            <Modal.Title>{selectedPoll && selectedPoll.hasOwnProperty('title') && selectedPoll.title}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body style={{ display: 'grid'}} >
+            {selectedPoll && 
+             selectedPoll.hasOwnProperty('options') && 
+             selectedPoll.options.length > 0 && 
+             resultsData(selectedPoll.options) }    
+          </Modal.Body>
+          <Modal.Footer>
+              <Button variant="outline-secondary" onClick={handleCloseResults}>
+                Close
+              </Button>
+          </Modal.Footer>
+        </Modal> 
+      </>    
     }
-    return <>
-      <Modal show={showResults} onHide={handleCloseResults}>
-        <Modal.Header closeButton>
-          <Modal.Title>{poll && poll.hasOwnProperty('title') && poll.title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ display: 'grid'}} >
-          {poll && 
-           poll.hasOwnProperty('options') && 
-           poll.options.length > 0 && 
-           resultsData(poll.options) }    
-        </Modal.Body>
-        <Modal.Footer>
-            <Button variant="outline-secondary" onClick={handleCloseResults}>
-              Close
-            </Button>
-        </Modal.Footer>
-      </Modal> 
-    </>    
   }
 
   async function handleShowCastVote(e) { 
