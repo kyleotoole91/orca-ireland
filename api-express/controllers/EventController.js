@@ -43,12 +43,13 @@ export class EventController extends BaseController {
   async getAllDocuments(req, res, next) {
     try {
       if (req.query.current === '1') {
-        let event = await this.db.getCurrentEvent()
-        if (event) {
+        let events = await this.db.getUpcomingEvents()
+        console.log(events)
+        if (events) {
           return res.status(200).send({
             success: true,
-            message: 'current event',
-            data: event
+            message: 'upcoming events',
+            data: events
           })    
         } else {
           return res.status(404).send({

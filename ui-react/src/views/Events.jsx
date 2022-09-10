@@ -458,7 +458,7 @@ function Events() {
                            </div> }
         <Accordion defaultActiveKey="0">
           <Accordion.Item eventKey="0">
-            <StyledAccordionHeader>Next Event</StyledAccordionHeader>
+            <StyledAccordionHeader>Upcoming Events</StyledAccordionHeader>
             <Accordion.Body>
               {getCurrentEventCard()} 
             </Accordion.Body>

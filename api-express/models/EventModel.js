@@ -1,6 +1,6 @@
 import { BaseModel } from './BaseModel'
 const ObjectId = require('mongodb').ObjectId
-
+const cUpcomingEventDays = 14
 export class EventModel extends BaseModel {
   
   constructor() {
@@ -53,6 +53,33 @@ export class EventModel extends BaseModel {
       const sort = {"date": 1}
       const where = {"date" : {"$gte": new Date()}, "deleted": {"$in": [null, false]}}
       this.result = await this.db.aggregate(joins).match(where).sort(sort).limit(1).toArray()
+      if(!this.result) { 
+        this.message = 'Not found: ' + id 
+      } else {
+        this.message = this.collectionName
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    }
+  }  
+
+  async getUpcomingEvents() {
+    try {
+      const maxDate = new Date()
+      maxDate.setDate(maxDate.getDate()+cUpcomingEventDays)
+      const joins = [{$lookup:{from: "cars", // join many cars onto events using event.car_ids
+                      localField: "car_ids",
+                      foreignField: "_id",
+                      as: "cars",
+                      pipeline: this.mongoPipeline 
+                    }}] 
+      const sort = {"date": 1}
+      const where = {"date" : {"$gt": new Date(), "$lt": maxDate}, "deleted": {"$in": [null, false]}}
+      this.result = await this.db.aggregate(joins).match(where).sort(sort).toArray()
       if(!this.result) { 
         this.message = 'Not found: ' + id 
       } else {
