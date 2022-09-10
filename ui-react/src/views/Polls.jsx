@@ -513,12 +513,10 @@ function Polls() {
   }
 
   function resultsButton(poll) {
-    let buttonText
+    let buttonText = 'Final Results'
     if (new Date(poll.endDate) >= new Date()) {
       buttonText = 'Current Results' 
-    } else {
-      buttonText = 'Final Results'
-    }
+    } 
     if (voteCasted(poll)) {
       return (
         <Button id={poll._id} style={{width: "100%", marginTop: '6px'}} variant="outline-primary" onClick={handleShowResults}>

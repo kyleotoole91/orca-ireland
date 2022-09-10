@@ -429,8 +429,8 @@ function Events() {
         <Modal.Header closeButton>
           <Modal.Title>Enter Event</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
-          <p>Select your car(s)</p>
+        <Modal.Body style={{ display: 'grid'}} >
+          <p>One car per class</p>
           {carCheckList()}
         </Modal.Body>
         <Modal.Footer>
@@ -473,7 +473,7 @@ function Events() {
       </div>
     )
   }
-};
+}
 
 const StyledAccordionHeader  = styled(Accordion.Header)`
   .accordion-button:focus {
