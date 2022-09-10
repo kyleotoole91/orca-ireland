@@ -15,7 +15,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import { PieChart } from 'react-minimal-pie-chart'
 
-const cPieAnimationSpeedMs = 800
+const cPieAnimationSpeedMs = 1000
 const cMaxPieSegments = 7
 const pollModel = new PollModel()
 const dateUtils = new DateUtils()
@@ -316,7 +316,7 @@ function Polls() {
     sortByTotalDesc(options)
     return <>
       {options.length > 0 && options.map((option, index) => (
-        <p key={option.name}>{option.name+': ' + calcResult(option)}</p>
+        <p style={{fontSize: '18px'}} key={option.name}>{option.name+': ' + calcResult(option)}</p>
       ))}  
     </>
   }
