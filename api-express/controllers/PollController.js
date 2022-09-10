@@ -76,7 +76,7 @@ export class PollController extends BaseController {
   }
 
   async addUsersVote(poll, req, res) {
-    if (poll.date < new Date()) {
+    if (poll.endDate < new Date()) {
       return res.status(403).send({
         success: false,
         message: 'Unable to cast vote. This poll is closed'
