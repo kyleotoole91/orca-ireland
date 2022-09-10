@@ -15,7 +15,7 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
 import { PieChart } from 'react-minimal-pie-chart'
 
-const cPieAnimationSpeedMs = 1000
+const cPieAnimationSpeedMs = 800
 const cMaxPieSegments = 7
 const pollModel = new PollModel()
 const dateUtils = new DateUtils()
