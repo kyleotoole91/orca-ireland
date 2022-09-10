@@ -5,8 +5,7 @@ export class PollModel extends BaseModel {
   constructor() {
     super()
     this.result = null
-    this.setCollectionName('polls')                 
-                                    
+    this.setCollectionName('polls')                                                 
   }
 
   async getAllDocuments() {

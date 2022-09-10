@@ -288,7 +288,32 @@ function Polls() {
     )
   }
 
+  function sortByTotalDesc(options) {
+    options.sort(function(a, b) {
+      if (!a.hasOwnProperty('total')) {
+        a.total = 0
+        if (a.hasOwnProperty('user_ids')) {
+          a.total = a.user_ids.length
+        }
+      }
+      if (!b.hasOwnProperty('total')) {
+        b.total = 0
+        if (b.hasOwnProperty('user_ids')) {
+          a.total = a.user_ids.length
+        }
+      }
+      if (a.total > b.total) { 
+        return -1
+      }
+      if (a.total < b.total) {
+        return 1
+      }
+      return 0
+    })
+  }
+  
   function textResults(options) {
+    sortByTotalDesc(options)
     return <>
       {options.length > 0 && options.map((option, index) => (
         <p key={option.name}>{option.name+': ' + calcResult(option)}</p>
@@ -305,13 +330,13 @@ function Polls() {
       if (option.hasOwnProperty('user_ids')) {
         switch(colorIdx) {
           case 1:
-            colorHexStr = '#82E0AA' 
+            colorHexStr = '#96CBFF' 
             break;
           case 2:
-            colorHexStr = '#F8C471' 
+            colorHexStr = '#82E0AA' 
             break;
           case 3:
-            colorHexStr = '#AED6F1' 
+            colorHexStr = '#F8C471' 
             break;
           default:
             colorHexStr = '#D2B4DE' 
@@ -326,7 +351,7 @@ function Polls() {
             colorHexStr = '#ABB2B9' 
             break;
           case cMaxPieSegments:
-            colorHexStr = '#566573'
+            colorHexStr = '##AED6F1'
             break;
         }
         chartData.push({

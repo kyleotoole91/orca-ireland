@@ -90,7 +90,6 @@ export class PollController extends BaseController {
         message: 'You need an active membership for this feature'
       }) 
     }
-    console.log('can vote?')
     let canVote = await this.membershipController.userCanVote(user)
     if (!canVote) {
       return res.status(403).send({
@@ -120,6 +119,7 @@ export class PollController extends BaseController {
           option.extIds = []
         }
         option.extIds.push(user.extId)
+        option.total = option.extIds.length
         break
       }
     } 
