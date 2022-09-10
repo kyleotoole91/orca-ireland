@@ -452,9 +452,6 @@ function Polls() {
 
   function modalResults() {
     if (selectedPoll) {
-      if (process.env.REACT_APP_SHOW_CONSOLE_LOGS) {
-        console.log(selectedPoll)
-      }
       return <>
         <Modal show={showResults} onHide={handleCloseResults}>
           <Modal.Header closeButton>

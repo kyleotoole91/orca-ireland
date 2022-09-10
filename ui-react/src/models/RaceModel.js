@@ -23,7 +23,6 @@ export class RaceModel extends BaseModel {
     } else {
       let results = race.results
       results.sort((a, b) => parseFloat(a.position) - parseFloat(b.position))
-      console.log(results)
       race.results = results
       return await super.post(race)
     }

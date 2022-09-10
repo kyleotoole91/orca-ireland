@@ -44,7 +44,6 @@ export class EventController extends BaseController {
     try {
       if (req.query.current === '1') {
         let events = await this.db.getUpcomingEvents()
-        console.log(events)
         if (events) {
           return res.status(200).send({
             success: true,
