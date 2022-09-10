@@ -522,17 +522,19 @@ function Polls() {
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data && data.length > 0 && data.map((doc, index) => (
             <Card style={{width: '240px', margin: '3px', zIndex: 0}} key={index}>
-              <Card.Header><b>{doc.title}</b></Card.Header>
+              <Card.Header>
+                <b>{doc.title}</b>
+                {allowAddPolls && 
+                  <div style={{float: 'right'}} >
+                    <GearButton id={doc._id} handleClick={() => editDoc(doc._id)}/>
+                  </div> }
+              </Card.Header>
               <Card.Body>
                 <Card.Text>{doc.hasOwnProperty('description') && doc.description}</Card.Text>
                 <b>End Date:</b>
                 <Card.Text>{dateUtils.stringToWordDateTime(doc.endDate)}</Card.Text>
                 {voteButton(doc)}
                 {resultsButton(doc)}
-                {allowAddPolls && 
-                  <div style={{float: 'right'}} >
-                    <GearButton id={doc._id} handleClick={() => editDoc(doc._id)}/>
-                  </div> }
               </Card.Body>
             </Card>
           ))}    

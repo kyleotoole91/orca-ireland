@@ -339,15 +339,17 @@ function Events() {
     return (
       events.map((event) => (
         <Card style={{minWidth: '225px', maxWidth: '225px', margin: '3px', zIndex: 0}} key={event._id}>
-          <Card.Header><b>{event.name}</b></Card.Header>
+          <Card.Header>
+             <b>{event.name}</b>
+             <div style={{marginBottom: `${margin}`, float: 'right'}} >
+              {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
+            </div>
+          </Card.Header>
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
             <Card.Text>Entry fee &euro;{event.fee}</Card.Text>
             <div style={{marginBottom: `${margin}`, float: 'left'}}>
               <Card.Text>{dateUtils.stringToWordDateTime(event.date)}</Card.Text>
-            </div>
-            <div style={{marginBottom: `${margin}`, float: 'right'}} >
-              {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
             </div>
             {currentEvent && 
               <Button onClick={handleShowRegistration} id={event._id}  style={{width: "100%"}} variant="outline-primary">

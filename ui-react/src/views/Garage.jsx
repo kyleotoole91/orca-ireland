@@ -282,7 +282,12 @@ function Garage() {
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data && data.length > 0 && data.map((car, index) => (
             <Card style={{width: '240px', margin: '3px', zIndex: 0}} key={index}>
-              <Card.Header><b>{car.manufacturer}</b></Card.Header>
+              <Card.Header>
+                <b>{car.manufacturer}</b>
+                <div style={{float: 'right'}} >
+                  <GearButton id={car._id} handleClick={() => editCar(car._id)}/>
+                </div>
+              </Card.Header>
               <Card.Body>
                 <Card.Title>{car.model}</Card.Title>
                 <Card.Text>Color: {car.hasOwnProperty('color') && car.color}</Card.Text>
@@ -290,9 +295,6 @@ function Garage() {
                 <Card.Text>Transponder ID: {car.transponder}</Card.Text>
                 <div style={{float: 'left'}}>
                   <Card.Text>Class: {getClassName(car.class_id)}</Card.Text>
-                </div>
-                <div style={{float: 'right'}} >
-                  <GearButton id={car._id} handleClick={() => editCar(car._id)}/>
                 </div>
               </Card.Body>
             </Card>
