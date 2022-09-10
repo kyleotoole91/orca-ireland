@@ -8,9 +8,22 @@ export const GearButton = ({id, handleClick = () => {}}) => {
   )
 }
 
+export const GearButtonNoMrg = ({id, handleClick = () => {}}) => {
+  return (
+    <GearBtnNoMrg onClick={() => handleClick(id)} />
+  )
+}
+
 const GearBtn = styled(BsFillGearFill)`
   margin-top: 6px;
   margin-left: 6px;
+  color: ${({ theme}) => theme.primaryLight};
+  &:hover {
+    color: ${({ theme}) => theme.hoverMenuItem};
+  }
+`
+
+const GearBtnNoMrg = styled(BsFillGearFill)`
   color: ${({ theme}) => theme.primaryLight};
   &:hover {
     color: ${({ theme}) => theme.hoverMenuItem};

@@ -6,7 +6,7 @@ import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Loading from '../components/Loading'
 import { PlusButton } from '../components/PlusButton'
-import { GearButton } from '../components/GearButton'
+import { GearButtonNoMrg } from '../components/GearButton'
 import { PollModel } from '../models/PollModel'
 import Header from '../components/Header'
 import { DateUtils } from '../utils/DateUtils'
@@ -289,7 +289,8 @@ function Polls() {
   }
 
   function sortByTotalDesc(options) {
-    options.sort(function(a, b) {
+    try {
+      options.sort(function(a, b) {
       if (!a.hasOwnProperty('total')) {
         a.total = 0
         if (a.hasOwnProperty('user_ids')) {
@@ -309,75 +310,95 @@ function Polls() {
         return 1
       }
       return 0
-    })
+      })
+    } catch (error) {
+      console.log(error)
+      return 0 
+    } 
   }
   
   function textResults(options) {
-    sortByTotalDesc(options)
-    return <>
-      {options.length > 0 && options.map((option, index) => (
-        <p style={{fontSize: '18px'}} key={option.name}>{option.name+': ' + calcResult(option)}</p>
-      ))}  
-    </>
+    try {
+      sortByTotalDesc(options)
+      return <>
+        {options.length > 0 && options.map((option, index) => (
+          <p style={{fontSize: '18px'}} key={option.name}>{option.name+': ' + calcResult(option)}</p>
+        ))}  
+      </>
+    } catch (error) {
+      console.log(error)
+      return <></>
+    } 
   }
 
   function pieChart(options) {
-    const chartData = []
-    let colorIdx = 0
-    let colorHexStr = ''
-    for (var option of options) {
-      colorIdx++ 
-      if (option.hasOwnProperty('user_ids')) {
-        switch(colorIdx) {
-          case 1:
-            colorHexStr = '#96CBFF' 
-            break;
-          case 2:
-            colorHexStr = '#82E0AA' 
-            break;
-          case 3:
-            colorHexStr = '#F8C471' 
-            break;
-          default:
-            colorHexStr = '#D2B4DE' 
-            break;
-          case 4:
-            colorHexStr = '#E6B0AA' 
-            break;
-          case 5:
-            colorHexStr = '#C0392B' 
-            break;
-          case 6:
-            colorHexStr = '#ABB2B9' 
-            break;
-          case cMaxPieSegments:
-            colorHexStr = '##AED6F1'
-            break;
+    try {
+      const chartData = []
+      let colorIdx = 0
+      let colorHexStr = ''
+      for (var option of options) {
+        colorIdx++ 
+        if (option.hasOwnProperty('user_ids')) {
+          switch(colorIdx) {
+            case 1:
+              colorHexStr = '#96CBFF' 
+              break;
+            case 2:
+              colorHexStr = '#82E0AA' 
+              break;
+            case 3:
+              colorHexStr = '#F8C471' 
+              break;
+            default:
+              colorHexStr = '#D2B4DE' 
+              break;
+            case 4:
+              colorHexStr = '#E6B0AA' 
+              break;
+            case 5:
+              colorHexStr = '#C0392B' 
+              break;
+            case 6:
+              colorHexStr = '#ABB2B9' 
+              break;
+            case cMaxPieSegments:
+              colorHexStr = '##AED6F1'
+              break;
+          }
+          if (!option.hasOwnProperty('user_ids')) {
+            option.user_ids = []
+          }
+          chartData.push({
+            label: option.name,
+            value: option.user_ids.length, 
+            color: colorHexStr 
+          })  
         }
-        chartData.push({
-          label: option.name,
-          value: option.user_ids.length, 
-          color: colorHexStr 
-        })  
       }
-    }
-    if (colorIdx <= cMaxPieSegments) {
-      return <PieChart data={chartData} animate animationDuration={cPieAnimationSpeedMs} labelStyle={{fontSize: '5px'}} label={({ dataEntry }) => dataEntry.label} />
-    } else {
+      if (colorIdx <= cMaxPieSegments) {
+        return <PieChart data={chartData} 
+                         animate 
+                         animationDuration={cPieAnimationSpeedMs} 
+                         labelStyle={{fontSize: '5px'}} 
+                         label={({ dataEntry }) => dataEntry.label} />
+      }
+    } catch(error) {
+      console.log(error)
       return <></> 
     }
-    
   }
 
   function resultsData(options) {
-    return <>
-       <div>
-         {textResults(options)}
-       </div>
-       <div>
-        {pieChart(options)}
-      </div>
-    </>
+    if (options) {
+      return <>
+        <div>
+          {textResults(options)}
+        </div>
+        <div>
+          {pieChart(options)}
+        </div>
+      </>  
+    } else return <></>
   }
   
   function modalCastVote() {
@@ -526,7 +547,7 @@ function Polls() {
                 <b>{doc.title}</b>
                 {allowAddPolls && 
                   <div style={{float: 'right'}} >
-                    <GearButton id={doc._id} handleClick={() => editDoc(doc._id)}/>
+                    <GearButtonNoMrg id={doc._id} handleClick={() => editDoc(doc._id)}/>
                   </div> }
               </Card.Header>
               <Card.Body>

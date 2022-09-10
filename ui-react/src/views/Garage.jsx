@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Loading from '../components/Loading'
 import { PlusButton } from '../components/PlusButton'
-import { GearButton } from '../components/GearButton'
+import { GearButtonNoMrg } from '../components/GearButton'
 import { CarModel } from '../models/CarModel'
 import { ClassModel } from '../models/ClassModel'
 import Header from '../components/Header'
@@ -285,7 +285,7 @@ function Garage() {
               <Card.Header>
                 <b>{car.manufacturer}</b>
                 <div style={{float: 'right'}} >
-                  <GearButton id={car._id} handleClick={() => editCar(car._id)}/>
+                  <GearButtonNoMrg id={car._id} handleClick={() => editCar(car._id)}/>
                 </div>
               </Card.Header>
               <Card.Body>
