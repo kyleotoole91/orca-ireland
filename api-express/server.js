@@ -13,7 +13,22 @@ const app = express()
 const cors = require('cors')
 const httpPort = 8000
 const httpsPort = 8001
-
+/*// linux droplet
+const ssl = {key: fs.readFileSync('/etc/letsencrypt/live/orcaireland.com/privkey.pem', 'utf8'), 
+             cert: fs.readFileSync('/etc/letsencrypt/live/orcaireland.com/fullchain.pem', 'utf8')}
+const corsOpts = {
+  origin: 'https://orcaireland.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Bearer']
+}
+app.use(express.urlencoded({extended: true})) 
+app.use(express.json())   
+app.use(cors(corsOpts))
+app.get('/cors', (req, res) => {
+  res.set('Access-Control-Allow-Origin', 'https://orcaireland.com');
+  res.send({ "msg": "This has CORS enabled" })
+})
+*/
 const ssl = {key: fs.readFileSync('./SSL/privkey.pem', 'utf8'), 
              cert: fs.readFileSync('./SSL/fullchain.pem', 'utf8')}
 const corsOpts = {
@@ -117,7 +132,7 @@ app.use(function (err, req, res) {
   }
 }) 
 
-console.log('NodeJS Express server for orcaireland.com')
 http.createServer(app).listen(httpPort)
 https.createServer(ssl, app).listen(httpsPort)
+console.log('NodeJS Express server for orcaireland.com')
 console.log('Listening on port '+httpPort+' for HTTP and '+httpsPort+' for HTTPS')

@@ -121,6 +121,9 @@ function Events() {
     } else {
       let event = await selectEvent(e.target.id.toString())
       if (event) {
+        setCar_ids(event.car_ids)
+        setSelectedEventId(e.target.id.toString())  
+        setSelectedEvent(event)
         setShowRegistration(true) 
       }
     }  
@@ -141,7 +144,6 @@ function Events() {
   }
 
   function addCar(id){
-    setCar_ids(car_ids)
     if (car_ids.indexOf(id) === -1) {
       car_ids.push(id)   
     } else {

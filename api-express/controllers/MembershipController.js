@@ -26,9 +26,14 @@ export class MembershipController extends BaseController {
   }
 
   async userCanVote(user) {
-    const memberType = await this.memberTypesDb.getDocument(user.memberType._id)
+    let memberType 
+    if (user.hasOwnProperty('memberType_id')) {
+      memberType = await this.memberTypesDb.getDocument(user.memberType_id)
+    } else if (user.hasOwnProperty('memberType') && user.memberType.hasOwnProperty('canVote')) {
+      memberType = await this.memberTypesDb.getDocument(user.memberType._id)
+    }
     const membership = await this.db.getCurrentMembership()
-    if (membership[0] && membership[0].hasOwnProperty('user_ids')){
+    if (memberType && membership[0] && membership[0].hasOwnProperty('user_ids')){
       let canVote = this.objectIdExists(membership[0].user_ids, user._id) && memberType.hasOwnProperty('canVote') && memberType.canVote
       return canVote
     } else {

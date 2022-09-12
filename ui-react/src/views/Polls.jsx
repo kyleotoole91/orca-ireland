@@ -379,7 +379,7 @@ function Polls() {
         return <PieChart data={chartData} 
                          animate 
                          animationDuration={cPieAnimationSpeedMs} 
-                         labelStyle={{fontSize: '5px'}} 
+                         labelStyle={{fontSize: '4px'}} 
                          label={({ dataEntry }) => dataEntry.label} />
       }
     } catch(error) {

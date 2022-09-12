@@ -99,7 +99,15 @@ function Membership() {
           if (memberTypesModel.success && memberTypesModel.responseData.length > 0) {
             setMemberTypes(memberTypesModel.responseData) 
             for (let i=0; i<=memberTypesModel.responseData.length; i++) {
-              if (memberTypesModel.responseData[i].default) {
+              if (userModel.success && 
+                  userModel.responseData.hasOwnProperty('memberType_id')) { 
+                if (userModel.responseData.memberType_id === memberTypesModel.responseData[i]._id) {
+                  setMemberTypeName(memberTypesModel.responseData[i].name)
+                  setMemberTypeID(memberTypesModel.responseData[i]._id)    
+                  console.log(userModel.responseData)
+                  break
+                }
+              } else if (memberTypesModel.responseData[i].default) {
                 setMemberTypeName(memberTypesModel.responseData[i].name)
                 setMemberTypeID(memberTypesModel.responseData[i]._id)
                 break
@@ -140,10 +148,6 @@ function Membership() {
             if (userModel.responseData.hasOwnProperty('ecPhone')) {
               setEcPhone(userModel.responseData.ecPhone)
             } 
-            if (userModel.responseData.hasOwnProperty('memberType')) {
-              setMemberTypeName(userModel.responseData.memberType.name)
-              setMemberTypeID(userModel.responseData.memberType._id)
-            }
           } else {
             if (user.hasOwnProperty('given_name')) {
               setFirstName(user.given_name) 
@@ -181,11 +185,13 @@ function Membership() {
   }
 
   function getMemberTypeById(id) {
-    for (let i=0; i<memberTypes.length; i++) {
-      if (memberTypes[i]._id === id) {
-        return memberTypes[i]
-      }
-    } 
+    if (memberTypes) {
+      for (let i=0; i<memberTypes.length; i++) {
+        if (memberTypes[i]._id === id) {
+          return memberTypes[i]
+        }
+      } 
+    }
     return null
   }
 
@@ -232,8 +238,9 @@ function Membership() {
   async function updateUserDetails() {
     try {
       const extId = user.sub
-      await userModel.put(user.sub, { firstName, lastName, phone, username, email, ecName, ecPhone,
-                                      'memberType': getMemberTypeById(memberTypeID), 'dateOfBirth': memberDOB, extId })  
+      await userModel.put(user.sub, { firstName, lastName, phone, username, email, ecName, ecPhone, extId,
+                                      'memberType_id': memberTypeID,
+                                      'dateOfBirth': memberDOB })  
       if (userModel.success) {
         setSaveButtonState(false)
       } else {

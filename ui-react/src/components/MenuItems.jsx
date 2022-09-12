@@ -40,8 +40,8 @@ const MenuItem = styled.div`
   padding-right: 10px;
   transition: all 0.3s ease-in;
   font-size: 18px;
-  font-family: ${({ theme}) => theme.menuFont};
-  @media (max-width: ${({ theme}) => theme.menuItemsMax}) {
+  font-family: ${({ theme }) => theme.menuFont};
+  @media (max-width: ${({ theme }) => theme.menuItemsMax}) {
     display: none;
   }
   &:hover {

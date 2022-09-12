@@ -11,11 +11,11 @@ function MenuBar () {
   const { width } = useWindowDimensions()
   return (
     <>
-      {width <= 700 &&
+      {width <= 800 &&
         <SideBar authenticated={isAuthenticated} />
       }
       <MenuBarContainer style={{zIndex: 3}} > 
-        {width <= 700 &&
+        {width <= 800 &&
           <BurgerContainer />
         }
         {width > 250 && 

@@ -22,7 +22,7 @@ function Profile ({ forceUsername }) {
   function profileButton(){
     return (
       <>
-        {(isAuthenticated || width > 1050) && 
+        {(isAuthenticated || width > 850) && 
           <ProfileImage alt="user profile image" src={profilePic} onClick={() => logout({ returnTo: window.location.origin })} href='./'></ProfileImage>
         }
         <Username> 
@@ -32,7 +32,7 @@ function Profile ({ forceUsername }) {
               {username}
             </button>
           }
-          {isAuthenticated && width > 1050 &&
+          {isAuthenticated && width > 850 &&
             <button className="btn btn-outline-primary btn-block btn-sm" onClick={() => logout({ returnTo: window.location.origin })} href='./'>
               Log Out  
             </button>
