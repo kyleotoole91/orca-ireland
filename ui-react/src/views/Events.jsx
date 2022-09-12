@@ -121,13 +121,18 @@ function Events() {
     } else {
       let event = await selectEvent(e.target.id.toString())
       if (event) {
-        setCar_ids(event.car_ids)
         setSelectedEventId(e.target.id.toString())  
         setSelectedEvent(event)
-        setShowRegistration(true) 
+        setShowRegistration(true)
+        if (event.hasOwnProperty('car_ids')) {
+                setCar_ids(event.car_ids)
+        } else {
+          setCar_ids([])
+        }
       }
     }  
   }
+
 
   async function selectEvent(eventId){
     await eventModel.get(eventId)
