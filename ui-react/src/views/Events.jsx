@@ -125,7 +125,7 @@ function Events() {
         setSelectedEvent(event)
         setShowRegistration(true)
         if (event.hasOwnProperty('car_ids')) {
-                setCar_ids(event.car_ids)
+          setCar_ids(event.car_ids)
         } else {
           setCar_ids([])
         }
