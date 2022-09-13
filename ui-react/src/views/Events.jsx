@@ -124,11 +124,7 @@ function Events() {
         setSelectedEventId(e.target.id.toString())  
         setSelectedEvent(event)
         setShowRegistration(true)
-        if (event.hasOwnProperty('car_ids')) {
-          setCar_ids(event.car_ids)
-        } else {
-          setCar_ids([])
-        }
+        setCar_ids([])
       }
     }  
   }

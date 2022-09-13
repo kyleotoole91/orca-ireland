@@ -104,7 +104,6 @@ function Membership() {
                 if (userModel.responseData.memberType_id === memberTypesModel.responseData[i]._id) {
                   setMemberTypeName(memberTypesModel.responseData[i].name)
                   setMemberTypeID(memberTypesModel.responseData[i]._id)    
-                  console.log(userModel.responseData)
                   break
                 }
               } else if (memberTypesModel.responseData[i].default) {
