@@ -18,6 +18,7 @@ import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 import { PlusButton } from '../components/PlusButton'
 import { GearButton } from '../components/GearButton'
+import { ClassModel } from '../models/ClassModel'
 
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
@@ -52,6 +53,7 @@ function Events() {
   const [loadingAllEvents, setLoadingAllEvents] = useState(false)
   const [allEventsExpanded, setAllEventsExpanded] = useState(false)
   const [editing, setEditing] = useState(false)
+  const [classes, setClasses] = useState([])
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
   const handleCloseRegistration = () => { 
@@ -62,46 +64,67 @@ function Events() {
   useEffect(() => {
     async function loadData () {
       setLoading(true)
-      try {
-        const eventModel = new EventModel(apiToken)
-        await eventModel.getCurrentEvent()
-        if (eventModel.success) {
-          if (eventModel.responseData.length > 0) {
-            setCurrentEvent(eventModel.responseData)
-            setSelectedEvent(eventModel.responseData[0])
-            setSelectedEventId(eventModel.responseData[0]._id)
-          }
-        } else {
-          window.alert(eventModel.message)
-        } 
-        if (apiToken !== '' && user) {
-          const carModel = new CarModel(apiToken)
-          const permissions = new Permissions()
-          setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
-          setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
-          if (user && user.hasOwnProperty('sub')) {
-            await carModel.getUserDocs(user.sub)
-            if (carModel.success) {
-              setCarData(carModel.responseData)
-            } 
+      if (apiToken !== '') {
+        try {
+          const classModel = new ClassModel(apiToken)
+          await classModel.get()
+          if (classModel.success) {
+            setClasses(classModel.responseData)
+          } else {
+            window.alert(classModel.message)
           } 
+          const eventModel = new EventModel(apiToken)
+          await eventModel.getCurrentEvent()
+          if (eventModel.success) {
+            if (eventModel.responseData.length > 0) {
+              setCurrentEvent(eventModel.responseData)
+              setSelectedEvent(eventModel.responseData[0])
+              setSelectedEventId(eventModel.responseData[0]._id)
+            }
+          } else {
+            window.alert(eventModel.message)
+          }     
+          if (apiToken !== '' && user) {
+            const carModel = new CarModel(apiToken)
+            const permissions = new Permissions()
+            setAllowAddEvents(permissions.check(apiToken, 'post', 'events'))
+            setAllowDelEvents(permissions.check(apiToken, 'delete', 'events'))
+            if (user && user.hasOwnProperty('sub')) {
+              await carModel.getUserDocs(user.sub)
+              if (carModel.success) {
+                setCarData(carModel.responseData)
+              } 
+            } 
+          }
+        } catch(e) {
+          window.alert(e)
+        } finally {
+          setAllEventsExpanded(false)
+          setLoading(false)
         }
-      } catch(e) {
-        window.alert(e)
-      } finally {
-        setAllEventsExpanded(false)
-        setLoading(false)
       }
-    }  
+    }
     loadData()
   }, [refresh, user, apiToken])
 
   if (apiToken === '') {
     if (isAuthenticated) {
-      getApiToken()
+      getApiToken()  
     }
   } else { 
     eventModel.setApiToken(apiToken)
+  }
+
+  function getClassName(id) {
+    let carClass
+    if (classes && classes.length !== 0) { 
+      carClass = classes.find(c => c._id === id)
+    } 
+    if (carClass) {
+      return carClass.name
+    } else {
+      return ''
+    } 
   }
 
   async function getApiToken() {
@@ -417,7 +440,7 @@ function Events() {
         return (
           <InputGroup key={car._id+index} className="mb-3">
             <InputGroup.Checkbox key={car._id} id={car._id} defaultChecked={carInEvent(car._id)} onChange={(e) => addCar(e.target.id)} aria-label="Checkbox for following text input" />
-            <FormControl key={car._id+'-FormControl'} onChange={(e) => addCar(e.target.id)} value={car.manufacturer+' - '+car.model } aria-label="Text input with checkbox" />
+            <FormControl key={car._id+'-FormControl'} onChange={(e) => addCar(e.target.id)} value={car.manufacturer+' - '+car.model +' - '+getClassName(car.class_id)} aria-label="Text input with checkbox" />
           </InputGroup>
         )
       }    
