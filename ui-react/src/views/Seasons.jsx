@@ -83,6 +83,7 @@ function Seasons() {
           const seasonModel = new SeasonModel(apiToken)
           await seasonModel.get()
           if (seasonModel.success) {
+            seasonModel.responseData.sort((a, b) => parseFloat(b.startDate) - parseFloat(a.startDate)) //sort desc by date
             setData(seasonModel.responseData)
           } else {
             window.alert(seasonModel.message)
