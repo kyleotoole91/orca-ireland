@@ -81,7 +81,7 @@ app.get('/seasons', validateJwt, (req, res) => seasonsController.getAllDocuments
 app.get('/seasons/:id', validateJwt, (req, res) => seasonsController.getDocument(req, res))
 app.get('/seasons/:id/results', validateJwt, (req, res) => seasonsController.getSeasonResults(req, res))
 app.post('/seasons', validateJwt, (req, res) => seasonsController.addDocument(req, res))
-app.put('/seasons/:id', validateJwt, (req, res) => seasonsController.updateEvent(req, res))
+app.put('/seasons/:id', validateJwt, (req, res) => seasonsController.updateDocument(req, res))
 app.delete('/seasons/:id', validateJwt, (req, res) => seasonsController.deleteDocument(req, res))
 //events 
 app.get('/events', (req, res) => eventsController.getAllDocuments(req, res))

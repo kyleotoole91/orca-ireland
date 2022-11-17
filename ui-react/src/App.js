@@ -8,6 +8,7 @@ import { MenuBar} from './components'
 import styled from 'styled-components'
 import Homepage from './views/Home'
 import Events from './views/Events'
+import Seasons from './views/Seasons'
 import EventDetail from './views/EventDetail'
 import Garage from './views/Garage'
 import Membership from './views/Membership'
@@ -48,6 +49,7 @@ function App() {
                 <Route path="/home" component={Homepage} />
                 <Route path="/events/:id" component={EventDetail} />
                 <Route path="/events" component={Events} />
+                <Route path="/seasons" component={Seasons} />
                 <Route path="/gallery" component={Gallery} />
                 <Route path="/garage" component={Garage} />
                 <Route path="/polls" component={Polls} /> 

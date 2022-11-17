@@ -132,7 +132,7 @@ export class BaseController {
     }
   }
 
-  async updateDocument(req, res, next){
+  async updateDocument(req, res, next) {
     try {
       if (this.permissions.check(this.getToken(req), 'put', this.collectionName)) {
         this.data = await this.db.updateDocument(req.params.id, req.body)
