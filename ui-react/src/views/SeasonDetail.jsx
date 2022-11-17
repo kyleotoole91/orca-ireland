@@ -83,9 +83,9 @@ function SeasonDetail() {
               <thead key={index+'-roster-head'}>
                 <tr key={index+'-roster-row'}>
                   <th>Name</th>
-                  <th>Event Count</th>
-                  <th>Total Points</th>
-                  <th>Best Of Points</th>
+                  <th>Rounds entered</th>
+                  <th>Total points</th>
+                  <th>Best {season.bestOf} rounds</th>
                 </tr>
               </thead>
               <tbody>
@@ -104,7 +104,8 @@ function SeasonDetail() {
   } else if (season) {
     return <>
       <Header props={{header: `${season.name}`, 
-                      subHeader: dayjs(season.sdate).format('DD/MM/YYYY'),
+                      subHeader: dayjs(season.startDate).format('DD/MM/YYYY') +' -> '+
+                                 dayjs(season.endDate).format('DD/MM/YYYY'),
                       subHeader3: `Best ${season.bestOf}/${season.eventCount} rounds`,
                     }} /> 
       <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
