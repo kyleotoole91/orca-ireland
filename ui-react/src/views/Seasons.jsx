@@ -181,7 +181,7 @@ function Seasons() {
       setEndDateCtrl(dateUtils.formatDate(new Date(season.endDate), 'yyyy-mm-dd'))
       setPointsOffset(season.pointsOffset)
       setBestOffset(season.bestOffset)
-      setMaxPoints(season.bestOffset)
+      setMaxPoints(season.maxPoints)
       setEditing(true)
       handleShow()
     } else {
