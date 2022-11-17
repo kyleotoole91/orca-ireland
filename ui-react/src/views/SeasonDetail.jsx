@@ -83,9 +83,9 @@ function SeasonDetail() {
               <thead key={index+'-roster-head'}>
                 <tr key={index+'-roster-row'}>
                   <th>Name</th>
-                  <th>Rounds entered</th>
-                  <th>Total points</th>
-                  <th>Best points</th>
+                  <th>Rounds Entered</th>
+                  <th>Total Points</th>
+                  <th>Best Points</th>
                 </tr>
               </thead>
               <tbody>
