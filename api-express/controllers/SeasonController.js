@@ -56,10 +56,10 @@ export class SeasonController extends BaseController {
                       result.points = this.calcPoints(result.position)
                       driver = map.get(result.user_id)
                       eventPoints = {}
-                      eventPoints.eventName = event.name
                       eventPoints.event_id = event._id
                       eventPoints.date = event.date
                       eventPoints.points = result.points
+                      eventPoints.eventName = event.name
                       if (driver) {
                         driver.eventCount++
                         driver.totalPoints = driver.totalPoints + eventPoints.points
@@ -70,10 +70,10 @@ export class SeasonController extends BaseController {
                         driver.totalPoints = eventPoints.points
                         driver.pointsArray = []         
                         driver.eventPoints = []
-                        map.set(result.user_id, driver)
                       }
                       driver.eventPoints.push(eventPoints)
                       driver.pointsArray.push(eventPoints.points)
+                      map.set(result.user_id, driver)
                     }
                   }
                 }
