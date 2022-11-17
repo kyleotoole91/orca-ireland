@@ -175,7 +175,6 @@ function Seasons() {
       setName(season.name)
       setStartDate(new Date(season.startDate))
       setEndDate(new Date(season.endDate))
-      console.log(season.startDate)
       setStartDateCtrl(dateUtils.formatDate(new Date(season.startDate), 'yyyy-mm-dd'))
       setEndDateCtrl(dateUtils.formatDate(new Date(season.endDate), 'yyyy-mm-dd'))
       setPointsOffset(season.pointsOffset)
@@ -274,7 +273,7 @@ function Seasons() {
       </Modal>   
     )
   }
-  
+
   function modalCastVote() {
     let Season = findDoc(Id) 
     let title = ''
