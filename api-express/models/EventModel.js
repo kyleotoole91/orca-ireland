@@ -107,7 +107,10 @@ export class EventModel extends BaseModel {
       const joins = [{$lookup:{from: "races", // join many cars onto events using event.car_ids
                       localField: "_id",
                       foreignField: "event_id",
-                      as: "races"
+                      as: "races",
+                      pipeline: [{"$match": { //"join" condition
+                                  "deleted": {"$in": [null, false]}
+                                }}]
                     }}] 
       const sort = {"date": 1}
       const where = {"date" : {"$gte": sDate, "$lt": eDate}, "deleted": {"$in": [null, false]}}
