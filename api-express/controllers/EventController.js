@@ -56,6 +56,13 @@ export class EventController extends BaseController {
             message: 'not found'
           })
         }
+      } else if (req.query.startDate && req.query.endDate) {
+        let events = await this.db.getByDateRange(req.query.startDate, req.query.endDate) 
+        return res.status(200).send({
+          success: true,
+          message: 'events by date range',
+          data: events
+        }) 
       } else {
         super.getAllDocuments(req, res, next)
       }

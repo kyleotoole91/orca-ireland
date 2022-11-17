@@ -2,6 +2,7 @@ import { BaseController } from './controllers/BaseController'
 import { MembershipController } from './controllers/MembershipController' 
 import { EventController } from './controllers/EventController' 
 import { CarController } from './controllers/CarController' 
+import { SeasonController } from './controllers/SeasonController' 
 import { PollController } from './controllers/PollController' 
 import validateJwt from './utils/validate-jwt'
 require('dotenv').config()
@@ -66,6 +67,7 @@ const usersController = new BaseController('users')
 const pollsController = new PollController()
 const classesController = new BaseController('classes')
 const imagesController = new BaseController('images')
+const seasonsController = new SeasonController('seasons')
 const racesController = new BaseController('races')
 const memberTypesController = new BaseController('memberTypes')
 //races
@@ -74,6 +76,13 @@ app.get('/races/:id', validateJwt, (req, res) => racesController.getDocument(req
 app.post('/races', validateJwt, (req, res) => racesController.addDocument(req, res))
 app.put('/races/:id', validateJwt, (req, res) => racesController.updateEvent(req, res))
 app.delete('/races/:id', validateJwt, (req, res) => racesController.deleteDocument(req, res))
+//seasons
+app.get('/seasons', validateJwt, (req, res) => seasonsController.getAllDocuments(req, res))
+app.get('/seasons/:id', validateJwt, (req, res) => seasonsController.getDocument(req, res))
+app.get('/seasons/:id/results', validateJwt, (req, res) => seasonsController.getSeasonResults(req, res))
+app.post('/seasons', validateJwt, (req, res) => seasonsController.addDocument(req, res))
+app.put('/seasons/:id', validateJwt, (req, res) => seasonsController.updateEvent(req, res))
+app.delete('/seasons/:id', validateJwt, (req, res) => seasonsController.deleteDocument(req, res))
 //events 
 app.get('/events', (req, res) => eventsController.getAllDocuments(req, res))
 app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(req, res))

@@ -1,6 +1,6 @@
 import { BaseModel } from './BaseModel'
 const ObjectId = require('mongodb').ObjectId
-const cUpcomingEventDays = 14
+const cUpcomingEventDays = 30
 export class EventModel extends BaseModel {
   
   constructor() {
@@ -26,6 +26,7 @@ export class EventModel extends BaseModel {
 
   async getAllDocuments() {
     try {
+      console.log('get all docs')
       const sort = {"date": -1}
       this.result = await this.db.find({"deleted": {"$in": [null, false]}}).sort(sort).toArray()
       if(!this.result) {
@@ -79,6 +80,37 @@ export class EventModel extends BaseModel {
                     }}] 
       const sort = {"date": 1}
       const where = {"date" : {"$gt": new Date(), "$lt": maxDate}, "deleted": {"$in": [null, false]}}
+      this.result = await this.db.aggregate(joins).match(where).sort(sort).toArray()
+      if(!this.result) { 
+        this.message = 'Not found: ' + id 
+      } else {
+        this.message = this.collectionName
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    }
+  }  
+
+  async getByDateRange(startDate, endDate) { //YYYY-MM-DD
+    try {
+      if (startDate && endDate) {
+        var sDateStr = startDate.split('-')
+        var sDate = new Date(sDateStr[0], sDateStr[1]-1, sDateStr[2])
+        var eDateStr = endDate.split("-")
+        var eDate = new Date(eDateStr[0], eDateStr[1]-1, eDateStr[2]) 
+        eDate.setDate(eDate.getDate() + 1)
+      }
+      const joins = [{$lookup:{from: "races", // join many cars onto events using event.car_ids
+                      localField: "_id",
+                      foreignField: "event_id",
+                      as: "races"
+                    }}] 
+      const sort = {"date": 1}
+      const where = {"date" : {"$gte": sDate, "$lt": eDate}, "deleted": {"$in": [null, false]}}
       this.result = await this.db.aggregate(joins).match(where).sort(sort).toArray()
       if(!this.result) { 
         this.message = 'Not found: ' + id 

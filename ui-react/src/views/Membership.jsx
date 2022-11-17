@@ -197,6 +197,7 @@ function Membership() {
   async function getApiToken() {
     try {
       const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+      console.log(token)
       setApiToken(token) 
       userModel.setApiToken(token)
       membershipModel.setApiToken(token)

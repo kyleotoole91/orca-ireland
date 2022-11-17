@@ -23,7 +23,6 @@ export class EventModel extends BaseModel{
       if (typeof event.fee === 'string') {
         event.fee = parseFloat(event.fee.replace('€', ''))
       }
-      this.setErrorMessage('Please fill in all fields')
       return await super.post(event)
     }
   }
