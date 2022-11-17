@@ -103,7 +103,10 @@ function SeasonDetail() {
     return <Loading /> 
   } else if (season) {
     return <>
-      <Header props={{header: `${season.name}`, subHeader: dayjs(season.date).format('DD/MM/YYYY')}} /> 
+      <Header props={{header: `${season.name}`, 
+                      subHeader: dayjs(season.sdate).format('DD/MM/YYYY'),
+                      subHeader3: `Best ${season.bestOf}/${season.eventCount} rounds`,
+                    }} /> 
       <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
       {season &&
        season.hasOwnProperty('classResults') && 
