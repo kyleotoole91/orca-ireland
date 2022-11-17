@@ -85,7 +85,7 @@ function SeasonDetail() {
                   <th>Name</th>
                   <th>Rounds entered</th>
                   <th>Total points</th>
-                  <th>Best {season.bestOf} rounds</th>
+                  <th>Best points</th>
                 </tr>
               </thead>
               <tbody>
