@@ -13,6 +13,7 @@ import { DateUtils } from '../utils/DateUtils'
 import { Permissions } from '../utils/permissions'
 import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
+import { useHistory } from 'react-router-dom'
 
 const seasonModel = new SeasonModel()
 const dateUtils = new DateUtils()
@@ -26,6 +27,7 @@ defaultTime.setMinutes(59)
 defaultTime.setSeconds(59)
 
 function Seasons() {
+  const history = useHistory()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [apiToken, setApiToken] = useState('')
   const [Id, setId] = useState('')
@@ -316,11 +318,19 @@ function Seasons() {
     )
   } 
 
-  function detailsButton(Season) {
+  function showSeasonDetails(id) {
+    if (!isAuthenticated) {
+      loginWithRedirect({ appState: { targetUrl: window.location.pathname+'/'+id } })
+    } else {
+      history.push('/seasons/'+id)
+    }
+  }
+
+  function detailsButton(season) {
     return (
-      <Button id={Season._id} style={{width: "100%", marginTop: '6px'}} variant="outline-primary">
-        Details
-      </Button>
+      <Button id={season._id} onClick={(e) => showSeasonDetails(e.target.id)} style={{marginTop: "6px", width: "100%"}} variant="outline-primary">
+        Driver Standings
+      </Button> 
     )
   }
 

@@ -117,7 +117,7 @@ export class SeasonController extends BaseController {
           this.season.events = events
           this.season = await this.calcDriverStandings()
           return res.status(200).send({
-            success: false,
+            success: true,
             message: 'Season results',
             data: this.season
           })

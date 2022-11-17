@@ -10,6 +10,7 @@ import Homepage from './views/Home'
 import Events from './views/Events'
 import Seasons from './views/Seasons'
 import EventDetail from './views/EventDetail'
+import SeasonDetail from './views/SeasonDetail'
 import Garage from './views/Garage'
 import Membership from './views/Membership'
 import Gallery from './views/Gallery'
@@ -49,6 +50,7 @@ function App() {
                 <Route path="/home" component={Homepage} />
                 <Route path="/events/:id" component={EventDetail} />
                 <Route path="/events" component={Events} />
+                <Route path="/seasons/:id" component={SeasonDetail} />
                 <Route path="/seasons" component={Seasons} />
                 <Route path="/gallery" component={Gallery} />
                 <Route path="/garage" component={Garage} />
