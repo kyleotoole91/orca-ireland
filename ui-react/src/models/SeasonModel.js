@@ -41,7 +41,6 @@ export class SeasonModel extends BaseModel {
   }
 
   async put(seasonId, season) {
-    console.log(season)
     let origEndpoint = this.endpoint
     try {
       if (seasonId === '') {
