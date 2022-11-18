@@ -23,6 +23,15 @@ export class SeasonController extends BaseController {
     return
   }
 
+  getCarManufacturer(carId) {
+    for (var car of this.cars) {
+      if (car._id.toString() === carId.toString()) {
+        return car.manufacturer.trim()
+      }
+    }
+    return
+  }
+
   calcPoints(position) {
     return (this.season.maxPoints - position) + 1
   }
@@ -70,6 +79,12 @@ export class SeasonController extends BaseController {
                         driver.totalPoints = eventPoints.points
                         driver.pointsArray = []         
                         driver.eventPoints = []
+                        driver.car_ids = []
+                        driver.manufacturers = []
+                      }
+                      if (driver.car_ids.indexOf(result.car_id.toString()) == -1) {
+                        driver.car_ids.push(result.car_id.toString())
+                        driver.manufacturers.push(this.getCarManufacturer(result.car_id))
                       }
                       driver.eventPoints.push(eventPoints)
                       driver.pointsArray.push(eventPoints.points)
