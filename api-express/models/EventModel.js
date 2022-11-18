@@ -26,7 +26,6 @@ export class EventModel extends BaseModel {
 
   async getAllDocuments() {
     try {
-      console.log('get all docs')
       const sort = {"date": -1}
       this.result = await this.db.find({"deleted": {"$in": [null, false]}}).sort(sort).toArray()
       if(!this.result) {
