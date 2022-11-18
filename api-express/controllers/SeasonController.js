@@ -36,6 +36,10 @@ export class SeasonController extends BaseController {
     return (this.season.maxPoints - position) + 1
   }
 
+  isClubRound(event) {
+    return !event.name.includes('National') && event.fee > 0 && (!event.hasOwnProperty('clubRound') || event.clubRound)
+  }
+
   async calcDriverStandings() {
     let classId = ''
     let map
@@ -56,7 +60,7 @@ export class SeasonController extends BaseController {
           this.cars = await this.carsDB.getAllDocuments()
           map = new Map()
           for (var event of this.season.events) {
-            if (event.races) {
+            if (event.races && this.isClubRound(event)) {
               for (var race of event.races) {
                 if (race.results) {
                   for (var result of race.results) {
