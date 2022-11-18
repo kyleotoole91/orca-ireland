@@ -61,6 +61,7 @@ function SeasonDetail() {
     function addTableRow(standing, index){
       return (
         <tr key={index+'-driversRow'}>
+          <td>{index+1}</td>
           <td>{standing.driverName}</td>
           <td>{standing.eventCount}</td>
           <td>{standing.manufacturers.toString()}</td>
@@ -83,6 +84,7 @@ function SeasonDetail() {
             <Table striped bordered hover size="sm" key={index+'-roster'}>
               <thead key={index+'-roster-head'}>
                 <tr key={index+'-roster-row'}>
+                  <th>Pos</th>
                   <th>Name</th>
                   <th>Rounds Entered</th>
                   <th>Cars Used</th>
