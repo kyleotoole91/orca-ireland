@@ -263,7 +263,7 @@ function Seasons() {
               <Form.Control value={pointsOffset} type="number" name="pointsOffset" onChange={(e) => setPointsOffset(e.target.value)} />
             </Form.Group>
             <Form.Group className="mb-3" controlId="formPointsOffset">
-              <Form.Label>Best Of Offset</Form.Label>
+              <Form.Label>Best Rounds Offset</Form.Label>
               <Form.Control value={bestOffset} type="number" name="pointsOffset" onChange={(e) => setBestOffset(e.target.value)} />
             </Form.Group> 
           </Form>
