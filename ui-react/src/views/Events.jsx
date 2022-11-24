@@ -64,25 +64,15 @@ function Events() {
   useEffect(() => {
     async function loadData () {
       setLoading(true)
-      if (apiToken !== '') {
-        try {
+      try {
+        const eventModel = new EventModel(apiToken) 
+        if (apiToken !== '') {  
           const classModel = new ClassModel(apiToken)
           await classModel.get()
           if (classModel.success) {
             setClasses(classModel.responseData)
           } else {
             window.alert(classModel.message)
-          } 
-          const eventModel = new EventModel(apiToken)
-          await eventModel.getCurrentEvent()
-          if (eventModel.success) {
-            if (eventModel.responseData.length > 0) {
-              setCurrentEvent(eventModel.responseData)
-              setSelectedEvent(eventModel.responseData[0])
-              setSelectedEventId(eventModel.responseData[0]._id)
-            }
-          } else {
-            window.alert(eventModel.message)
           }     
           if (apiToken !== '' && user) {
             const carModel = new CarModel(apiToken)
@@ -96,12 +86,22 @@ function Events() {
               } 
             } 
           }
-        } catch(e) {
-          window.alert(e)
-        } finally {
-          setAllEventsExpanded(false)
-          setLoading(false)
         }
+        await eventModel.getCurrentEvent()
+        if (eventModel.success) {
+          if (eventModel.responseData.length > 0) {
+            setCurrentEvent(eventModel.responseData)
+            setSelectedEvent(eventModel.responseData[0])
+            setSelectedEventId(eventModel.responseData[0]._id)
+          }
+        } else {
+          window.alert(eventModel.message)
+        } 
+      } catch(e) {
+        window.alert(e)
+      } finally {
+        setAllEventsExpanded(false)
+        setLoading(false)
       }
     }
     loadData()
@@ -418,7 +418,7 @@ function Events() {
             </label>
             <label style={{ margin: '3px' }} >
               Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "€" } />
+              <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "\u20AC" } />
             </label>
           </Modal.Body>
         <Modal.Footer>
