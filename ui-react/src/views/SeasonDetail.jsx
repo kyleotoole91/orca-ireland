@@ -87,7 +87,7 @@ function SeasonDetail() {
                   <th>Pos</th>
                   <th>Name</th>
                   <th>Rounds Entered</th>
-                  <th>Cars Used</th>
+                  <th>Manufacturer</th>
                   <th>Total Points</th>
                   <th>Best Points</th>
                 </tr>
