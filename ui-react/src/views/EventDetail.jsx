@@ -139,9 +139,10 @@ function EventDetail() {
         <tr key={index+'-racersRow'}>
           <td>{car.user.firstName+' '+car.user.lastName}</td>
           <td>{car.manufacturer}</td>
-          <td>{car.model} {allowAddRaces && <PencilSquare key={car._id+'-change-car'} id={car._id} handleClick={() => changeCar(car._id)} /> }</td>
+          <td>{car.model}</td>
           <td>{car.color}</td>
           <td>{car.transponder}</td>
+          {allowAddRaces && <td><PencilSquare key={car._id+'-change-car'} id={car._id} handleClick={() => changeCar(car._id)} /></td>}
         </tr>
       )
     }  
@@ -435,6 +436,7 @@ function EventDetail() {
                   <th>Model</th>
                   <th>Colour</th>
                   <th>Tpdr.</th>
+                  {allowAddRaces && <th style={{width: '18px'}}></th>}
                 </tr>
               </thead>
               <tbody>
