@@ -124,6 +124,8 @@ function EventDetail() {
     if (success) {
       carModel.urlParams = '?user_id='+carModel.responseData.user_id
       success = await carModel.get()  
+      console.log(carModel.responseData)
+      console.log(carId)
     }
     if (success) {
       setUserCars(carModel.responseData)
@@ -310,7 +312,7 @@ function EventDetail() {
     if (userCars) {
       for (var car of userCars) {
         if (car._id === carId) {
-          return car.manufacturer +' - '+ car.model +' - '+ getClassName(car.class_id)
+          return car.manufacturer.trim() +' - '+ car.model.trim() +' - '+ getClassName(car.class_id).trim()
         }
       }
     }
@@ -319,6 +321,7 @@ function EventDetail() {
   function handleCarChange(e) {
     const option = e.target.childNodes[e.target.selectedIndex]
     const id = option.getAttribute('id')
+    console.log(id)
     setCarId(id)
   }
 
