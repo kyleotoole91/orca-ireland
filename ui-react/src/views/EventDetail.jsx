@@ -352,7 +352,6 @@ function EventDetail() {
           <Modal.Title>Change car for {ownerName}</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ display: 'grid'} } >
-        Select Car
         {carsDropdown()}   
         </Modal.Body>
         <Modal.Footer>
