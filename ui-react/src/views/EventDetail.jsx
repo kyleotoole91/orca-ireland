@@ -123,9 +123,7 @@ function EventDetail() {
     success = await carModel.get(carId)
     if (success) {
       carModel.urlParams = '?user_id='+carModel.responseData.user_id
-      success = await carModel.get()  
-      console.log(carModel.responseData)
-      console.log(carId)
+      success = await carModel.get()
     }
     if (success) {
       setUserCars(carModel.responseData)
@@ -321,7 +319,6 @@ function EventDetail() {
   function handleCarChange(e) {
     const option = e.target.childNodes[e.target.selectedIndex]
     const id = option.getAttribute('id')
-    console.log(id)
     setCarId(id)
   }
 
