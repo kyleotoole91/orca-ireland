@@ -17,7 +17,7 @@ export class SeasonModel extends BaseModel {
             .then((response) => {
               this.setResponseData(response)
             }) 
-
+            
     } catch(e) {
       this.setErrorMessage(e)
     } finally {
