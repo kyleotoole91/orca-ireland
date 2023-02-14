@@ -343,11 +343,11 @@ function EventDetail() {
   }
 
   async function deleteUserCar() {
-    if (window.confirm(`Are you sure you want to remove this car? \n ${getUserCarName(carId)}`)) {
+    if (window.confirm(`Are you sure you want to remove this car? \n ${getUserCarName(oldCarId)}`)) {
       await eventModel.get(event._id) 
       let tmpEvent = eventModel.responseData
       if (eventModel.success) {
-        tmpEvent.car_ids.splice(tmpEvent.car_ids.indexOf(carId), 1)
+        tmpEvent.car_ids.splice(tmpEvent.car_ids.indexOf(oldCarId), 1)
         eventModel.put(event._id, tmpEvent)
         hideUserCarModal()
         setRefresh(!refresh)
