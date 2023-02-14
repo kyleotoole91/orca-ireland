@@ -120,6 +120,24 @@ export class BaseModel {
     }  
   }
 
+  async getDocumentsByUserId(userId) { 
+    try {
+      const userObjId = new ObjectId(userId) 
+      this.result = await this.db.find({ 'user_id': userObjId, "deleted": {"$in": [null, false]} }).toArray()
+      if (!this.result) {
+        this.message = 'Not found'
+      } else {
+        this.message = "User's "+this.collectionName
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    }  
+  }
+
   async getDocument(id) {
     try {
       const objId = new ObjectId(id)

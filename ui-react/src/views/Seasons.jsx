@@ -11,8 +11,6 @@ import { SeasonModel } from '../models/SeasonModel'
 import Header from '../components/Header'
 import { DateUtils } from '../utils/DateUtils'
 import { Permissions } from '../utils/permissions'
-import InputGroup from 'react-bootstrap/InputGroup'
-import FormControl from 'react-bootstrap/FormControl'
 import { useHistory } from 'react-router-dom'
 
 const seasonModel = new SeasonModel()
@@ -45,15 +43,8 @@ function Seasons() {
   const [show, setShow] = useState(false)
   const [editing, setEditing] = useState(false)
   const [refresh, setRefresh] = useState(false)
-  const [showCastVote, setShowCastVote] = useState(false)
-  const [selectedOption, setSelectedOption] = useState('')
-  const handleSetOption = (optionName) => setSelectedOption(optionName)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
-  const handleCloseCastVote = () => { 
-    setShowCastVote(false) 
-    setSelectedOption('')
-  } 
 
   if (apiToken === '') {
     if (!isAuthenticated) {
@@ -121,22 +112,6 @@ function Seasons() {
       if (seasonModel.success) {
         setRefresh(!refresh)
         handleClose()
-      } else {
-        window.alert(seasonModel.message)
-      }
-    } catch(e) {
-      window.alert(e)
-    } finally {
-      setLoading(false)
-    }  
-  }
-
-  async function castVote() {
-    try {
-      await seasonModel.put(Id.toString(), {selectedOption})  
-      if (seasonModel.success) {
-        setRefresh(!refresh)
-        handleCloseCastVote()
       } else {
         window.alert(seasonModel.message)
       }
@@ -277,48 +252,6 @@ function Seasons() {
     )
   }
 
-  function modalCastVote() {
-    let Season = findDoc(Id) 
-    let title = ''
-    if (Season && Season.hasOwnProperty('title')) {
-      title = Season.title
-    }
-    function radioList () {
-      function optionItem(option, index) {
-        return (
-          <InputGroup key={Season._id+index} className="mb-3">
-            <InputGroup.Radio key={option.name} id={option.name} onChange={() => handleSetOption(option.name)} checked={selectedOption===option.name} aria-label="Checkbox for following text input" />
-            <FormControl key={option.name+'-FormControl'} onChange={() => handleSetOption(option.name)}  value={option.name} aria-label="Text input with checkbox" />
-          </InputGroup>
-        )
-      }    
-      return (
-        <>
-          {Season && Season.hasOwnProperty('options') && Season.options.map((option, index) => optionItem(option, index) ) }
-        </>  
-      )
-    }
-    return ( 
-      <Modal show={showCastVote} onHide={handleCloseCastVote}>
-        <Modal.Header closeButton>
-          <Modal.Title>{title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ display: 'grid'}} >
-          <p>Select one</p>
-          {radioList()}
-        </Modal.Body>
-        <Modal.Footer>
-            <Button variant="outline-secondary" onClick={handleCloseCastVote}>
-              Close
-            </Button>
-            <Button variant="outline-primary" onClick={castVote}>
-              Save
-            </Button>
-        </Modal.Footer>
-      </Modal>   
-    )
-  } 
-
   function showSeasonDetails(id) {
     if (!isAuthenticated) {
       loginWithRedirect({ appState: { targetUrl: window.location.pathname+'/'+id } })
@@ -345,7 +278,6 @@ function Seasons() {
         {allowAddSeasons && <PlusButton /> }
         </div>
         {modalForm()}         
-        {modalCastVote()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data && data.length > 0 && data.map((doc, index) => (
             <Card style={{width: '240px', margin: '3px', zIndex: 0}} key={index}>

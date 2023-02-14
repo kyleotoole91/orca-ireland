@@ -154,6 +154,9 @@ export class EventController extends BaseController {
         }
         event = await this.db.updateDocument(req.params.id, {'car_ids': event.car_ids})  
       } else {
+        for (var a=0; a<req.body.car_ids.length-1; a++) {
+          req.body.car_ids[a] = new ObjectId(req.body.car_ids[a])
+        }
         event = await this.db.updateDocument(req.params.id, req.body)   
       }
       if (!event) {

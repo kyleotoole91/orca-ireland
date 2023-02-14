@@ -4,11 +4,11 @@ import styled from 'styled-components'
 
 export const TrashCan = ({id, handleClick = () => {}}) => {
   return (
-    <GearBtn onClick={() => handleClick(id)} />
+    <Icon onClick={() => handleClick(id)} />
   )
 }
 
-const GearBtn = styled(BsFillTrashFill)`
+const Icon = styled(BsFillTrashFill)`
   color: ${({ theme}) => theme.deleteColor};
   &:hover {
     color: ${({ theme}) => theme.deleteHover};

@@ -106,6 +106,7 @@ app.put('/memberships/:id', validateJwt, (req, res) => membershipsController.upd
 app.delete('/memberships/:id', validateJwt, (req, res) => membershipsController.deleteDocument(req, res))
 //cars
 app.get('/cars', validateJwt, (req, res) => carsController.getAllDocuments(req, res))
+app.get('/cars/:id', validateJwt, (req, res) => carsController.getDocument(req, res))
 app.get('/users/:userId/cars', validateJwt, (req, res) => carsController.getUserDocuments(req, res))
 app.get('/users/:userId/cars/:docId', validateJwt, (req, res) => carsController.getUserDocument(req, res))
 app.get('/cars/:userId', validateJwt, (req, res) => carsController.getDocument(req, res))

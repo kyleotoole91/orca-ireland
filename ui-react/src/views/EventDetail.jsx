@@ -3,9 +3,11 @@ import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react"
 import Loading from '../components/Loading'
 import Header from '../components/Header'
 import { EventModel } from '../models/EventModel'
+import { CarModel } from '../models/CarModel'
 import { ClassModel } from '../models/ClassModel'
 import { RaceModel } from '../models/RaceModel'
 import { useParams } from 'react-router-dom'
+//import Form from 'react-bootstrap/Form'
 import Table  from 'react-bootstrap/Table'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
@@ -13,9 +15,13 @@ import dayjs from 'dayjs'
 import { Permissions } from '../utils/permissions'
 import { PlusButton } from '../components/PlusButton'
 import { TrashCan } from '../components/TrashCan'
+import { PencilSquare } from '../components/PencilSquare'
 import { useHistory } from 'react-router-dom'
 
 const raceModel = new RaceModel() 
+const carModel = new CarModel()
+const eventModel = new EventModel()
+carModel.useExtId = false
 const max_per_race = 10
 let currentCar = {}
 
@@ -24,18 +30,24 @@ function EventDetail() {
   const history = useHistory()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
   const [apiToken, setApiToken] = useState('')
+  const [ownerName, setOwnerName] = useState('')
   const [event, setEvent] = useState()
   const [refresh, setRefresh] = useState()
   const [classes, setClasses] = useState()
   const [loading, setLoading] = useState()
+  const [userCars, setUserCars] = useState()
   const [allowAddRaces, setAllowAddRaces] = useState(false)
   const [allowDelRaces, setAllowDelRaces] = useState(false)
-  const [showRaceForm, setShowRaceForm] = useState(false)
   const [raceName, setRaceName] = useState('')
   const [classId, setClassId] = useState('')
+  const [carId, setCarId] = useState('')
+  const [oldCarId, setOldCarId] = useState('')
   const [resultsMap, setResultsMap] = useState(new Map())
+  const [showRaceForm, setShowRaceForm] = useState(false)
   const closeRaceForm = () => setShowRaceForm(false)
   const displayRaceForm = () => setShowRaceForm(true)
+  const [showChangeCarForm, setShowChangeCarForm] = useState(false) 
+  const hideUserCarModal = () => setShowChangeCarForm(false)
 
   useEffect(() => {
     async function loadData () {
@@ -77,6 +89,8 @@ function EventDetail() {
     }
   } else {
     raceModel.setApiToken(apiToken)
+    carModel.setApiToken(apiToken)
+    eventModel.setApiToken(apiToken)
   }
 
   function getClassName(id) {
@@ -101,13 +115,31 @@ function EventDetail() {
     }
   }
 
+  async function changeCar(carId) {
+    setCarId(carId)
+    setOldCarId(carId)
+    setOwnerName(carIdToUserName(carId))
+    let success = false
+    success = await carModel.get(carId)
+    if (success) {
+      carModel.urlParams = '?user_id='+carModel.responseData.user_id
+      success = await carModel.get()  
+    }
+    if (success) {
+      setUserCars(carModel.responseData)
+      setShowChangeCarForm(true)
+    } else {
+      window.alert(carModel.message)
+    }
+  }
+
   function addRacers(class_id) {
     function addTableRow(car, index){
       return (
         <tr key={index+'-racersRow'}>
           <td>{car.user.firstName+' '+car.user.lastName}</td>
           <td>{car.manufacturer}</td>
-          <td>{car.model}</td>
+          <td>{car.model} {allowAddRaces && <PencilSquare key={car._id+'-change-car'} id={car._id} handleClick={() => changeCar(car._id)} /> }</td>
           <td>{car.color}</td>
           <td>{car.transponder}</td>
         </tr>
@@ -116,6 +148,14 @@ function EventDetail() {
     return (event.cars.map((car, index) => ( 
       car.class_id===class_id && addTableRow(car, index) 
     ))) 
+  }
+
+  function carIdToUserName(carId) {
+    for (let car of event.cars) {
+      if (car._id === carId) {
+        return car.user.firstName  
+      } 
+    }
   }
 
   function classesWithEntries(classes) {
@@ -265,6 +305,63 @@ function EventDetail() {
     )
   }
 
+  function getUserCarName(carId) {
+    if (userCars) {
+      for (var car of userCars) {
+        if (car._id === carId) {
+          return car.manufacturer +' - '+ car.model +' - '+ getClassName(car.class_id)
+        }
+      }
+    }
+  }
+
+  function handleCarChange(e) {
+    const option = e.target.childNodes[e.target.selectedIndex]
+    const id = option.getAttribute('id')
+    setCarId(id)
+  }
+
+  async function putUserCarChange() {
+    let tmpEvent = await eventModel.get(event._id) 
+    if (eventModel.success && carId !== oldCarId) {
+      for (let i = 0; i < tmpEvent.car_ids.length; i++) {
+        if (tmpEvent.car_ids[i] === oldCarId) {
+          tmpEvent.car_ids[i] = carId
+          eventModel.put(event._id, tmpEvent)
+          hideUserCarModal()
+          setRefresh(!refresh)
+          return
+        }
+      }
+    }
+  }
+
+  function changeCarModal() {
+    function carsDropdown() {
+      return ( 
+        <select value={getUserCarName(carId)} id='cb-user-car' onChange={(e) => handleCarChange(e)} style={{width: '100%', height: '30px'}} > 
+          {userCars && userCars.map((car, index) => 
+            <option id={car._id} key={index} >{getUserCarName(car._id)}</option> ) }
+        </select>  
+      )
+    }
+    return (
+      <Modal show={showChangeCarForm} onHide={hideUserCarModal} >
+        <Modal.Header closeButton>
+          <Modal.Title>Change car for {ownerName}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ display: 'grid'} } >
+        Select Car
+        {carsDropdown()}   
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={hideUserCarModal}>Close</Button>
+          <Button variant="outline-primary" onClick={putUserCarChange}>Save </Button>
+        </Modal.Footer>
+      </Modal>   
+    )
+  }
+
   function getCar(id) {
     if (currentCar.hasOwnProperty('_id') && currentCar._id === id){
       return currentCar
@@ -364,6 +461,7 @@ function EventDetail() {
       <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
         {showRoster()}  
         {raceForm()}
+        {changeCarModal()}
       </div>
           </>
   } else return <h2>Not found</h2>
