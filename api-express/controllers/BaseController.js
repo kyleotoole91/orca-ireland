@@ -84,7 +84,7 @@ export class BaseController {
 
   async getDocument(req, res) {
     try {
-      this.data = await this.db.getDocument(req.params.id) 
+      this.data = await this.db.getDocument(req.params.id, req.query) 
       if (this.data) {
         return res.status(200).send({
           success: true,

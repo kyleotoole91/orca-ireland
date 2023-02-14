@@ -128,23 +128,27 @@ export class EventModel extends BaseModel {
     }
   }  
 
-  async getDocument(id) {
+  async getDocument(id, query) {
     try {
-      let joins = [{$lookup:{from: "cars", // join many cars onto events using event.car_ids
-                             localField: "car_ids",
-                             foreignField: "_id",
-                             as: "cars",
-                             pipeline: this.mongoPipeline}
-                   },
-                   {$lookup:{from: "races", // join many races
-                             localField: "_id",
-                             foreignField: "event_id",
-                             as: "races"}
-                   }
-                  ]
+      let joins = [] 
       const objId = new ObjectId(id)
       const where = {"_id" : objId, "deleted": {"$in": [null, false]}}
-      this.result = await await this.db.aggregate(joins).match(where).toArray()
+      let showDetail = query && query.hasOwnProperty('detail') && (query.detail == 1)
+      if (showDetail || this.loadDetail) {
+        joins = [{$lookup:{from: "cars", // join many cars onto events using event.car_ids
+                            localField: "car_ids",
+                            foreignField: "_id",
+                            as: "cars",
+                            pipeline: this.mongoPipeline}
+                  },
+                  {$lookup:{from: "races", // join many races
+                            localField: "_id",
+                            foreignField: "event_id",
+                            as: "races"}
+                  }
+                ]
+      }
+      this.result = await this.db.aggregate(joins).match(where).toArray()
       if(!this.result || this.result.length === 0) { 
         this.result = null
         this.message = 'Not found: ' + id 
@@ -181,5 +185,31 @@ export class EventModel extends BaseModel {
     } finally {
       return this.result  
     }
+  }
+
+  async updateDocument(id, document){
+    this.message = 'Updated'
+    try {
+      const objId = new ObjectId(id)
+      this.applyDataTypes(document)
+      if (document.hasOwnProperty('car_ids')) {
+        for (var a = 0; a < document.car_ids.length; a++) {
+          document.car_ids[a] = new ObjectId(document.car_ids[a])
+        }
+      }
+      this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set:  document })
+      if(!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
+        this.result = null
+        this.message = 'Error updating: ' + id
+      } else {
+        this.result = this.result.value
+      }
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    } 
   }
 }

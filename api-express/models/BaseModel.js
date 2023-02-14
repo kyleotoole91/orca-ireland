@@ -7,6 +7,7 @@ export class BaseModel {
   constructor(collectionName) {
     this.result = null
     this.db = null
+    this.loadDetail = false
     this.setCollectionName(collectionName)
   }
 

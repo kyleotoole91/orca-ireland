@@ -55,6 +55,7 @@ function EventDetail() {
       if (apiToken !== '') {
         try {
           const eventModel = new EventModel(apiToken)
+          eventModel.urlParams = '?detail=1'
           const classModel = new ClassModel(apiToken)
           const permissions = new Permissions()
           setAllowAddRaces(permissions.check(apiToken, 'post', 'races'))
@@ -323,8 +324,12 @@ function EventDetail() {
   }
 
   async function putUserCarChange() {
-    let tmpEvent = await eventModel.get(event._id) 
+    await eventModel.get(event._id) 
+    let tmpEvent = eventModel.responseData
     if (eventModel.success && carId !== oldCarId) {
+      if (tmpEvent.car_ids.indexOf(carId) >= 0) {
+        return window.alert('The selected car is already in this race')
+      }
       for (let i = 0; i < tmpEvent.car_ids.length; i++) {
         if (tmpEvent.car_ids[i] === oldCarId) {
           tmpEvent.car_ids[i] = carId
@@ -333,6 +338,20 @@ function EventDetail() {
           setRefresh(!refresh)
           return
         }
+      }
+    }
+  }
+
+  async function deleteUserCar() {
+    if (window.confirm(`Are you sure you want to remove this car? \n ${getUserCarName(carId)}`)) {
+      await eventModel.get(event._id) 
+      let tmpEvent = eventModel.responseData
+      if (eventModel.success) {
+        tmpEvent.car_ids.splice(tmpEvent.car_ids.indexOf(carId), 1)
+        eventModel.put(event._id, tmpEvent)
+        hideUserCarModal()
+        setRefresh(!refresh)
+        return
       }
     }
   }
@@ -355,6 +374,7 @@ function EventDetail() {
         {carsDropdown()}   
         </Modal.Body>
         <Modal.Footer>
+          <Button onClick={deleteUserCar} variant="outline-danger">Delete</Button>
           <Button variant="outline-secondary" onClick={hideUserCarModal}>Close</Button>
           <Button variant="outline-primary" onClick={putUserCarChange}>Save </Button>
         </Modal.Footer>

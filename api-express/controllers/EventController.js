@@ -80,7 +80,7 @@ export class EventController extends BaseController {
       if (car.user._id.toString() === user_id.toString()) {
         userCarIdx = this.indexOfObjectId(event.car_ids, car._id)
         if (userCarIdx >= 0) {
-          console.log(event.car_ids.splice(userCarIdx, 1))
+          event.car_ids.splice(userCarIdx, 1)
         }
       }
     } 
@@ -97,6 +97,7 @@ export class EventController extends BaseController {
           message: 'forbidden'
         })
       }
+      this.db.loadDetail = true
       let event = await this.db.getDocument(req.params.id) 
       if (!event) {
         return res.status(404).send({
@@ -144,7 +145,7 @@ export class EventController extends BaseController {
         } else {
           this.removeUsersCars(user._id, event)
         }
-
+        
         let objId
         for (var car_id of req.body.car_ids) {
           objId = new ObjectId(car_id) //add cars that don't already exist to the car_ids array
@@ -154,9 +155,6 @@ export class EventController extends BaseController {
         }
         event = await this.db.updateDocument(req.params.id, {'car_ids': event.car_ids})  
       } else {
-        for (var a=0; a<req.body.car_ids.length-1; a++) {
-          req.body.car_ids[a] = new ObjectId(req.body.car_ids[a])
-        }
         event = await this.db.updateDocument(req.params.id, req.body)   
       }
       if (!event) {
