@@ -11,6 +11,7 @@ import Header from '../components/Header'
 import { Permissions } from '../utils/permissions'
 import NumberFormat from 'react-number-format'
 import { EventModel } from '../models/EventModel'
+import { EventTypeModel } from '../models/EventTypeModel'
 import { CarModel } from '../models/CarModel'
 import { DateUtils } from '../utils/DateUtils'
 import Spinner from 'react-bootstrap/Spinner'
@@ -54,6 +55,8 @@ function Events() {
   const [allEventsExpanded, setAllEventsExpanded] = useState(false)
   const [editing, setEditing] = useState(false)
   const [classes, setClasses] = useState([])
+  const [eventTypes, setEventTypes] = useState([])
+  const [eventTypeId, setEventTypeId] = useState('')
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
   const handleCloseRegistration = () => { 
@@ -68,11 +71,19 @@ function Events() {
         const eventModel = new EventModel(apiToken) 
         if (apiToken !== '') {  
           const classModel = new ClassModel(apiToken)
+          const eventTypeModel = new EventTypeModel(apiToken)
           await classModel.get()
-          if (classModel.success) {
+          await eventTypeModel.get()
+          if (classModel.success && eventTypeModel.success) {
             setClasses(classModel.responseData)
+            setEventTypes(eventTypeModel.responseData)
+            for (var eventType of eventTypeModel.responseData) {
+              if (eventType.hasOwnProperty('default') && eventType.default) {
+                setEventTypeId(eventType._id)  
+              } 
+            }
           } else {
-            window.alert(classModel.message)
+            window.alert(classModel.message + eventTypeModel.message)
           }     
           if (apiToken !== '' && user) {
             const carModel = new CarModel(apiToken)
@@ -215,7 +226,7 @@ function Events() {
 
   async function postEvent() {
     let date = eventDate
-    await eventModel.post({name, location, date, fee})
+    await eventModel.post({name, location, date, fee, 'eventType_id': eventTypeId})
     if (eventModel.success) {
       setRefresh(!refresh)
       handleClose()
@@ -226,7 +237,7 @@ function Events() {
 
   async function putEvent() {
     let date = eventDate
-    await eventModel.put(selectedEventId, {name, location, date, fee})
+    await eventModel.put(selectedEventId, {name, location, date, fee, 'eventType_id': eventTypeId})
     if (eventModel.success) {
       setRefresh(!refresh)
       handleClose()
@@ -326,6 +337,7 @@ function Events() {
       if (selEvent) {
         setEditing(true)
         setName(selEvent.name)
+        setEventTypeId(selEvent.eventType_id)
         setLocation(selEvent.location)
         setEventDate(new Date(selEvent.date))
         setDate(dateUtils.formatDate(new Date(selEvent.date), 'yyyy-mm-dd')) 
@@ -397,6 +409,20 @@ function Events() {
       return 'Add event'
     }
   }
+
+  function handleEventTypeChange(e){
+    const option = e.target.childNodes[e.target.selectedIndex]
+    const id = option.getAttribute('id')
+    setEventTypeId(id)
+  }
+
+  function getEventTypeName(id) {
+    for (var eventType of eventTypes) {
+      if (eventType._id === id) {
+        return eventType.name
+      }
+    }
+  }
   
   function modalAddEventForm(){
     return ( 
@@ -406,11 +432,11 @@ function Events() {
         </Modal.Header>
           <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
             <label style={{ margin: '3px' }} >
-              Name: &nbsp;&nbsp;&nbsp;&nbsp; 
+              Name: &nbsp;&nbsp;&nbsp;&nbsp;
               <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
             </label>
             <label style={{ margin: '3px' }} >
-              Location: <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" id="eventLocation" name="event-location" />
+              Location:  <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" id="eventLocation" name="event-location" />
             </label>
             <label style={{ margin: '3px' }} >
               Date: &nbsp;&nbsp;&nbsp;&nbsp;
@@ -420,6 +446,13 @@ function Events() {
               Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "\u20AC" } />
             </label>
+            <label style={{ margin: '3px' }} >
+              Type: &nbsp;&nbsp;&nbsp;&nbsp;
+              <select value={getEventTypeName(eventTypeId)} id='cb-event-type' onChange={(e) => handleEventTypeChange(e)} > 
+                {eventTypes && eventTypes.map((eventType, index) => 
+                  <option id={eventType._id} key={index} >{eventType.name}</option> ) }
+              </select>
+            </label>  
           </Modal.Body>
         <Modal.Footer>
           {allowDelEvents && editing && <Button onClick={deleteEvent} variant="outline-danger">Delete</Button> }

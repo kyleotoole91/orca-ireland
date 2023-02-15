@@ -70,6 +70,7 @@ const imagesController = new BaseController('images')
 const seasonsController = new SeasonController('seasons')
 const racesController = new BaseController('races')
 const memberTypesController = new BaseController('memberTypes')
+const eventTypesController = new BaseController('eventTypes')
 //races
 app.get('/races', validateJwt, (req, res) => racesController.getAllDocuments(req, res))
 app.get('/races/:id', validateJwt, (req, res) => racesController.getDocument(req, res))
@@ -89,6 +90,12 @@ app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(r
 app.post('/events', validateJwt, (req, res) => eventsController.addDocument(req, res))
 app.put('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
 app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteDocument(req, res))
+//eventtypes
+app.get('/eventtypes', (req, res) => eventTypesController.getAllDocuments(req, res))
+app.get('/eventtypes/:id', validateJwt, (req, res) => eventTypesController.getDocument(req, res))
+app.post('/eventtypes', validateJwt, (req, res) => eventTypesController.addDocument(req, res))
+app.put('/eventtypes/:id', validateJwt, (req, res) => eventTypesController.updateEvent(req, res))
+app.delete('/eventtypes/:id', validateJwt, (req, res) => eventTypesController.deleteDocument(req, res))
 //images
 app.get('/images', (req, res) => imagesController.getAllDocuments(req, res))
 app.get('/images/:id', (req, res) => imagesController.getDocument(req, res))

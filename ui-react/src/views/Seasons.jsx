@@ -8,6 +8,7 @@ import Loading from '../components/Loading'
 import { PlusButton } from '../components/PlusButton'
 import { GearButtonNoMrg } from '../components/GearButton'
 import { SeasonModel } from '../models/SeasonModel'
+import { EventTypeModel } from '../models/EventTypeModel'
 import Header from '../components/Header'
 import { DateUtils } from '../utils/DateUtils'
 import { Permissions } from '../utils/permissions'
@@ -45,6 +46,8 @@ function Seasons() {
   const [refresh, setRefresh] = useState(false)
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
+  const [eventTypes, setEventTypes] = useState([])
+  const [eventTypeId, setEventTypeId] = useState('')
 
   if (apiToken === '') {
     if (!isAuthenticated) {
@@ -72,12 +75,15 @@ function Seasons() {
         setLoading(true)
         try {
           const seasonModel = new SeasonModel(apiToken)
+          const eventTypeModel = new EventTypeModel(apiToken)
           await seasonModel.get()
-          if (seasonModel.success) {
+          await eventTypeModel.get()
+          if (seasonModel.success && eventTypeModel.success) {
             seasonModel.responseData.sort((a, b) => parseFloat(b.startDate) - parseFloat(a.startDate)) //sort desc by date
             setData(seasonModel.responseData)
+            setEventTypes(eventTypeModel.responseData)
           } else {
-            window.alert(seasonModel.message)
+            window.alert(seasonModel.message + eventTypeModel.message)
           }
           const permissions = new Permissions()
           setAllowAddSeasons(permissions.check(apiToken, 'post', 'seasons'))
@@ -108,7 +114,7 @@ function Seasons() {
 
   async function postDoc() {
     try {
-      await seasonModel.post({name, startDate, endDate, maxPoints, pointsOffset, bestOffset})  
+      await seasonModel.post({name, startDate, endDate, maxPoints, pointsOffset, bestOffset, 'eventType_id': eventTypeId})  
       if (seasonModel.success) {
         setRefresh(!refresh)
         handleClose()
@@ -124,7 +130,7 @@ function Seasons() {
 
   async function putDoc(id) {
     try {
-      await seasonModel.put(id.toString(), {name, startDate, endDate, maxPoints, pointsOffset, bestOffset})  
+      await seasonModel.put(id.toString(), {name, startDate, endDate, maxPoints, pointsOffset, bestOffset, 'eventType_id': eventTypeId})  
       if (seasonModel.success) {
         setRefresh(!refresh)
         handleClose()
@@ -151,6 +157,7 @@ function Seasons() {
     if (season) {
       setId(id)
       setName(season.name)
+      setEventTypeId(season.eventType_id)
       setStartDate(new Date(season.startDate))
       setEndDate(new Date(season.endDate))
       setStartDateCtrl(dateUtils.formatDate(new Date(season.startDate), 'yyyy-mm-dd'))
@@ -209,6 +216,20 @@ function Seasons() {
     setStartDateCtrl(stringDate)  
   }
 
+  function getEventTypeName(id) {
+    for (var eventType of eventTypes) {
+      if (eventType._id === id) {
+        return eventType.name
+      }
+    }
+  }
+
+  function handleEventTypeChange(e) {
+    const option = e.target.childNodes[e.target.selectedIndex]
+    const id = option.getAttribute('id')
+    setEventTypeId(id)
+  }
+
   function modalForm() {
     return (  
       <Modal show={show} onHide={handleClose} >
@@ -241,6 +262,13 @@ function Seasons() {
               <Form.Label>Best Rounds Offset</Form.Label>
               <Form.Control value={bestOffset} type="number" name="pointsOffset" onChange={(e) => setBestOffset(e.target.value)} />
             </Form.Group> 
+            <Form.Group className="mb-3" controlId="formEventType">
+              <Form.Label>Event Type</Form.Label>
+              <Form.Select id='cb-event-type' onChange={(e) => handleEventTypeChange(e)} value={getEventTypeName(eventTypeId)}>
+                {eventTypes && eventTypes.map((eventType, index) => 
+                  <option id={eventType._id} key={index} >{eventType.name}</option> )}
+              </Form.Select>
+            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -251,7 +279,7 @@ function Seasons() {
       </Modal>   
     )
   }
-
+  
   function showSeasonDetails(id) {
     if (!isAuthenticated) {
       loginWithRedirect({ appState: { targetUrl: window.location.pathname+'/'+id } })

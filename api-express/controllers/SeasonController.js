@@ -10,6 +10,9 @@ export class SeasonController extends BaseController {
     this.eventDB = new EventModel()
     this.carsDB = new BaseModel('cars')
     this.classes = new BaseModel('classes')
+    this.eventTypeDB = new BaseModel('eventTypes')
+    this.eventTypeId = {}
+    this.defaultEventTypeId = {}
     this.cars = {}
     this.season = {}
   }
@@ -36,11 +39,15 @@ export class SeasonController extends BaseController {
     return (this.season.maxPoints - position) + 1
   }
 
-  isClubRound(event) {
-    return !event.name.includes('National') && event.fee > 0 && (!event.hasOwnProperty('clubRound') || event.clubRound)
+  includeEvent(event) {
+    if (event.hasOwnProperty('eventType_id')) {
+      return event.eventType_id.toString() === this.eventTypeId.toString()  
+    } else {
+      return this.defaultEventTypeId.toString() === this.eventTypeId.toString()
+    }
   }
 
-  async calcDriverStandings() {
+  async calcDriverStandings(eventTypeId) {
     let classId = ''
     let map
     let classResults = []
@@ -60,7 +67,7 @@ export class SeasonController extends BaseController {
           this.cars = await this.carsDB.getAllDocuments()
           map = new Map()
           for (var event of this.season.events) {
-            if (event.races && this.isClubRound(event)) {
+            if (event.races && this.includeEvent(event)) {
               for (var race of event.races) {
                 if (race.results) {
                   for (var result of race.results) {
@@ -124,6 +131,15 @@ export class SeasonController extends BaseController {
     return this.season
   }
 
+  async getDefaultEventTypeId() {
+    let eventTypes = await this.eventTypeDB.getAllDocuments()
+    for (var eventType of eventTypes) {
+      if (eventType.hasOwnProperty('default')) {
+        return eventType._id
+      }
+    }
+  }
+
   async getSeasonResults(req, res) {
     try {
       const seasonId = req.params.id
@@ -132,9 +148,15 @@ export class SeasonController extends BaseController {
         if (this.season) {
           const dbStartDate = this.season.startDate.toISOString().slice(0, 10)
           const dbEndDate = this.season.endDate.toISOString().slice(0, 10)
+          this.defaultEventTypeId = await this.getDefaultEventTypeId()
+          if (this.season.hasOwnProperty('eventType_id')) {
+            this.eventTypeId = this.season.eventType_id
+          } else {
+            this.eventTypeId = this.defaultEventTypeId 
+          }
           const events = await this.eventDB.getByDateRange(dbStartDate, dbEndDate)
           this.season.events = events
-          this.season = await this.calcDriverStandings()
+          this.season = await this.calcDriverStandings(this.eventTypeId)
           return res.status(200).send({
             success: true,
             message: 'Season results',
