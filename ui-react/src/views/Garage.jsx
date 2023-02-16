@@ -9,6 +9,7 @@ import { GearButtonNoMrg } from '../components/GearButton'
 import { CarModel } from '../models/CarModel'
 import { ClassModel } from '../models/ClassModel'
 import Header from '../components/Header'
+import Form from 'react-bootstrap/Form'
 
 const carModel = new CarModel()
 
@@ -212,43 +213,41 @@ function Garage() {
   }
 
   function modalForm(){
-    function classesDropDown() {
-      return ( 
-        <select value={getClassName(classId)} disabled={editing} id='cb-car-class' style={{width: '182px', height: '30px'}} onChange={(e) => handleClassChange(e)} >
-          {classes.map((carClass, index) => 
-            <option id={carClass._id} key={index} >{carClass.name}</option> ) }
-        </select>  
-      )
-    }
     return (  
       <Modal show={show} onHide={handleClose} >
         <Modal.Header closeButton>
           <Modal.Title>{headerText()}</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ display: 'grid', fontFamily: "monospace"} } >
-          <label style={{ margin: '3px' }} >
-            Manufacturer: &nbsp;&nbsp;
-            <input disabled={editing} value={manufacturer} onChange={(e) => setManufacturer(e.target.value)} type="text" id="eventName" name="event-name" />
-          </label>  
-          <label style={{ margin: '3px' }} >
-            Model: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input disabled={editing} value={model} onChange={(e) => setModel(e.target.value)} type="text" />
-          </label>   
-          <label style={{ margin: '3px' }} >
-            Colour:  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input value={color} onChange={(e) => setColor(e.target.value)} type="text" />
-          </label> 
-          <label style={{ margin: '3px' }} >
-            Frequency: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input value={freq} onChange={(e) => setFreq(e.target.value)} type="text" />
-          </label>        
-          <label style={{ margin: '3px' }} >
-            Transponder ID: <input value={transponder} onChange={(e) => setTransponder(e.target.value)} type="text" />
-          </label>  
-          <label style={{ margin: '3px' }} >
-            Class: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            {classes && classes.length !== 0 && classesDropDown()}  
-          </label>   
+        <Modal.Body style={{ display: 'grid' } } >
+          <Form>
+            <Form.Group className="mb-3" controlId="formName">
+              <Form.Label>Manufacturer</Form.Label>
+              <Form.Control value={manufacturer} disabled={editing} type="text" onChange={(e) => setManufacturer(e.target.value)}/>
+            </Form.Group> 
+            <Form.Group className="mb-3" controlId="formModel">
+              <Form.Label>Model</Form.Label>
+              <Form.Control disabled={editing} value={model} onChange={(e) => setModel(e.target.value)} type="text" />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formColor">
+              <Form.Label>Colour</Form.Label>
+              <Form.Control value={color} onChange={(e) => setColor(e.target.value)} type="text" />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formRadioFreq">
+              <Form.Label>Radio Frequency</Form.Label>
+              <Form.Control value={freq} onChange={(e) => setFreq(e.target.value)} type="text" />
+            </Form.Group> 
+            <Form.Group className="mb-3" controlId="formTransponderID">
+              <Form.Label>Transponder ID</Form.Label>
+              <Form.Control name="transponderID" value={transponder} onChange={(e) => setTransponder(e.target.value)} type="text" />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formClass">
+              <Form.Label>Class</Form.Label>
+              <Form.Select disabled={editing} onChange={(e) => handleClassChange(e)} value={getClassName(classId)}>
+                {classes && classes.map((carClass, index) => 
+                  <option id={carClass._id} key={index} >{carClass.name}</option> )}
+              </Form.Select>
+            </Form.Group>
+          </Form>        
         </Modal.Body>
         <Modal.Footer>
             {editing && <Button onClick={deleteCar} style={{marginLeft: "3px"}} variant="outline-danger">Delete</Button> }

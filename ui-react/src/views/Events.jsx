@@ -9,7 +9,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import Loading from '../components/Loading'
 import Header from '../components/Header'
 import { Permissions } from '../utils/permissions'
-import NumberFormat from 'react-number-format'
+import Form from 'react-bootstrap/Form'
 import { EventModel } from '../models/EventModel'
 import { EventTypeModel } from '../models/EventTypeModel'
 import { CarModel } from '../models/CarModel'
@@ -379,7 +379,7 @@ function Events() {
         <Card style={{minWidth: '225px', maxWidth: '225px', margin: '3px', zIndex: 0}} key={event._id}>
           <Card.Header>
              <b>{event.name}</b>
-             <div style={{marginBottom: `${margin}`, float: 'right'}} >
+             <div style={{float: 'right'}} >
               {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
             </div>
           </Card.Header>
@@ -430,29 +430,32 @@ function Events() {
         <Modal.Header closeButton>
         <Modal.Title>{headerText()}</Modal.Title>
         </Modal.Header>
-          <Modal.Body style={{ display: 'grid', fontFamily: "monospace"}} >
-            <label style={{ margin: '3px' }} >
-              Name: &nbsp;&nbsp;&nbsp;&nbsp;
-              <input value={name} onChange={(e) => setName(e.target.value)} type="text" id="eventName" name="event-name" />
-            </label>
-            <label style={{ margin: '3px' }} >
-              Location:  <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" id="eventLocation" name="event-location" />
-            </label>
-            <label style={{ margin: '3px' }} >
-              Date: &nbsp;&nbsp;&nbsp;&nbsp;
-              <input style={{minWidth: '182px'}} value={date} onChange={(e) => eventDateChange(e.target.value)} type="date" id="eventDate" name="event-date" min={defaultEventDateCtrl} />
-            </label>
-            <label style={{ margin: '3px' }} >
-              Fee: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } prefix={ "\u20AC" } />
-            </label>
-            <label style={{ margin: '3px' }} >
-              Type: &nbsp;&nbsp;&nbsp;&nbsp;
-              <select value={getEventTypeName(eventTypeId)} id='cb-event-type' onChange={(e) => handleEventTypeChange(e)} > 
+          <Modal.Body style={{ display: 'grid' }} >
+          <Form>
+            <Form.Group className="mb-3" controlId="formTitle">
+              <Form.Label>Name</Form.Label>
+              <Form.Control value={name} type="text" id="eventName" name="event-name" onChange={(e) => setName(e.target.value)}/>
+            </Form.Group> 
+            <Form.Group className="mb-3" controlId="formEndDate">
+              <Form.Label>Location</Form.Label>
+              <Form.Control value={location} type="text" id="eventLocation" name="event-location" onChange={(e) => setLocation(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formEndDate">
+              <Form.Label>Date</Form.Label>
+              <Form.Control type="date" value={date} onChange={(e) => eventDateChange(e.target.value)} id="eventDate" name="event-date" min={defaultEventDateCtrl}  />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formMaxPoints">
+              <Form.Label>Fee </Form.Label>
+              <Form.Control value={fee} type="number" name="event-fee" onChange={(e) => setFee(e.target.value)} />
+            </Form.Group> 
+            <Form.Group className="mb-3" controlId="formEventType">
+              <Form.Label>Event Type</Form.Label>
+              <Form.Select id='cb-event-type' onChange={(e) => handleEventTypeChange(e)} value={getEventTypeName(eventTypeId)}>
                 {eventTypes && eventTypes.map((eventType, index) => 
-                  <option id={eventType._id} key={index} >{eventType.name}</option> ) }
-              </select>
-            </label>  
+                  <option id={eventType._id} key={index} >{eventType.name}</option> )}
+              </Form.Select>
+            </Form.Group>
+          </Form> 
           </Modal.Body>
         <Modal.Footer>
           {allowDelEvents && editing && <Button onClick={deleteEvent} variant="outline-danger">Delete</Button> }
