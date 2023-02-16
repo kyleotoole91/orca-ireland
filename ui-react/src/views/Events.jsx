@@ -450,7 +450,7 @@ function Events() {
             </Form.Group> 
             <Form.Group className="mb-3" controlId="formEventType">
               <Form.Label>Event Type</Form.Label>
-              <Form.Select id='cb-event-type' onChange={(e) => handleEventTypeChange(e)} value={getEventTypeName(eventTypeId)}>
+              <Form.Select onChange={(e) => handleEventTypeChange(e)} value={getEventTypeName(eventTypeId)}>
                 {eventTypes && eventTypes.map((eventType, index) => 
                   <option id={eventType._id} key={index} >{eventType.name}</option> )}
               </Form.Select>
