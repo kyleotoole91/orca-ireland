@@ -62,9 +62,9 @@ function SeasonDetail() {
       return (
         <tr key={index+'-driversRow'}>
           <td>{index+1}</td>
-          <td>{standing.driverName}</td>
+          <td style={{textAlign: 'left'}}>{standing.driverName}</td>
           <td>{standing.eventCount}</td>
-          <td>{standing.manufacturers.toString()}</td>
+          <td style={{textAlign: 'left'}}>{standing.manufacturers.toString()}</td>
           <td>{standing.totalPoints}</td>
           <td>{standing.bestOfPoints}</td>
         </tr>
@@ -79,7 +79,7 @@ function SeasonDetail() {
   function showDriverStandings() {
     return (
       season.classResults.map((classResult, index) => (
-          <div key={index+'-div'}>
+          <div style={{ alignSelf: 'center'}} key={index+'-div'}>
             <h2 style={{fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={index+'-header-label'}>{classResult.className}</h2> 
             <Table striped bordered hover size="sm" key={index+'-roster'}>
               <thead key={index+'-roster-head'}>
@@ -112,7 +112,11 @@ function SeasonDetail() {
                                  dayjs(season.endDate).format('DD/MM/YYYY'),
                       subHeader3: `Best ${season.bestOf}/${season.eventCount} rounds`,
                     }} /> 
-      <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
+      {season.hasOwnProperty('bbkURL') && 
+        <div style={{ alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center', alignItems:'center', height: 'auto'}}>
+          <a href={season.bbkURL}>BBK Web Publish</a>
+        </div> }
+      <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
       {season &&
        season.hasOwnProperty('classResults') && 
        showDriverStandings()}
