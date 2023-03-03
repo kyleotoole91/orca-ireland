@@ -5,6 +5,7 @@ api-express/.env
 api-express/prod-backup
 ui-react/.env
 ui-react/.env.development
+ui-react/.eslintcache
 ui-react/.env.production
 ui-react/src/components/images
 ui-react/public/images
@@ -28,6 +29,10 @@ ui-react/src/components/images/saint-annes-track.png
 ui-react/src/components/images/saint-annes-track.png
 ui-react/src/components/images/saint-annes-track.png
 ui-react/public/videos/GP-race.mp4
+ui-react/public/bbk
 ui-react/.eslintcache
 api-express/api-express.code-workspace
 ui-react/.eslintcache
+ui-react/src/components/ProdBackup/TrashCan.jsx
+api-express/models/ProdBackup/BaseModel.js
+api-express/models/ProdBackup/EventModel.js
