@@ -13,6 +13,8 @@ export class SeasonController extends BaseController {
     this.carsDB = new BaseModel('cars')
     this.classes = new BaseModel('classes')
     this.eventTypeDB = new BaseModel('eventTypes')
+    this.bbkReportDB = new BaseModel('bbkReports')
+    this.bbkDataDB = new BaseModel('bbkData')
     this.eventTypeId = {}
     this.defaultEventTypeId = {}
     this.cars = {}
@@ -185,37 +187,38 @@ export class SeasonController extends BaseController {
       if (seasonId) {
         this.season = await this.db.getDocument(seasonId)
         if (this.season) {
-          const host = process.env.FRONT_END_URL
+          const host = process.env.FRONT_END_HOST
+          const bbkDir = process.env.BBK_ROOT_DIR
           let response = []
           let typePrefix
+          //example url
           //const response = await this.bbk.getBbkData('https://orcaireland.com/bbk/winter-2022-2023/mtg24/h1r12.htm', 1)
-          if (response && response.hasOwnProperty('error')) {
-            return this.notFoundError(res, response.error) 
-          } 
           if (this.season.hasOwnProperty('bbkMtgStart') && this.season.hasOwnProperty('bbkMtgEnd')) {
             for (var raceType=1; raceType<=2; raceType++) { 
-              if (raceType === 1) {
-                typePrefix = 'f' //finals
-              } else {
-                typePrefix = 'h' //heats
+              switch (raceType) {
+                case 1:
+                  typePrefix = 'f';
+                  break;
+                case 2:
+                  typePrefix = 'h';
               }
-              const maxRaces = 6
-              const maxGroups = 6
               for (var m=this.season.bbkMtgStart; m<=this.season.bbkMtgEnd; m++) {
-                let race = {}
-                let url = ''
-                for (var g=1; g<=maxGroups; g++) {
-                  for (var r=1; r<=maxRaces; r++){
-                    url = `${host}/bbk/${this.season.bbkSeasonDir}/mtg${m}/${typePrefix}${g}r${r}.htm`
-                    race = await this.bbk.getBbkData(url, 1)
+                let race
+                let url
+                for (var g=1; g <= process.env.MAX_RACES; g++) {
+                  for (var r=1; r <= process.env.MAX_GROUPS; r++){
+                    let url = `${host}${bbkDir}/${this.season.bbkSeasonDir}/mtg${m}/${typePrefix}${g}r${r}.htm`
+                    let race = await this.bbk.getBbkData(url, 1)
                     if (race) {
+                      console.log(url)
                       response.push(race)
                     } else { 
-                      break 
+                      console.log('fail: '+url)
+                      //break 
                     }
                   }  
                   if (!race && g > 1) {
-                    break  
+                    //break  
                   }
                 }
               }
