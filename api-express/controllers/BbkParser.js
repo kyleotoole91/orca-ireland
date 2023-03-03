@@ -8,6 +8,7 @@ export class BbkParser {
 
   constructor () {
     this.data = {}
+    this.url = ''
     this.bbkConfig = new BaseModel('bbkConfig')
     this.raceParams = {tableStartIdx: 17, gap: 2, footerLineCount: 0}
     this.lapTimeParams = {tableStartIdx: 14, gap: 1, footerLineCount: 1}
@@ -15,7 +16,8 @@ export class BbkParser {
 
   async getBbkData(url, type) {
     try {
-      let response = await htmlToJson.request(url, {
+      this.url = url
+      let response = await htmlToJson.request(this.url, {
         'text': function ($doc) {
           return $doc.find('body').text()
         }
@@ -48,7 +50,6 @@ export class BbkParser {
       } else if (type === cLapType) {
         this.data = this.toJsonCsv(response, this.lapTimeParams) 
       } 
-      this.data.bbkURL = url
       return this.data  
     } catch(e) {
       return {error: e.message}
@@ -181,6 +182,7 @@ export class BbkParser {
         tableHeaderEndIdx++  
       }
       if (fileStrings && fileStrings.length > 0) {
+        response.bbkURL = this.url
         response.round = fileStrings[titleIdx] 
         response.duration = fileStrings[timeIdx] 
         response.race = fileStrings[nameIdx] 
