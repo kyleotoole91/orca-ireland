@@ -10,6 +10,33 @@ export class BaseController {
     this.permissions = new Permissions()
   }
 
+  notFoundError(res, msg){
+    let err 
+    if (msg) {
+      err = msg
+    } else {
+      err = 'not found'
+    }
+    return res.status(404).send({
+      success: false,
+      message: err
+    })
+  }
+
+  respondOk(data, msg) {
+    let message 
+    if (msg) {
+      message = msg
+    } else {
+      message = 'success'
+    }
+    return res.status(200).send({
+      success: true,
+      message: message,
+      data: data,
+    })
+  }
+
   objectIdExists(array, targetVal) {
     for (const item of array){
       if (item.toString() === targetVal.toString()){
@@ -19,7 +46,7 @@ export class BaseController {
     return false
   }
 
-  indexOfObjectId(objIdList, targetObjId){
+  indexOfObjectId(objIdList, targetObjId) {
     for (let i = 0; i < objIdList.length; i++) {
       if (objIdList[i].toString() === targetObjId.toString()){
         return i

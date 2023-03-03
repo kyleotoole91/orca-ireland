@@ -1,12 +1,14 @@
 import { EventModel } from '../models/EventModel'
 import { BaseController } from './BaseController.js'
 import { BaseModel } from '../models/BaseModel'
+import { BbkParser } from './BbkParser'
 
 export class SeasonController extends BaseController { 
 
   constructor () {
     super()
     this.setCollectionName('seasons')
+    this.bbk = new BbkParser()
     this.eventDB = new EventModel()
     this.carsDB = new BaseModel('cars')
     this.classes = new BaseModel('classes')
@@ -47,7 +49,7 @@ export class SeasonController extends BaseController {
     }
   }
 
-  async calcDriverStandings(eventTypeId) {
+  async calcDriverStandings() {
     let classId = ''
     let map
     let classResults = []
@@ -167,6 +169,78 @@ export class SeasonController extends BaseController {
             success: false,
             message: 'not found'
           })  
+        }
+      }
+    } catch(e) {
+      return res.status(500).send({
+        success: false,
+        message: 'internal server error: '+e.message
+      }) 
+    }
+  }
+
+  async getSeasonBbkResults(req, res) {
+    try {
+      const seasonId = req.params.id
+      if (seasonId) {
+        this.season = await this.db.getDocument(seasonId)
+        if (this.season) {
+          //process.env.BBK_ROOT_DIR + '/' + this.season.bbkSeasonDir + '/' + process.env.BBK_ROOT_DIR
+          //TODO: using the props on the season, loop from low to high meeting number and call getBbkData() for each and add to array
+          //heats and races
+          //let response
+          const host = process.env.FRONT_END_URL
+          let response = []
+          //const response = await this.bbk.getBbkData('https://orcaireland.com/bbk/winter-2022-2023/mtg24/h1r12.htm', 1)
+          if (response && response.hasOwnProperty('error')) {
+            return this.notFoundError(res, response.error) 
+          } 
+          if (this.season.hasOwnProperty('bbkMtgStart') && this.season.hasOwnProperty('bbkMtgEnd')) {
+            for (var m=this.season.bbkMtgStart; m<=this.season.bbkMtgEnd; m++) {
+              const maxRaces = 6
+              const maxGroups = 6
+              let race = {}
+              let url = ''
+              for (var r=1; r<=maxRaces; r++) {
+                for (var g=1; g<=maxGroups; g++){
+                  url = `${host}/bbk/winter-2022-2023/mtg${m}/f${g}r${r}.htm`
+                  console.log(url)
+                  race = await this.bbk.getBbkData(url, 1)
+                  if (race) {
+                    response.push(race)
+                  } else {
+                    break
+                  }
+                }  
+                if (!race && g>1) {
+                  break
+                }
+              }
+              for (var r=1; r<=maxRaces; r++) {
+                for (var g=1; g<=maxGroups; g++){
+                  url = `${host}/bbk/winter-2022-2023/mtg${m}/h${g}r${r}.htm`
+                  console.log(url)
+                  race = await this.bbk.getBbkData(url, 1)
+                  if (race) {
+                    response.push(race)
+                  } else {
+                    break
+                  }
+                }  
+                if (!race && g>1) {
+                  break
+                }
+              }
+            }
+          }
+          //console.log(response)
+          return res.status(200).send({
+            success: true,
+            message: 'BBK Race Results',
+            data: response,
+          })
+        } else {
+          return this.notFoundError(res)  
         }
       }
     } catch(e) {

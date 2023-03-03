@@ -23,13 +23,13 @@ export class BbkParser {
         const shortUrl = data.text.substring(data.text.indexOf('/bbk'), data.text.length)
         const notfoundMsg = 'Cannot GET ' + shortUrl;
         if (data.text.trim() === notfoundMsg.trim()) {
-          return {error: `not found: ${shortUrl.substring(0, shortUrl.length-1)}`}
+          return null
         }
         return data 
       })
 
-      if (response.hasOwnProperty('error')) {
-        return response
+      if (!response) {
+        return null
       }
 
       if (type === cRaceType) {
@@ -111,11 +111,9 @@ export class BbkParser {
     let end = items[items.length-1]
     let firstChar = end[0]
     if (firstChar === 'f') { //final
-      console.log('final')
       end = end.slice(1)
       end = firstChar + 'laph' + end 
     } else { //heat
-      console.log('heat')
       end = 'hlap' + end 
     }
     items.pop()
