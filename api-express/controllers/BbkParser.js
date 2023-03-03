@@ -137,6 +137,9 @@ export class BbkParser {
     let resultTimes = []
     let row 
     let rows = []
+    let resultParts = []
+    let rowPart = ''
+    //let tmp = ''
     for (var csvLine of data.results) {
       row = {}
       row.pos = parseInt(csvLine[posIdx])
@@ -156,6 +159,11 @@ export class BbkParser {
       if (row.result.trim() !== 'DNS'){
         resultTimes = row.result.split('/')
       }
+      const line = csvLine[resultIdx]
+      row.lapCount = line.substring(0, line.indexOf('/'))
+      row.mins = line.substring(line.indexOf('/')+1, line.indexOf('m'))
+      row.secs = line.substring(line.indexOf('m')+1, line.indexOf('.'))
+      row.ms = line.substring(line.indexOf('.')+1, line.length-2)
       rows.push(row)
     } 
     rows.shift() //remove header
@@ -163,9 +171,9 @@ export class BbkParser {
     return data
   }
   
-  toJsonCsv(fileStr, {tableStartIdx, gap, footerLineCount}) {
+  toJsonCsv(fileStr, { tableStartIdx, gap, footerLineCount }) {
     try {
-      const endOfFileString='bbkRC 2011-1� 2000, 2011 bbk Software Ltd'
+      const endOfFileString = 'bbkRC 2011-1� 2000, 2011 bbk Software Ltd'
       const titleIdx = 3
       const nameIdx = 7
       const timeIdx = 14
