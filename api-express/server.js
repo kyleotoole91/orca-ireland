@@ -71,6 +71,7 @@ const seasonsController = new SeasonController('seasons')
 const racesController = new BaseController('races')
 const memberTypesController = new BaseController('memberTypes')
 const eventTypesController = new BaseController('eventTypes')
+const articlesController = new BaseController('articles')
 //races
 app.get('/races', validateJwt, (req, res) => racesController.getAllDocuments(req, res))
 app.get('/races/:id', validateJwt, (req, res) => racesController.getDocument(req, res))
@@ -81,6 +82,7 @@ app.delete('/races/:id', validateJwt, (req, res) => racesController.deleteDocume
 app.get('/seasons', validateJwt, (req, res) => seasonsController.getAllDocuments(req, res))
 app.get('/seasons/:id', validateJwt, (req, res) => seasonsController.getDocument(req, res))
 app.get('/seasons/:id/results', validateJwt, (req, res) => seasonsController.getSeasonResults(req, res))
+app.get('/seasons/:id/reports/bbk/results', validateJwt, (req, res) => seasonsController.getSeasonBbkResults(req, res))
 app.post('/seasons', validateJwt, (req, res) => seasonsController.addDocument(req, res))
 app.put('/seasons/:id', validateJwt, (req, res) => seasonsController.updateDocument(req, res))
 app.delete('/seasons/:id', validateJwt, (req, res) => seasonsController.deleteDocument(req, res))
@@ -136,6 +138,18 @@ app.get('/polls/:id', validateJwt, (req, res) => pollsController.getDocument(req
 app.post('/polls', validateJwt, (req, res) => pollsController.addDocument(req, res))
 app.put('/polls/:id', validateJwt, (req, res) => pollsController.updateDocument(req, res))
 app.delete('/polls/:id', validateJwt, (req, res) => pollsController.deleteDocument(req, res))
+//articles
+app.get('/articles', (req, res) => articlesController.getAllDocuments(req, res))
+app.get('/articles/:id', (req, res) => articlesController.getDocument(req, res))
+app.post('/articles', validateJwt, (req, res) => articlesController.addDocument(req, res))
+app.put('/articles/:id', validateJwt, (req, res) => articlesController.updateDocument(req, res))
+app.delete('/articles/:id', validateJwt, (req, res) => articlesController.deleteDocument(req, res))
+//articles
+app.get('/articles', (req, res) => articlesController.getAllDocuments(req, res))
+app.get('/articles/:id', (req, res) => articlesController.getDocument(req, res))
+app.post('/articles', validateJwt, (req, res) => articlesController.addDocument(req, res))
+app.put('/articles/:id', validateJwt, (req, res) => articlesController.updateDocument(req, res))
+app.delete('/articles/:id', validateJwt, (req, res) => articlesController.deleteDocument(req, res))
 
 app.use(function (req, res) {
   res.status(404).send({'success': false, 'message': 'not found'})
