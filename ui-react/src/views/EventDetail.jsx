@@ -38,7 +38,7 @@ function EventDetail() {
   const [userCars, setUserCars] = useState()
   const [allowAddRaces, setAllowAddRaces] = useState(false)
   const [allowDelRaces, setAllowDelRaces] = useState(false)
-  const [raceName, setRaceName] = useState('')
+  const [raceName, setRaceName] = useState('Final')
   const [classId, setClassId] = useState('')
   const [carId, setCarId] = useState('')
   const [oldCarId, setOldCarId] = useState('')

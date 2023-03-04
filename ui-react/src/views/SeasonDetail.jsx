@@ -103,6 +103,11 @@ function SeasonDetail() {
     )
   }
 
+  function bbkUrl(season) {
+    return process.env.REACT_APP_BBK_ROOT_DIR + '/' + season.bbkSeasonDir +'/' + process.env.REACT_APP_BBK_INDEX_HTML
+
+  }
+
   if (loading) {
     return <Loading /> 
   } else if (season) {
@@ -114,7 +119,7 @@ function SeasonDetail() {
                     }} /> 
       {season.hasOwnProperty('bbkURL') && 
         <div style={{ alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center', alignItems:'center', height: 'auto'}}>
-          <a href={season.bbkURL}>BBK Web Publish</a>
+          <a href={bbkUrl(season)}>BBK Web Publish</a>
         </div> }
       <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
       {season &&
