@@ -272,18 +272,11 @@ export class SeasonController extends BaseController {
       }
     }
 
-    console.log(racerData.name)
-    console.log(earlyTotalSecs)
-    console.log(lateTotalSecs)
-    console.log(earlyConsist)
-    console.log(lateConsist)
-
     earlyAvrgSecs = earlyTotalSecs / count
     lateAvrgSecs = lateTotalSecs / count
     avrgEarlyConsist = earlyConsist / count
     avrgLateConsist = lateConsist / count
 
-    console.log('')
     res.improvSec = lateAvrgSecs - earlyAvrgSecs 
     res.consistency = (avrgLateConsist - avrgEarlyConsist) + parseInt((earlyConsist + lateConsist) / 2) 
     return res 
@@ -294,7 +287,6 @@ export class SeasonController extends BaseController {
     let raceItem
     if (data && data.hasOwnProperty('races')) {
       for (var race of data.races) {
-        //console.log(race)
         if (race.hasOwnProperty('results')) {
           for (var result of race.results) {
             raceItem = classMap.get(race.class)  
