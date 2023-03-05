@@ -187,7 +187,6 @@ export class SeasonController extends BaseController {
     let raceItem
     if (data && data.hasOwnProperty('races')) {
       for (var race of data.races) {
-        //console.log(race)
         if (race.hasOwnProperty('results')) {
           for (var result of race.results) {
             nameItem = nameMap.get(result.name) 
@@ -218,25 +217,74 @@ export class SeasonController extends BaseController {
       })
 
       for (var item of res) {
-        item.performance = this.calcPerformance(item)
+        item.consistPct = this.calcConsistency(item)
+        item.improvSec = this.calcImprovSec(item)
       }
-
       return res
     }  
+  }
+
+  compareByConsistency(a, b) {
+    try {
+      if ( b.consistPct < a.consistPct ) {
+        return -1
+      }
+      if ( b.consistPct > a.consistPct) {
+        return 1
+      }
+    } catch(e) {
+      console.log(e)
+    }
+    return 0
+  }
+
+  compareByImprovSec(a, b) {
+    if ( a.improvSec < b.improvSec ) {
+      return -1
+    }
+    if ( a.improvSec > b.improvSec) {
+      return 1
+    }
+    return 0
   }
 
   compareByEventName(a, b) {
     if ( a.event < b.event ) {
       return -1
     }
-    if ( a.event > b.event ) {
+    if ( a.event > b.event) {
       return 1
     }
     return 0
   }
+
+  calcConsistency(racerData) {
+    let count = 0
+    let best = 0
+    let avrg = 0
+    let consist
+    let totalConsistPct = 0
+    for (var i = 0; i < racerData.races.length; i++) {
+      if (racerData.races[i].hasOwnProperty('avrgLap') && 
+          racerData.races[i].avrgLap && 
+          racerData.races[i].avrgLap > 0) {
+        best = racerData.races[i].bestLap
+        avrg = racerData.races[i].avrgLap
+        consist = (((avrg - best) / ((avrg + best) / 2)) * 100)
+        if (consist > 0) {
+          consist = parseFloat((100 - consist).toFixed(3))
+        } else {
+          consist =  parseFloat((100 + consist).toFixed(3))    
+        }
+        totalConsistPct = totalConsistPct + Math.abs(consist)
+        //console.log(`Avrg: ${avrg} Best: ${best} consistPct: ${consist}`) 
+        count++
+      }
+    }
+    return parseFloat((totalConsistPct / count).toFixed(3))    
+  }
   
-  calcPerformance(racerData) {
-    let res = {}
+  calcImprovSec(racerData) {
     const minRaces = 5
     const raceDivider = 2
     let earlyAvrgSecs = 0.0
@@ -244,12 +292,7 @@ export class SeasonController extends BaseController {
     let lateTotalSecs = 0.0
     let lateAvrgSecs = 0.0
     let numRaces = 0
-    let best = 0
-    let avrg = 0
-    let totalConsistPct = 0
-    let consistPct = 0
-    let avrgConsistPct = 0
-    let consist = 0
+    let improvSec = 0
 
     if (!racerData || !racerData.hasOwnProperty('races')) {
       return 
@@ -279,34 +322,13 @@ export class SeasonController extends BaseController {
     //console.log(racerData.name) 
     //console.log(earlyAvrgSecs) 
     //console.log(lateAvrgSecs) 
-
-    count = 0
-    for (var i = 0; i < racerData.races.length; i++) {
-      if (racerData.races[i].hasOwnProperty('avrgLap') && 
-          racerData.races[i].avrgLap && 
-          racerData.races[i].avrgLap > 0) {
-        best = racerData.races[i].bestLap
-        avrg = racerData.races[i].avrgLap
-        consist = (((avrg - best) / ((avrg + best) / 2)) * 100)
-        if (consist > 0) {
-          consist = parseFloat((100 - consist).toFixed(3))
-        } else {
-          consist =  parseFloat((100 + consist).toFixed(3))    
-        }
-        totalConsistPct = totalConsistPct + Math.abs(consist)
-        //console.log(`Avrg: ${avrg} Best: ${best} consistPct: ${consist}`) 
-        count++
-      }
-    }
-    avrgConsistPct = parseFloat((totalConsistPct / count).toFixed(3)) 
     //console.log(`avrgConsistPct: ${avrgConsistPct}`)
 
-    res.improvSec = parseFloat((lateAvrgSecs - earlyAvrgSecs).toFixed(3)) 
-    res.consistency = avrgConsistPct
-    return res 
+    improvSec = parseFloat((lateAvrgSecs - earlyAvrgSecs).toFixed(3)) 
+    return improvSec 
   }
   
-  calcBestLapsByClass(data) {
+  getBestLapsByClass(data) {
     let classMap = new Map()
     let raceItem
     if (data && data.hasOwnProperty('races')) {
@@ -316,7 +338,7 @@ export class SeasonController extends BaseController {
             raceItem = classMap.get(race.class)  
             if ((!raceItem) || 
                 ((raceItem.class === race.class) && 
-                 (raceItem.bestLap && raceItem.bestLap != 0) && 
+                 (result.bestLap && result.bestLap != 0) && 
                  (parseFloat(result.bestLap) < parseFloat(raceItem.bestLap)))) {
               raceItem = {}
               raceItem.bbkUrl = race.bbkUrl
@@ -324,7 +346,8 @@ export class SeasonController extends BaseController {
               raceItem.event = race.name
               raceItem.race = race.race
               raceItem.name = result.name
-              raceItem.bestLap = result.bestLap
+              raceItem.lapCount = result.lapCount
+              raceItem.bestLap = parseFloat(result.bestLap)
               classMap.set(race.class, raceItem)
             }
           }
@@ -338,7 +361,41 @@ export class SeasonController extends BaseController {
     }
   }
 
-  calcFastestLapOfSeason(data) {
+  getBestAvrgLapsByClass(data) {
+    let classMap = new Map()
+    let raceItem
+    if (data && data.hasOwnProperty('races')) {
+      for (var race of data.races) {
+        if (race.hasOwnProperty('results')) {
+          for (var result of race.results) {
+            raceItem = classMap.get(race.class)  
+            if ((!raceItem) || 
+                ((raceItem.class === race.class) && 
+                 (result.lapCount > 2) &&
+                 (result.avrgLap && result.avrgLap != 0) && 
+                 (parseFloat(result.avrgLap) < parseFloat(raceItem.avrgLap)))) {
+              raceItem = {}
+              raceItem.bbkUrl = race.bbkUrl
+              raceItem.class = race.class
+              raceItem.event = race.name
+              raceItem.race = race.race
+              raceItem.name = result.name
+              raceItem.lapCount = result.lapCount
+              raceItem.avrgLap = parseFloat(result.avrgLap)
+              classMap.set(race.class, raceItem)
+            }
+          }
+        }
+      }
+      let res = []
+      classMap.forEach(function (raceItem) {
+        res.push(raceItem)
+      })
+      return res
+    }
+  }
+
+  getFastestLapOfSeason(data) {
     let result = { name: '', secs: 10000.0 }
     let secs = 0.0
     if (data && data.hasOwnProperty('races')) {
@@ -363,6 +420,29 @@ export class SeasonController extends BaseController {
     return result
   }
 
+  getMostConsistent(racesByRacer) {
+    let res = {}
+    racesByRacer = racesByRacer.sort(this.compareByConsistency)
+    if (racesByRacer[0].hasOwnProperty('consistPct')) {
+      res.name = racesByRacer[0].name
+      res.consistPct = racesByRacer[0].consistPct
+      return res
+    }
+    return
+  }
+  
+  mostImproved(racesByRacer) {
+    let res = {}
+    racesByRacer = racesByRacer.sort(this.compareByImprovSec)
+    if (racesByRacer[0].hasOwnProperty('improvSec')) {
+      res.name = racesByRacer[0].name
+      res.improvSec = racesByRacer[0].improvSec
+      return res
+    }
+    return 
+  }
+
+
   async getSeasonBbkResults(req, res) {
     try {
       const seasonId = req.params.id
@@ -379,8 +459,11 @@ export class SeasonController extends BaseController {
           response.endDate =this. season.endDate
           response.bbkSeasonDir = this.season.bbkSeasonDir
           response.season_id = this.season._id
+          response.mostConsistent = {}
+          response.mostImproved = {}
           response.bestOverallLap = {}
           response.bestLapsByClass = []
+          response.bestAvrgLapsByClass = []
           response.racesByRacer = []
           response.races = []
           //const response = await this.bbk.getBbkData('https://orcaireland.com/bbk/winter-2022-2023/mtg24/h1r12.htm', 1)
@@ -406,9 +489,12 @@ export class SeasonController extends BaseController {
               }
             }
             response.raceCount = response.races.length
-            response.bestOverallLap = this.calcFastestLapOfSeason(response)
-            response.bestLapsByClass = this.calcBestLapsByClass(response)
+            response.bestOverallLap = this.getFastestLapOfSeason(response)
+            response.bestLapsByClass = this.getBestLapsByClass(response)
+            response.bestAvrgLapsByClass = this.getBestAvrgLapsByClass(response)
             response.racesByRacer = this.getRacesByRacer(response)
+            response.mostConsistent = this.getMostConsistent(response.racesByRacer)
+            response.mostImproved = this.mostImproved(response.racesByRacer)
           }
           if (response.length === 0) {
             return this.notFoundError(res)   
