@@ -183,44 +183,38 @@ export class BbkParser {
       csvLine = data.results[i]
       if (csvLine && csvLine !== '') {
         row = {}
-        row.pos = parseInt(csvLine[posIdx])
-        row.carNo = parseInt(csvLine[carNoIdx])
+        row.pos = parseInt(csvLine[posIdx].trim())
+        row.carNo = parseInt(csvLine[carNoIdx].trim())
         row.name = csvLine[nameIdx]
         row.result = csvLine[resultIdx]
         row.clubNo = parseInt(csvLine[clubNoIdx])
-
-        if (csvLine.length > 8) {
-          row.roofColor = csvLine[roofColorIdx]
-          row.carMake = csvLine[carMakeIdx2]
-          row.model = csvLine[carModelIdx]
-        } else {
-          row.carMake = csvLine[carMakeIdx]
-        }
-
-        if (row.result.trim() !== 'DNS') {
+        if (row.result !== '' && row.result.trim() !== 'DNS') {
+          if (csvLine.length > 8) {
+            row.roofColor = csvLine[roofColorIdx]
+            row.carMake = csvLine[carMakeIdx2]
+            row.model = csvLine[carModelIdx]
+          } else {
+            row.carMake = csvLine[carMakeIdx]
+          }
           const bestLapLine = csvLine[bestLapIdx].trim()
           const avrgLapLine = csvLine[avrgLapIdx].trim() 
           row.avrgLap = this.convertToSecs(avrgLapLine)
           row.bestLap = this.convertToSecs(bestLapLine)
           row.bestLapNo = parseInt(bestLapLine.substring(bestLapLine.indexOf('(') + 1, bestLapLine.indexOf(')')).trim())
-          
-          const line = csvLine[resultIdx]
-          
-
-          row.lapCount = parseInt(line.substring(0, line.indexOf('/')).trim())
-          row.mins = parseInt(line.substring(line.indexOf('/') + 1, line.indexOf('m')).trim())
-          row.secs = parseInt(line.substring(line.indexOf('m') + 1, line.indexOf('.')).trim())
-          row.ms = parseInt(line.substring(line.indexOf('.') + 1, line.length - 1).trim())
+          const result = csvLine[resultIdx]
+          row.lapCount = parseInt(result.substring(0, result.indexOf('/')).trim())
+          row.mins = parseInt(result.substring(result.indexOf('/') + 1, result.indexOf('m')).trim())
+          row.secs = parseInt(result.substring(result.indexOf('m') + 1, result.indexOf('.')).trim())
+          row.ms = parseInt(result.substring(result.indexOf('.') + 1, result.length - 1).trim())
           if (row.mins === 0) {
             row.totalSecs = parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim())
           } else {
             row.totalSecs = row.mins * 60 + parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim()) 
-          } 
+          }
+          rows.push(row)  
         }
-        rows.push(row)   
-      }
+      } 
     }
-    rows.shift() //remove header
     data.results = rows
     return data
   }
