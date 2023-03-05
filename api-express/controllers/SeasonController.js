@@ -2,6 +2,7 @@ import { EventModel } from '../models/EventModel'
 import { BaseController } from './BaseController.js'
 import { BaseModel } from '../models/BaseModel'
 import { BbkParser } from './BbkParser'
+import { parse } from 'dotenv'
 
 export class SeasonController extends BaseController { 
 
@@ -53,7 +54,6 @@ export class SeasonController extends BaseController {
 
   async calcDriverStandings() {
     let classId = ''
-    let map
     let classResults = []
     let classResult = {}
     let driver
@@ -69,7 +69,7 @@ export class SeasonController extends BaseController {
         this.season.eventCount = this.season.events.length
         if (this.season.events) {
           this.cars = await this.carsDB.getAllDocuments()
-          map = new Map()
+          let map = new Map()
           for (var event of this.season.events) {
             if (event.races && this.includeEvent(event)) {
               for (var race of event.races) {
@@ -181,9 +181,145 @@ export class SeasonController extends BaseController {
     }
   }
 
+  getLapsByRace(data) {
+    let nameMap = new Map()
+    let nameItem
+    let raceItem
+    if (data && data.hasOwnProperty('races')) {
+      for (var race of data.races) {
+        //console.log(race)
+        if (race.hasOwnProperty('results')) {
+          for (var result of race.results) {
+            nameItem = nameMap.get(result.name) 
+            if (result.name && 
+                result.name.trim() !== '' && 
+                result.avrgLap && 
+                result. bestLap) {
+              if (!nameItem) {
+                nameItem = {}
+                nameItem.name = result.name
+                nameItem.races = []
+              }
+              raceItem = {}
+              raceItem.event = race.name
+              raceItem.race = race.race
+              raceItem.avrgLap = result.avrgLap
+              raceItem.bestLap = result.bestLap
+              nameItem.races.push(raceItem)
+              nameMap.set(result.name, nameItem)
+            }
+          }
+        }
+      }
+
+      let res = []
+      nameMap.forEach(function (nameItem) {
+        res.push(nameItem)
+      })
+
+      for (var item of res) {
+        item.improvement = this.calcImprovement(item)
+      }
+
+      return res
+    }  
+  }
+
+  compareByEventName(a, b) {
+    if ( a.event < b.event ){
+      return -1
+    }
+    if ( a.event > b.event ){
+      return 1
+    }
+    return 0
+  }
+  
+  calcImprovement(racerData) {
+    let res = {}
+    let earlyAvrgSecs = 0.0
+    let earlyTotalSecs = 0.0
+    let lateTotalSecs = 0.0
+    let lateAvrgSecs = 0.0
+    let numRaces = 0
+    let earlyConsist = 0
+    let lateConsist = 0
+    let avrgEarlyConsist = 0
+    let avrgLateConsist = 0
+    if (!racerData || !racerData.hasOwnProperty('races')) {
+      return 
+    }
+    
+    numRaces = Math.floor(racerData.races.length / 2) 
+    if (numRaces <= 1 || racerData.races.length < 5) { //for fairnes, the racer must have must have completed at least 5 races in order for this to be calced. 
+      return 
+    }
+
+    racerData.races.sort(this.compareByEventName)
+
+    let count = 0
+    for (var i = 0; i < numRaces  && i < racerData.races.length; i++) {
+      if (racerData.races[i].hasOwnProperty('avrgLap') && 
+          racerData.races[i].avrgLap && 
+          racerData.races[i].avrgLap > 0 &&
+          racerData.races[racerData.races.length - 1 - i].avrgLap && 
+          racerData.races[racerData.races.length - 1 - i].avrgLap > 0) {
+        earlyConsist = earlyConsist + (racerData.races[i].avrgLap - racerData.races[i].bestLap) 
+        lateConsist = earlyConsist + (racerData.races[racerData.races.length - 1 - i].bestLap - racerData.races[i].avrgLap) 
+        earlyTotalSecs = earlyTotalSecs + racerData.races[i].avrgLap 
+        lateTotalSecs = lateTotalSecs + racerData.races[racerData.races.length - 1 - i].avrgLap 
+        count++
+      }
+    }
+
+    console.log(racerData.name)
+    console.log(earlyTotalSecs)
+    console.log(lateTotalSecs)
+    console.log(earlyConsist)
+    console.log(lateConsist)
+
+    earlyAvrgSecs = earlyTotalSecs / count
+    lateAvrgSecs = lateTotalSecs / count
+    avrgEarlyConsist = earlyConsist / count
+    avrgLateConsist = lateConsist / count
+
+    console.log('')
+    res.improvSec = lateAvrgSecs - earlyAvrgSecs 
+    res.consistency = (avrgLateConsist - avrgEarlyConsist) + parseInt((earlyConsist + lateConsist) / 2) 
+    return res 
+  }
+  
   calcBestLapsByClass(data) {
     let classMap = new Map()
-    //TODO
+    let raceItem
+    if (data && data.hasOwnProperty('races')) {
+      for (var race of data.races) {
+        //console.log(race)
+        if (race.hasOwnProperty('results')) {
+          for (var result of race.results) {
+            raceItem = classMap.get(race.class)  
+            if ((!raceItem) || 
+                ((raceItem.class === race.class) && 
+                 (raceItem.bestLap && raceItem.bestLap != 0) && 
+                 (parseFloat(result.bestLap) < parseFloat(raceItem.bestLap)))) {
+              raceItem = {}
+              raceItem.bbkUrl = race.bbkUrl
+              raceItem.class = race.class
+              raceItem.event = race.name
+              raceItem.race = race.race
+              raceItem.name = result.name
+              raceItem.bestLap = result.bestLap
+              classMap.set(race.class, raceItem)
+            }
+          }
+        }
+      }
+      let res = []
+      classMap.forEach(function (raceItem) {
+        res.push(raceItem)
+      })
+      return res
+    }
   }
 
   calcFastestLapOfSeason(data) {
@@ -201,14 +337,13 @@ export class SeasonController extends BaseController {
                 result.name = lap.name
                 result.class = race.class
                 result.race = race.name
-                result.bbkURL = race.bbkURL
+                result.bbkUrl = race.bbkUrl
               }
             }
           }
         }
       }
     }
-    //console.log('best: '+result.secs)
     return result
   }
 
@@ -227,8 +362,10 @@ export class SeasonController extends BaseController {
           response.startDate = this.season.startDate
           response.endDate =this. season.endDate
           response.bbkSeasonDir = this.season.bbkSeasonDir
+          response.season_id = this.season._id
           response.bestOverallLap = {}
           response.bestLapsByClass = []
+          response.lapsByRaces = []
           response.races = []
           //const response = await this.bbk.getBbkData('https://orcaireland.com/bbk/winter-2022-2023/mtg24/h1r12.htm', 1)
           if (this.season.hasOwnProperty('bbkMtgStart') && this.season.hasOwnProperty('bbkMtgEnd')) {
@@ -255,6 +392,7 @@ export class SeasonController extends BaseController {
             response.raceCount = response.races.length
             response.bestOverallLap = this.calcFastestLapOfSeason(response)
             response.bestLapsByClass = this.calcBestLapsByClass(response)
+            response.lapsByRaces = this.getLapsByRace(response)
           }
           if (response.length === 0) {
             return this.notFoundError(res)   

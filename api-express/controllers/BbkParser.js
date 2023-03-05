@@ -149,6 +149,21 @@ export class BbkParser {
     return res
   }
 
+  convertToSecs(csvLine) {
+    let mins = 1
+    let secs = 0.0
+    if (csvLine.indexOf('m') > 0) {
+      mins = parseInt(csvLine.substring(1, csvLine.indexOf('m') - 1))
+      secs = parseFloat(csvLine.substring(csvLine.indexOf('m') + 1, csvLine.length - 1).trim())
+      secs = secs + (mins * 60)
+    } else if (csvLine.indexOf('(') > -1) {
+      secs = parseFloat(csvLine.substring(0, csvLine.indexOf('(')).trim())
+    } else {
+      secs = parseFloat(csvLine.substring(0, csvLine.length - 1).trim())  
+    }
+    return secs
+  }
+
   transformResults(data) {
     const posIdx = 0
     const carNoIdx = 1
@@ -163,36 +178,47 @@ export class BbkParser {
     const carModelIdx = 9 //specific for heats 
     let row
     let rows = []
-    //let tmp = ''
-    for (var csvLine of data.results) {
-      row = {}
-      row.pos = parseInt(csvLine[posIdx])
-      row.carNo = parseInt(csvLine[carNoIdx])
-      row.name = csvLine[nameIdx]
-      row.result = csvLine[resultIdx]
-      row.avrgLap = parseFloat(csvLine[avrgLapIdx])
-      row.clubNo = parseInt(csvLine[clubNoIdx])
+    let csvLine = ''
+    for (var i=1; i < data.results.length; i++) {
+      csvLine = data.results[i]
+      if (csvLine && csvLine !== '') {
+        row = {}
+        row.pos = parseInt(csvLine[posIdx])
+        row.carNo = parseInt(csvLine[carNoIdx])
+        row.name = csvLine[nameIdx]
+        row.result = csvLine[resultIdx]
+        row.clubNo = parseInt(csvLine[clubNoIdx])
 
-      if (csvLine.length > 8) {
-        row.roofColor = csvLine[roofColorIdx]
-        row.carMake = csvLine[carMakeIdx2]
-        row.model = csvLine[carModelIdx]
-      } else {
-        row.carMake = csvLine[carMakeIdx]
-      }
+        if (csvLine.length > 8) {
+          row.roofColor = csvLine[roofColorIdx]
+          row.carMake = csvLine[carMakeIdx2]
+          row.model = csvLine[carModelIdx]
+        } else {
+          row.carMake = csvLine[carMakeIdx]
+        }
 
-      if (row.result.trim() !== 'DNS') {
-        const bestLapLine = csvLine[bestLapIdx]
-        row.bestLap = parseFloat(bestLapLine.substring(0, bestLapLine.indexOf('(')).trim())
-        row.bestLapNo = parseInt(bestLapLine.substring(bestLapLine.indexOf('(')+1, bestLapLine.indexOf(')')))
-        
-        const line = csvLine[resultIdx]
-        row.lapCount = parseInt(line.substring(0, line.indexOf('/')))
-        row.mins = parseInt(line.substring(line.indexOf('/') + 1, line.indexOf('m')))
-        row.secs = parseInt(line.substring(line.indexOf('m') + 1, line.indexOf('.')))
-        row.ms = parseInt(line.substring(line.indexOf('.') + 1, line.length - 1))
+        if (row.result.trim() !== 'DNS') {
+          const bestLapLine = csvLine[bestLapIdx].trim()
+          const avrgLapLine = csvLine[avrgLapIdx].trim() 
+          row.avrgLap = this.convertToSecs(avrgLapLine)
+          row.bestLap = this.convertToSecs(bestLapLine)
+          row.bestLapNo = parseInt(bestLapLine.substring(bestLapLine.indexOf('(') + 1, bestLapLine.indexOf(')')).trim())
+          
+          const line = csvLine[resultIdx]
+          
+
+          row.lapCount = parseInt(line.substring(0, line.indexOf('/')).trim())
+          row.mins = parseInt(line.substring(line.indexOf('/') + 1, line.indexOf('m')).trim())
+          row.secs = parseInt(line.substring(line.indexOf('m') + 1, line.indexOf('.')).trim())
+          row.ms = parseInt(line.substring(line.indexOf('.') + 1, line.length - 1).trim())
+          if (row.mins === 0) {
+            row.totalSecs = parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim())
+          } else {
+            row.totalSecs = row.mins * 60 + parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim()) 
+          } 
+        }
+        rows.push(row)   
       }
-      rows.push(row)
     }
     rows.shift() //remove header
     data.results = rows
@@ -217,12 +243,13 @@ export class BbkParser {
       }
       //response.fileStrings = fileStrings
       //console.log(fileStrings)
+      //3142
       let tableHeaderEndIdx = tableHeaderIdx
       while (fileStrings && tableHeaderEndIdx < fileStrings.length && fileStrings[tableHeaderEndIdx].trim() !== '') {
         tableHeaderEndIdx++
       }
       if (fileStrings && fileStrings.length > 0) {
-        response.bbkURL = this.url
+        response.bbkUrl = this.url
         response.name = fileStrings[titleIdx]
         response.duration = fileStrings[timeIdx]
         response.race = fileStrings[nameIdx]
