@@ -237,6 +237,8 @@ export class SeasonController extends BaseController {
   
   calcImprovement(racerData) {
     let res = {}
+    const minRaces = 5
+    const raceDivider = 2
     let earlyAvrgSecs = 0.0
     let earlyTotalSecs = 0.0
     let lateTotalSecs = 0.0
@@ -246,12 +248,13 @@ export class SeasonController extends BaseController {
     let lateConsist = 0
     let avrgEarlyConsist = 0
     let avrgLateConsist = 0
+    
     if (!racerData || !racerData.hasOwnProperty('races')) {
       return 
     }
     
-    numRaces = Math.floor(racerData.races.length / 2) 
-    if (numRaces <= 1 || racerData.races.length < 5) { //for fairnes, the racer must have must have completed at least 5 races in order for this to be calced. 
+    numRaces = Math.floor(racerData.races.length / raceDivider) 
+    if (numRaces <= 1 || racerData.races.length < minRaces) { 
       return 
     }
 
