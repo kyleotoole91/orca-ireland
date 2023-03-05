@@ -244,10 +244,12 @@ export class SeasonController extends BaseController {
     let lateTotalSecs = 0.0
     let lateAvrgSecs = 0.0
     let numRaces = 0
-    let earlyConsist = 0
-    let lateConsist = 0
-    let avrgEarlyConsist = 0
-    let avrgLateConsist = 0
+    let best = 0
+    let avrg = 0
+    let totalConsistPct = 0
+    let consistPct = 0
+    let avrgConsistPct = 0
+    let consist = 0
 
     if (!racerData || !racerData.hasOwnProperty('races')) {
       return 
@@ -267,21 +269,40 @@ export class SeasonController extends BaseController {
           racerData.races[i].avrgLap > 0 &&
           racerData.races[racerData.races.length - 1 - i].avrgLap && 
           racerData.races[racerData.races.length - 1 - i].avrgLap > 0) {
-        earlyConsist = earlyConsist + (racerData.races[i].avrgLap - racerData.races[i].bestLap) 
-        lateConsist = earlyConsist + (racerData.races[racerData.races.length - 1 - i].bestLap - racerData.races[i].avrgLap) 
         earlyTotalSecs = earlyTotalSecs + racerData.races[i].avrgLap 
         lateTotalSecs = lateTotalSecs + racerData.races[racerData.races.length - 1 - i].avrgLap 
         count++
       }
     }
-
     earlyAvrgSecs = earlyTotalSecs / count
     lateAvrgSecs = lateTotalSecs / count
-    avrgEarlyConsist = earlyConsist / count
-    avrgLateConsist = lateConsist / count
+    //console.log(racerData.name) 
+    //console.log(earlyAvrgSecs) 
+    //console.log(lateAvrgSecs) 
 
-    res.improvSec = lateAvrgSecs - earlyAvrgSecs 
-    res.consistency = (avrgLateConsist - avrgEarlyConsist) + parseInt((earlyConsist + lateConsist) / 2) 
+    count = 0
+    for (var i = 0; i < racerData.races.length; i++) {
+      if (racerData.races[i].hasOwnProperty('avrgLap') && 
+          racerData.races[i].avrgLap && 
+          racerData.races[i].avrgLap > 0) {
+        best = racerData.races[i].bestLap
+        avrg = racerData.races[i].avrgLap
+        consist = (((avrg - best) / ((avrg + best) / 2)) * 100)
+        if (consist > 0) {
+          consist = parseFloat((100 - consist).toFixed(3))
+        } else {
+          consist =  parseFloat((100 + consist).toFixed(3))    
+        }
+        totalConsistPct = totalConsistPct + Math.abs(consist)
+        //console.log(`Avrg: ${avrg} Best: ${best} consistPct: ${consist}`) 
+        count++
+      }
+    }
+    avrgConsistPct = parseFloat((totalConsistPct / count).toFixed(3)) 
+    //console.log(`avrgConsistPct: ${avrgConsistPct}`)
+
+    res.improvSec = parseFloat((lateAvrgSecs - earlyAvrgSecs).toFixed(3)) 
+    res.consistency = avrgConsistPct
     return res 
   }
   
