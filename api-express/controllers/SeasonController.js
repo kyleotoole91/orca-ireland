@@ -181,7 +181,7 @@ export class SeasonController extends BaseController {
     }
   }
 
-  getLapsByRace(data) {
+  getRacesByRacer(data) {
     let nameMap = new Map()
     let nameItem
     let raceItem
@@ -218,7 +218,7 @@ export class SeasonController extends BaseController {
       })
 
       for (var item of res) {
-        item.improvement = this.calcImprovement(item)
+        item.performance = this.calcPerformance(item)
       }
 
       return res
@@ -226,16 +226,16 @@ export class SeasonController extends BaseController {
   }
 
   compareByEventName(a, b) {
-    if ( a.event < b.event ){
+    if ( a.event < b.event ) {
       return -1
     }
-    if ( a.event > b.event ){
+    if ( a.event > b.event ) {
       return 1
     }
     return 0
   }
   
-  calcImprovement(racerData) {
+  calcPerformance(racerData) {
     let res = {}
     const minRaces = 5
     const raceDivider = 2
@@ -248,7 +248,7 @@ export class SeasonController extends BaseController {
     let lateConsist = 0
     let avrgEarlyConsist = 0
     let avrgLateConsist = 0
-    
+
     if (!racerData || !racerData.hasOwnProperty('races')) {
       return 
     }
@@ -360,7 +360,7 @@ export class SeasonController extends BaseController {
           response.season_id = this.season._id
           response.bestOverallLap = {}
           response.bestLapsByClass = []
-          response.lapsByRaces = []
+          response.racesByRacer = []
           response.races = []
           //const response = await this.bbk.getBbkData('https://orcaireland.com/bbk/winter-2022-2023/mtg24/h1r12.htm', 1)
           if (this.season.hasOwnProperty('bbkMtgStart') && this.season.hasOwnProperty('bbkMtgEnd')) {
@@ -387,7 +387,7 @@ export class SeasonController extends BaseController {
             response.raceCount = response.races.length
             response.bestOverallLap = this.calcFastestLapOfSeason(response)
             response.bestLapsByClass = this.calcBestLapsByClass(response)
-            response.lapsByRaces = this.getLapsByRace(response)
+            response.racesByRacer = this.getRacesByRacer(response)
           }
           if (response.length === 0) {
             return this.notFoundError(res)   
