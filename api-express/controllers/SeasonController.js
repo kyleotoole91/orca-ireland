@@ -183,56 +183,12 @@ export class SeasonController extends BaseController {
   async getSeasonBbkResults(req, res) {
     try {
       const seasonId = req.params.id
+      let response
       if (seasonId) {
         this.season = await this.db.getDocument(seasonId)
         if (this.season) {
-          let typePrefix
-          let race
-          let url
-          let response = {}
-          response.season = this.season.name
-          response.raceCount = 0
-          response.startDate = this.season.startDate
-          response.endDate =this. season.endDate
-          response.bbkSeasonDir = this.season.bbkSeasonDir
-          response.trackLength = parseInt(process.env.TRACK_LENGTH)
-          response.season_id = this.season._id
-          response.mostConsistent = {}
-          response.mostImproved = {}
-          response.bestLapsByClass = []
-          response.bestAvrgLapsByClass = []
-          response.racesByRacer = []
-          response.races = []
-          //const response = await this.bbk.getBbkData('https://orcaireland.com/bbk/winter-2022-2023/mtg24/h1r12.htm', 1)
-          if (this.season.hasOwnProperty('bbkMtgStart') && this.season.hasOwnProperty('bbkMtgEnd')) {
-            for (var raceType=1; raceType<=2; raceType++) { 
-              switch (raceType) {
-                case 1:
-                  typePrefix = 'f';
-                  break;
-                case 2:
-                  typePrefix = 'h';
-              }
-              for (var m=this.season.bbkMtgStart; m<=this.season.bbkMtgEnd; m++) {
-                for (var g=1; g <= process.env.MAX_RACES; g++) {
-                  for (var r=1; r <= process.env.MAX_GROUPS; r++){
-                    url = `${process.env.FRONT_END_HOST}${process.env.BBK_ROOT_DIR}/${this.season.bbkSeasonDir}/mtg${m}/${typePrefix}${g}r${r}.htm`
-                    race = await this.bbk.getBbkData(url, 1)
-                    if (race) {
-                      response.races.push(race)
-                    }
-                  }  
-                }
-              }
-            }
-            response.raceCount = response.races.length
-            response.bestLapsByClass = this.bbk.getBestLapsByClass(response)
-            response.bestAvrgLapsByClass = this.bbk.getBestAvrgLapsByClass(response)
-            response.racesByRacer = this.bbk.getRacesByRacer(response)
-            response.mostConsistent = this.bbk.getMostConsistent(response.racesByRacer)
-            response.mostImproved = this.bbk.mostImproved(response.racesByRacer)
-          }
-          if (response.length === 0) {
+          response = await this.bbk.getSeasonReport(this.season)
+          if (!response || response.length === 0) {
             return this.notFoundError(res)   
           }
           return res.status(200).send({
@@ -240,9 +196,8 @@ export class SeasonController extends BaseController {
             message: `Report: BBK Race Results by Season`,
             data: response,
           })
-        } else {
-          return this.notFoundError(res)  
-        }
+        } 
+        return this.notFoundError(res)  
       }
     } catch(e) {
       return res.status(500).send({
