@@ -3,6 +3,7 @@ import { BaseModel } from '../models/BaseModel.js'
 
 const cRaceType = 1
 const cLapType = 2
+const cManualLapChar = '*'
 
 export class BbkParser {
 
@@ -94,14 +95,14 @@ export class BbkParser {
           carItem.carNo = parseInt(carNo.substring(4).trim())
           carItem.name = this.getNameByCarNo(carItem.carNo)
         }
-        if (laps.results[i][a].trim() === '') {
+        if (laps.results[i][a].trim() === '' || laps.results[i][a].includes(cManualLapChar)) {
           carItem.secs.push(0)
         } else {
           if (laps.results[i][a].indexOf('m') > 0) {
             mins = parseInt(laps.results[i][a].substring(1, laps.results[i][a].indexOf('m')))
             secs = mins * 60
             const lastChar = laps.results[i][a].substring(laps.results[i][a].length - 2, laps.results[i][a].length-1) 
-             if (!parseFloat(lastChar)) { // * may mean not count, I must check with the race controller
+             if (!parseFloat(lastChar)) { 
               secs = parseFloat(secs + parseFloat(laps.results[i][a].substring(laps.results[i][a].indexOf('m') + 1, laps.results[i][a].length - 2)))
              } else {
               secs = parseFloat(secs + parseFloat(laps.results[i][a].substring(laps.results[i][a].indexOf('m') + 1, laps.results[i][a].length - 1)))
@@ -187,8 +188,8 @@ export class BbkParser {
         row.carNo = parseInt(csvLine[carNoIdx].trim())
         row.name = csvLine[nameIdx]
         row.result = csvLine[resultIdx]
-        row.clubNo = parseInt(csvLine[clubNoIdx])
-        if (row.result !== '' && row.result.trim() !== 'DNS') {
+        row.clubNo = parseInt(csvLine[clubNoIdx]) 
+        if (row.result !== '' && row.result.trim() !== 'DNS' && !row.result.includes(cManualLapChar)) {
           if (csvLine.length > 8) {
             row.roofColor = csvLine[roofColorIdx]
             row.carMake = csvLine[carMakeIdx2]
@@ -200,6 +201,7 @@ export class BbkParser {
           const avrgLapLine = csvLine[avrgLapIdx].trim() 
           row.avrgLap = this.convertToSecs(avrgLapLine)
           row.bestLap = this.convertToSecs(bestLapLine)
+          row.bestLapKph = this.calcKph(1, row.bestLap)
           row.bestLapNo = parseInt(bestLapLine.substring(bestLapLine.indexOf('(') + 1, bestLapLine.indexOf(')')).trim())
           const result = csvLine[resultIdx]
           row.lapCount = parseInt(result.substring(0, result.indexOf('/')).trim())
@@ -211,12 +213,22 @@ export class BbkParser {
           } else {
             row.totalSecs = row.mins * 60 + parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim()) 
           }
+          row.avrgLapKph = this.calcKph(row.lapCount, row.totalSecs)
           rows.push(row)  
         }
       } 
     }
     data.results = rows
     return data
+  }
+
+  calcKph(lapCount, lapTimeSecs) {
+    if (!lapCount || !lapTimeSecs || lapTimeSecs <= 0) {
+      return
+    }
+    const distM = lapCount * process.env.TRACK_LENGTH
+    const ms = distM / lapTimeSecs  
+    return (ms * 3.6).toFixed(3)
   }
 
   extractClassName(raceName) {
