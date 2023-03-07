@@ -1,4 +1,4 @@
-import htmlToJson from "html-to-json"
+import htmlToJson from 'html-to-json'
 import { BaseModel } from '../models/BaseModel.js'
 
 const cRaceType = 1
@@ -16,6 +16,105 @@ export class BbkParser {
     this.bbkConfig = new BaseModel('bbkConfig')
     this.raceParams = { tableStartIdx: 17, gap: 2, footerLineCount: 0 }
     this.lapTimeParams = { tableStartIdx: 14, gap: 1, footerLineCount: 1 }
+  }
+
+  calcKph(lapTimeSecs, lapCount) {
+    if (!lapTimeSecs || lapTimeSecs <= 0) {
+      return
+    }
+    if (!lapCount) {
+      lapCount = 1
+    }
+    const distM = lapCount * process.env.TRACK_LENGTH
+    const ms = distM / lapTimeSecs  
+    return parseFloat(ms * 3.6).toFixed(3)
+  }
+
+  extractClassName(raceName) {
+    return raceName.split('(')[1].split(')')[0]
+  }
+
+  compareByConsistency(a, b) {
+    try {
+      if ( b.consistPct < a.consistPct ) {
+        return -1
+      }
+      if ( b.consistPct > a.consistPct) {
+        return 1
+      }
+    } catch(e) {
+      console.log(e)
+    }
+    return 0
+  }
+
+  compareByImprovSec(a, b) {
+    if ( a.improvSec < b.improvSec ) {
+      return -1
+    }
+    if ( a.improvSec > b.improvSec) {
+      return 1
+    }
+    return 0
+  }
+
+  compareByPodiums(a, b) {
+    if ( b.podiums < a.podiums ) {
+      return -1
+    }
+    if ( b.podiums > a.podiums) {
+      return 1
+    }
+    return 0
+  }
+
+  compareByTotalLaps(a, b) {
+    if ( b.totalLaps < a.totalLaps ) {
+      return -1
+    }
+    if ( b.totalLaps > a.totalLaps) {
+      return 1
+    }
+    return 0
+  }
+
+  compareByEventName(a, b) {
+    if ( a.event < b.event ) {
+      return -1
+    }
+    if ( a.event > b.event) {
+      return 1
+    }
+    return 0
+  }
+
+  addResultData(response) {
+    this.data = this.toJsonCsv(response, this.raceParams)
+    this.data = this.transformResults(this.data)
+  }
+
+  addLapData(response) {
+    const json = this.toJsonCsv(response, this.lapTimeParams)
+    this.data.laps = this.transformLapDataResults(json)
+  }
+
+  getNameByCarNo(carNo) {
+    if (this.data && this.data.results) {
+      for (var result of this.data.results) {
+        if (parseInt(result.carNo) === parseInt(carNo)) {
+          return result.name
+        }
+      }
+    } 
+    return ''
+  }
+
+  getErrorObj(message, url, type) {
+    let res = {}
+    res.bbkUrl = url
+    res.type = type 
+    res.error = message
+    return res
   }
 
   async getBbkData(url, type) {
@@ -59,14 +158,6 @@ export class BbkParser {
     }
   }
 
-  getErrorObj(message, url, type) {
-    let res = {}
-    res.bbkUrl = url
-    res.type = type 
-    res.error = message
-    return res
-  }
-
   async getSeasonReport(season) {
     let typePrefix
     let race
@@ -91,7 +182,7 @@ export class BbkParser {
       response.bestAvrgLapsByClass = []
       response.racesByRacer = []
       response.races = []
-      let errCount = 0
+   
       for (var raceType=1; raceType<=2; raceType++) { 
         switch (raceType) {
           case 1:
@@ -109,7 +200,7 @@ export class BbkParser {
               race = await this.getBbkData(url, 1)
               if (race && !race.hasOwnProperty('error')) {
                 response.races.push(race)
-              } else if (r >= 1) {
+              } else {
                 break loop2
               }
             }
@@ -124,6 +215,7 @@ export class BbkParser {
         response.bestLapsByClass = this.getBestLapsByClass(response)
         response.bestAvrgLapsByClass = this.getBestAvrgLapsByClass(response)
         response.racesByRacer = this.getRacesByRacer(response)
+        response.racesByRacer = this.calRoundCountByRacer(response.racesByRacer) 
         response.mostConsistent = this.getMostConsistent(response.racesByRacer)
         response.mostImproved = this.getMostImproved(response.racesByRacer)
         response.mostPodiums = this.getMostPodiums(response.racesByRacer)
@@ -132,27 +224,6 @@ export class BbkParser {
       }
     }
     return response
-  }
-
-  addResultData(response) {
-    this.data = this.toJsonCsv(response, this.raceParams)
-    this.data = this.transformResults(this.data)
-  }
-
-  addLapData(response) {
-    const json = this.toJsonCsv(response, this.lapTimeParams)
-    this.data.laps = this.transformLapDataResults(json)
-  }
-
-  getNameByCarNo(carNo) {
-    if (this.data && this.data.results) {
-      for (var result of this.data.results) {
-        if (parseInt(result.carNo) === parseInt(carNo)) {
-          return result.name
-        }
-      }
-    } 
-    return ''
   }
   
   transformLapDataResults(laps) {
@@ -307,22 +378,6 @@ export class BbkParser {
     return data
   }
 
-  calcKph(lapTimeSecs, lapCount) {
-    if (!lapTimeSecs || lapTimeSecs <= 0) {
-      return
-    }
-    if (!lapCount) {
-      lapCount = 1
-    }
-    const distM = lapCount * process.env.TRACK_LENGTH
-    const ms = distM / lapTimeSecs  
-    return parseFloat(ms * 3.6).toFixed(3)
-  }
-
-  extractClassName(raceName) {
-    return raceName.split('(')[1].split(')')[0]
-  }
-
   toJsonCsv(fileStr, { tableStartIdx, gap, footerLineCount }) {
     try {
       const titleIdx = 3
@@ -375,6 +430,23 @@ export class BbkParser {
     }
   }
 
+  calRoundCountByRacer(racesByRacer) {
+    for (var racer of racesByRacer) {
+      let distinctEvents = []
+      for (var race of racer.races) {
+        if (distinctEvents.indexOf(race.event) === -1) {
+          distinctEvents.push(race.event)
+          if (!racer.hasOwnProperty('roundCount')) {
+            racer.roundCount = 1
+          } else {
+            racer.roundCount++
+          }
+        }
+      }
+    }
+    return racesByRacer
+  }
+
   getRacesByRacer(data) {
     let nameMap = new Map()
     let nameItem
@@ -395,6 +467,7 @@ export class BbkParser {
                 nameItem.totalLaps = 0
                 nameItem.consistPct = 0
                 nameItem.improvSec = 0
+                nameItem.roundCount = 0 
                 nameItem.races = []
               }
               raceItem = {}
@@ -641,60 +714,6 @@ export class BbkParser {
       }
     }
     return res
-  }
-
-  compareByConsistency(a, b) {
-    try {
-      if ( b.consistPct < a.consistPct ) {
-        return -1
-      }
-      if ( b.consistPct > a.consistPct) {
-        return 1
-      }
-    } catch(e) {
-      console.log(e)
-    }
-    return 0
-  }
-
-  compareByImprovSec(a, b) {
-    if ( a.improvSec < b.improvSec ) {
-      return -1
-    }
-    if ( a.improvSec > b.improvSec) {
-      return 1
-    }
-    return 0
-  }
-
-  compareByPodiums(a, b) {
-    if ( b.podiums < a.podiums ) {
-      return -1
-    }
-    if ( b.podiums > a.podiums) {
-      return 1
-    }
-    return 0
-  }
-
-  compareByTotalLaps(a, b) {
-    if ( b.totalLaps < a.totalLaps ) {
-      return -1
-    }
-    if ( b.totalLaps > a.totalLaps) {
-      return 1
-    }
-    return 0
-  }
-
-  compareByEventName(a, b) {
-    if ( a.event < b.event ) {
-      return -1
-    }
-    if ( a.event > b.event) {
-      return 1
-    }
-    return 0
   }
 
 }
