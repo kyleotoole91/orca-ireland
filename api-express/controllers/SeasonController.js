@@ -193,10 +193,13 @@ export class SeasonController extends BaseController {
             if (result.name && 
                 result.name.trim() !== '' && 
                 result.avrgLap && 
-                result. bestLap) {
+                result.bestLap) {
               if (!nameItem) {
                 nameItem = {}
                 nameItem.name = result.name
+                nameItem.podiums = 0
+                nameItem.consistPct = 0
+                nameItem.improvSec = 0
                 nameItem.races = []
               }
               raceItem = {}
@@ -204,6 +207,9 @@ export class SeasonController extends BaseController {
               raceItem.race = race.race
               raceItem.avrgLap = result.avrgLap
               raceItem.bestLap = result.bestLap
+              if (result.pos <= 3 && race.race.includes('Final')) {
+                nameItem.podiums++   
+              }
               nameItem.races.push(raceItem)
               nameMap.set(result.name, nameItem)
             }
@@ -264,6 +270,7 @@ export class SeasonController extends BaseController {
     let avrg = 0
     let consist
     let totalConsistPct = 0
+    this.podiumCount = 0
     for (var i = 0; i < racerData.races.length; i++) {
       if (racerData.races[i].hasOwnProperty('avrgLap') && 
           racerData.races[i].avrgLap && 
@@ -319,10 +326,6 @@ export class SeasonController extends BaseController {
     }
     earlyAvrgSecs = earlyTotalSecs / count
     lateAvrgSecs = lateTotalSecs / count
-    //console.log(racerData.name) 
-    //console.log(earlyAvrgSecs) 
-    //console.log(lateAvrgSecs) 
-    //console.log(`avrgConsistPct: ${avrgConsistPct}`)
 
     improvSec = parseFloat((lateAvrgSecs - earlyAvrgSecs).toFixed(3)) 
     return improvSec 
