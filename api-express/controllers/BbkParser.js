@@ -3,6 +3,8 @@ import { BaseModel } from '../models/BaseModel.js'
 
 const cRaceType = 1
 const cLapType = 2
+const cMinRaces = 5
+const cRaceDivider = 2
 const cManualLapChar = '*'
 
 export class BbkParser {
@@ -126,8 +128,8 @@ export class BbkParser {
       for (i = 0; i < value.secs.length; i++) {
         if (value.secs[i] > 0) {
           resItem.lapCount++
+          resItem.secs.push(value.secs[i])
         }
-        resItem.secs.push(value.secs[i])
       }
       res.push(resItem)
     })
@@ -201,7 +203,7 @@ export class BbkParser {
           const avrgLapLine = csvLine[avrgLapIdx].trim() 
           row.avrgLap = this.convertToSecs(avrgLapLine)
           row.bestLap = this.convertToSecs(bestLapLine)
-          row.bestLapKph = this.calcKph(1, row.bestLap)
+          row.bestLapKph = parseFloat(this.calcKph(row.bestLap, 1))
           row.bestLapNo = parseInt(bestLapLine.substring(bestLapLine.indexOf('(') + 1, bestLapLine.indexOf(')')).trim())
           const result = csvLine[resultIdx]
           row.lapCount = parseInt(result.substring(0, result.indexOf('/')).trim())
@@ -213,7 +215,7 @@ export class BbkParser {
           } else {
             row.totalSecs = row.mins * 60 + parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim()) 
           }
-          row.avrgLapKph = this.calcKph(row.lapCount, row.totalSecs)
+          row.avrgLapKph = parseFloat(this.calcKph(row.totalSecs, row.lapCount))
           rows.push(row)  
         }
       } 
@@ -222,13 +224,16 @@ export class BbkParser {
     return data
   }
 
-  calcKph(lapCount, lapTimeSecs) {
-    if (!lapCount || !lapTimeSecs || lapTimeSecs <= 0) {
+  calcKph(lapTimeSecs, lapCount) {
+    if (!lapTimeSecs || lapTimeSecs <= 0) {
       return
+    }
+    if (!lapCount) {
+      lapCount = 1
     }
     const distM = lapCount * process.env.TRACK_LENGTH
     const ms = distM / lapTimeSecs  
-    return (ms * 3.6).toFixed(3)
+    return parseFloat(ms * 3.6).toFixed(3)
   }
 
   extractClassName(raceName) {
@@ -289,6 +294,247 @@ export class BbkParser {
     } catch (e) {
       return { error: e }
     }
+  }
+
+  getRacesByRacer(data) {
+    let nameMap = new Map()
+    let nameItem
+    let raceItem
+    if (data && data.hasOwnProperty('races')) {
+      for (var race of data.races) {
+        if (race.hasOwnProperty('results')) {
+          for (var result of race.results) {
+            nameItem = nameMap.get(result.name) 
+            if (result.name && 
+                result.name.trim() !== '' && 
+                result.avrgLap && 
+                result.bestLap) {
+              if (!nameItem) {
+                nameItem = {}
+                nameItem.name = result.name
+                nameItem.podiums = 0
+                nameItem.consistPct = 0
+                nameItem.improvSec = 0
+                nameItem.races = []
+              }
+              raceItem = {}
+              raceItem.event = race.name
+              raceItem.race = race.race
+              raceItem.avrgLap = result.avrgLap
+              raceItem.bestLap = result.bestLap
+              if (result.pos <= 3 && race.race.includes('Final')) {
+                nameItem.podiums++   
+              }
+              nameItem.races.push(raceItem)
+              nameMap.set(result.name, nameItem)
+            }
+          }
+        }
+      }
+
+      let res = []
+      nameMap.forEach(function (nameItem) {
+        res.push(nameItem)
+      })
+
+      for (var item of res) {
+        item.consistPct = this.calcConsistency(item)
+        item.improvSec = this.calcImprovSec(item)
+      }
+      return res
+    }  
+  }
+
+  compareByConsistency(a, b) {
+    try {
+      if ( b.consistPct < a.consistPct ) {
+        return -1
+      }
+      if ( b.consistPct > a.consistPct) {
+        return 1
+      }
+    } catch(e) {
+      console.log(e)
+    }
+    return 0
+  }
+
+  compareByImprovSec(a, b) {
+    if ( a.improvSec < b.improvSec ) {
+      return -1
+    }
+    if ( a.improvSec > b.improvSec) {
+      return 1
+    }
+    return 0
+  }
+
+  compareByEventName(a, b) {
+    if ( a.event < b.event ) {
+      return -1
+    }
+    if ( a.event > b.event) {
+      return 1
+    }
+    return 0
+  }
+
+  calcConsistency(racerData) {
+    let count = 0
+    let best = 0
+    let avrg = 0
+    let consist
+    let totalConsistPct = 0
+    this.podiumCount = 0
+    if (racerData.races.length < cMinRaces) {
+      return
+    }
+    for (var i = 0; i < racerData.races.length; i++) {
+      if (racerData.races[i].hasOwnProperty('avrgLap') && 
+          racerData.races[i].avrgLap && 
+          racerData.races[i].avrgLap > 0) {
+        best = racerData.races[i].bestLap
+        avrg = racerData.races[i].avrgLap
+        consist = (((avrg - best) / ((avrg + best) / 2)) * 100)
+        if (consist > 0) {
+          consist = parseFloat((100 - consist).toFixed(3))
+        } else {
+          consist =  parseFloat((100 + consist).toFixed(3))    
+        }
+        totalConsistPct = totalConsistPct + Math.abs(consist) 
+        count++
+      }
+    }
+    return parseFloat((totalConsistPct / count).toFixed(3))    
+  }
+  
+  calcImprovSec(racerData) {
+    let earlyAvrgSecs = 0.0
+    let earlyTotalSecs = 0.0
+    let lateTotalSecs = 0.0
+    let lateAvrgSecs = 0.0
+    let numRaces = 0
+    let improvSec = 0
+
+    if (!racerData || !racerData.hasOwnProperty('races')) {
+      return 
+    }
+    
+    numRaces = Math.floor(racerData.races.length / cRaceDivider) 
+    if (numRaces <= 1 || racerData.races.length < cMinRaces) { 
+      return 
+    }
+
+    racerData.races.sort(this.compareByEventName)
+
+    let count = 0
+    for (var i = 0; i < numRaces  && i < racerData.races.length; i++) {
+      if (racerData.races[i].hasOwnProperty('avrgLap') && 
+          racerData.races[i].avrgLap && 
+          racerData.races[i].avrgLap > 0 &&
+          racerData.races[racerData.races.length - 1 - i].avrgLap && 
+          racerData.races[racerData.races.length - 1 - i].avrgLap > 0) {
+        earlyTotalSecs = earlyTotalSecs + racerData.races[i].avrgLap 
+        lateTotalSecs = lateTotalSecs + racerData.races[racerData.races.length - 1 - i].avrgLap 
+        count++
+      }
+    }
+    earlyAvrgSecs = earlyTotalSecs / count
+    lateAvrgSecs = lateTotalSecs / count
+
+    improvSec = parseFloat((lateAvrgSecs - earlyAvrgSecs).toFixed(3)) 
+    return improvSec 
+  }
+  
+  getBestLapsByClass(data) {
+    let classMap = new Map()
+    let raceItem
+    if (data && data.hasOwnProperty('races')) {
+      for (var race of data.races) {
+        if (race.hasOwnProperty('results')) {
+          for (var result of race.results) {
+            raceItem = classMap.get(race.class)  
+            if ((!raceItem) || 
+                ((raceItem.class === race.class) && 
+                 (result.bestLap && result.bestLap != 0) && 
+                 (parseFloat(result.bestLap) < parseFloat(raceItem.bestLap)))) {
+              raceItem = {}
+              raceItem.bbkUrl = race.bbkUrl
+              raceItem.class = race.class
+              raceItem.event = race.name
+              raceItem.race = race.race
+              raceItem.name = result.name
+              raceItem.lapCount = result.lapCount
+              raceItem.bestLapKph = parseFloat(this.calcKph(result.bestLap))
+              raceItem.bestLap = parseFloat(result.bestLap)
+              classMap.set(race.class, raceItem)
+            }
+          }
+        }
+      }
+      let res = []
+      classMap.forEach(function (raceItem) {
+        res.push(raceItem)
+      })
+      return res
+    }
+  }
+
+  getBestAvrgLapsByClass(data) {
+    let classMap = new Map()
+    let raceItem
+    if (data && data.hasOwnProperty('races')) {
+      for (var race of data.races) {
+        if (race.hasOwnProperty('results')) {
+          for (var result of race.results) {
+            raceItem = classMap.get(race.class)  
+            if ((!raceItem) || 
+                ((raceItem.class === race.class) && 
+                 (result.lapCount > 2) &&
+                 (result.avrgLap && result.avrgLap != 0) && 
+                 (parseFloat(result.avrgLap) < parseFloat(raceItem.avrgLap)))) {
+              raceItem = {}
+              raceItem.bbkUrl = race.bbkUrl
+              raceItem.class = race.class
+              raceItem.event = race.name
+              raceItem.race = race.race
+              raceItem.name = result.name
+              raceItem.lapCount = result.lapCount
+              raceItem.avrgLap = parseFloat(result.avrgLap)
+              raceItem.avrgLapKph = parseFloat(this.calcKph(raceItem.avrgLap))
+              classMap.set(race.class, raceItem)
+            }
+          }
+        }
+      }
+      let res = []
+      classMap.forEach(function (raceItem) {
+        res.push(raceItem)
+      })
+      return res
+    }
+  }
+
+  getMostConsistent(racesByRacer) {
+    let res = {}
+    racesByRacer = racesByRacer.sort(this.compareByConsistency)
+    if (racesByRacer[0].hasOwnProperty('consistPct')) {
+      res.name = racesByRacer[0].name
+      res.consistPct = racesByRacer[0].consistPct
+      return res
+    }
+    return
+  }
+  
+  mostImproved(racesByRacer) {
+    let res = {}
+    racesByRacer = racesByRacer.sort(this.compareByImprovSec)
+    if (racesByRacer[0].hasOwnProperty('improvSec')) {
+      res.name = racesByRacer[0].name
+      res.improvSec = racesByRacer[0].improvSec
+      return res
+    }
+    return 
   }
 
 }
