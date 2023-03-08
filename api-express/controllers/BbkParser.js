@@ -1,9 +1,5 @@
-import htmlToJson from 'html-to-json'
-import { BaseModel } from '../models/BaseModel.js'
 import { BbkBase } from './BbkBase.js'
 
-const cRaceType = 1
-const cLapType = 2
 const cMinRaces = 5
 const cRaceDivider = 2
 const cManualLapChar = '*'
@@ -13,8 +9,6 @@ export class BbkParser extends BbkBase {
 
   constructor() {
     super()
-    this.data = {}
-    this.url = ''
     this.distinctEvents = []
     this.raceParams = { tableStartIdx: 17, gap: 2, footerLineCount: 0 }
     this.lapTimeParams = { tableStartIdx: 14, gap: 1, footerLineCount: 1 }
@@ -237,16 +231,21 @@ export class BbkParser extends BbkBase {
         row = {}
         row.pos = parseInt(csvLine[posIdx].trim())
         row.carNo = parseInt(csvLine[carNoIdx].trim())
-        row.name = csvLine[nameIdx]
-        row.result = csvLine[resultIdx]
-        row.clubNo = parseInt(csvLine[clubNoIdx]) 
+        row.name = csvLine[nameIdx].trim()
+        row.result = csvLine[resultIdx].trim()
+        row.clubNo = parseInt(csvLine[clubNoIdx].trim()) 
+        row.avrgLap = 0
+        row.bestLap = 0
+        row.bestLapKph = 0
+        row.bestLapNo = 0
+        row.lapCount = 0
         if (row.result !== '' && row.result.trim() !== 'DNS' && !row.result.includes(cManualLapChar)) {
           if (csvLine.length > 8) {
-            row.roofColor = csvLine[roofColorIdx]
-            row.carMake = csvLine[carMakeIdx2]
-            row.model = csvLine[carModelIdx]
+            row.roofColor = csvLine[roofColorIdx].trim()
+            row.carMake = csvLine[carMakeIdx2].trim()
+            row.model = csvLine[carModelIdx].trim()
           } else {
-            row.carMake = csvLine[carMakeIdx]
+            row.carMake = csvLine[carMakeIdx].trim()
           }
           const bestLapLine = csvLine[bestLapIdx].trim()
           const avrgLapLine = csvLine[avrgLapIdx].trim() 
@@ -264,8 +263,10 @@ export class BbkParser extends BbkBase {
           } else {
             row.totalSecs = row.mins * 60 + parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim()) 
           }
-          row.avrgLapKph = parseFloat(this.calcKph(row.totalSecs, row.lapCount))
-          rows.push(row)  
+          row.avrgLapKph = parseFloat(this.calcKph(row.totalSecs, row.lapCount))  
+        }
+        if (row.clubNo && row.clubNo > 0) {
+          rows.push(row)
         }
       } 
     }
@@ -475,18 +476,26 @@ export class BbkParser extends BbkBase {
             raceItem = classMap.get(race.class)  
             if ((!raceItem) || 
                 ((raceItem.class === race.class) && 
-                 (result.bestLap && result.bestLap != 0) && 
                  (parseFloat(result.bestLap) < parseFloat(raceItem.bestLap)))) {
-              raceItem = {}
-              raceItem.bbkUrl = race.bbkUrl
-              raceItem.class = race.class
-              raceItem.event = race.name
-              raceItem.race = race.race
-              raceItem.name = result.name
-              raceItem.lapCount = result.lapCount
-              raceItem.bestLapKph = parseFloat(this.calcKph(result.bestLap))
-              raceItem.bestLap = parseFloat(result.bestLap)
-              classMap.set(race.class, raceItem)
+              if ((result.bestLap && result.bestLap > 0)) {
+                raceItem = {}
+                raceItem.bbkUrl = race.bbkUrl
+                raceItem.class = race.class
+                raceItem.event = race.name
+                raceItem.race = race.race
+                raceItem.name = result.name
+                raceItem.lapCount = result.lapCount 
+                raceItem.bestLapKph = parseFloat(this.calcKph(result.bestLap))
+                raceItem.bestLap = parseFloat(result.bestLap)
+                if (!raceItem.bestLapKph) {
+                  raceItem.bestLapKph = 0  
+                }
+                
+                if (!raceItem.bestLap) {
+                  raceItem.bestLap = 0  
+                }
+                classMap.set(race.class, raceItem)
+              }
             }
           }
         }
@@ -507,21 +516,32 @@ export class BbkParser extends BbkBase {
         if (race.hasOwnProperty('results')) {
           for (var result of race.results) {
             raceItem = classMap.get(race.class)  
-            if ((!raceItem) || 
+            if ((!raceItem)  || 
                 ((raceItem.class === race.class) && 
                  (result.lapCount > 2) &&
-                 (result.avrgLap && result.avrgLap != 0) && 
                  (parseFloat(result.avrgLap) < parseFloat(raceItem.avrgLap)))) {
-              raceItem = {}
-              raceItem.bbkUrl = race.bbkUrl
-              raceItem.class = race.class
-              raceItem.event = race.name
-              raceItem.race = race.race
-              raceItem.name = result.name
-              raceItem.lapCount = result.lapCount
-              raceItem.avrgLap = parseFloat(result.avrgLap)
-              raceItem.avrgLapKph = parseFloat(this.calcKph(raceItem.avrgLap))
-              classMap.set(race.class, raceItem)
+              if ((result.avrgLap && parseFloat(result.avrgLap) > 0)) {
+                raceItem = {}
+                raceItem.bbkUrl = race.bbkUrl
+                raceItem.class = race.class
+                raceItem.event = race.name
+                raceItem.race = race.race
+                raceItem.name = result.name
+                raceItem.lapCount = result.lapCount
+                raceItem.avrgLap = parseFloat(result.avrgLap)
+                raceItem.avrgLapKph = parseFloat(this.calcKph(raceItem.avrgLap))
+                if (raceItem.avrgLap === 0) {
+                  console.log(result.avrgLap && parseFloat(result.avrgLap))
+                  console.log(raceItem)
+                }
+                if (!raceItem.avrgLap) {
+                  raceItem.avrgLap = 0
+                }
+                if (!raceItem.avrgLapKph) {
+                  raceItem.avrgLapKph = 0
+                }
+                classMap.set(race.class, raceItem)
+              }
             }
           }
         }

@@ -1,9 +1,13 @@
-import { BaseModel } from '../models/BaseModel.js'
+import htmlToJson from 'html-to-json'
+
+const cRaceType = 1
+const cLapType = 2
 
 export class BbkBase {
 
   constructor() {
-    this.bbkConfig = new BaseModel('bbkConfig')
+    this.url = ''
+    this.data = {} 
   }
 
   async getBbkData(url, type) {
