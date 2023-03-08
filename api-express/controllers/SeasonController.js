@@ -193,7 +193,7 @@ export class SeasonController extends BaseController {
           }
           return res.status(200).send({
             success: true,
-            message: `Report: BBK Race Results by Season`,
+            message: `BBK Report: Driver Statistics by Season `,
             data: response,
           })
         } 

@@ -13,6 +13,7 @@ export class BbkParser {
   constructor() {
     this.data = {}
     this.url = ''
+    this.distinctEvents = []
     this.bbkConfig = new BaseModel('bbkConfig')
     this.raceParams = { tableStartIdx: 17, gap: 2, footerLineCount: 0 }
     this.lapTimeParams = { tableStartIdx: 14, gap: 1, footerLineCount: 1 }
@@ -165,13 +166,14 @@ export class BbkParser {
     let response
     if (season.hasOwnProperty('bbkMtgStart') && season.hasOwnProperty('bbkMtgEnd')) {
       response = {}
-      response.season = season.name
-      response.raceCount = 0
-      response.startDate = season.startDate
-      response.endDate = season.endDate
-      response.bbkSeasonDir = season.bbkSeasonDir
-      response.trackLength = parseInt(process.env.TRACK_LENGTH)
+      response.season = season
       response.season_id = season._id
+      response.trackLength = parseInt(process.env.TRACK_LENGTH)
+      response.raceCount = 0
+      response.currEventCount = 0
+      response.bbkEventCount = 0
+      response.bestOf = season.bbkSeasonDir
+      response.bbkSeasonDir = season.bbkSeasonDir
       response.bbkUrl = process.env.BBK_ROOT_DIR + '/' + season.bbkSeasonDir
       response.mostConsistent = {}
       response.mostImproved = {}
@@ -182,7 +184,7 @@ export class BbkParser {
       response.bestAvrgLapsByClass = []
       response.racesByRacer = []
       response.races = []
-   
+      
       for (var raceType=1; raceType<=2; raceType++) { 
         switch (raceType) {
           case 1:
@@ -221,6 +223,9 @@ export class BbkParser {
         response.mostPodiums = this.getMostPodiums(response.racesByRacer)
         response.mostLaps = this.getMostLaps(response.racesByRacer)
         response.mostLapsInRace = this.getMostLapsInRace(response)
+        response.currEventCount = this.distinctEvents.length
+        response.bbkEventCount = season.bbkMtgEnd - season.bbkMtgStart 
+        response.bestOf = response.bbkEventCount - season.bestOffset  
       }
     }
     return response
@@ -434,6 +439,9 @@ export class BbkParser {
     for (var racer of racesByRacer) {
       let distinctEvents = []
       for (var race of racer.races) {
+        if (this.distinctEvents.indexOf(race.event) === -1) {
+          this.distinctEvents.push(race.event)
+        }
         if (distinctEvents.indexOf(race.event) === -1) {
           distinctEvents.push(race.event)
           if (!racer.hasOwnProperty('roundCount')) {
