@@ -291,7 +291,7 @@ function Seasons() {
   function detailsButton(season) {
     return (
       <Button id={season._id} onClick={(e) => showSeasonDetails(e.target.id)} style={{marginTop: "6px", width: "100%"}} variant="outline-primary">
-        Driver Standings
+        Details
       </Button> 
     )
   }

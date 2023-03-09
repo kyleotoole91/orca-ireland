@@ -26,6 +26,25 @@ export class SeasonModel extends BaseModel {
     }
   }
 
+  async getSeasonBbkReport(id) {
+    try {
+      this.itemId = id
+      await fetch(this.getUrl()+'/reports/bbk', {
+                  method: 'GET', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+            }) 
+            
+    } catch(e) {
+      this.setErrorMessage(e)
+    } finally {
+      this.reset()
+      return this.responseData
+    }
+  }
+
   async post(season) {
     let origEndpoint = this.endpoint
     try {

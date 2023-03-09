@@ -22,6 +22,7 @@
     "react-burger-menu": "^3.0.3",
     "react-css-burger": "^0.2.0",
     "react-currency-formatter": "^1.1.0",
+    "react-data-table-component": "^7.5.3",
     "react-dom": "^17.0.1",
     "react-focus-lock": "^2.5.0",
     "react-icons": "^4.3.1",

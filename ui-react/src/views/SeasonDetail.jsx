@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom'
 import Table  from 'react-bootstrap/Table'
 import dayjs from 'dayjs'
 import { useHistory } from 'react-router-dom'
-
+import Button from 'react-bootstrap/Button'
 
 function SeasonDetail() {
   let { id } = useParams()
@@ -105,9 +105,28 @@ function SeasonDetail() {
 
   function bbkUrl(season) {
     return process.env.REACT_APP_BBK_ROOT_DIR + '/' + season.bbkSeasonDir +'/' + process.env.REACT_APP_BBK_INDEX_HTML
-
   }
 
+  function bbkReportUrl(seasonId) {
+    history.push(`/seasons/${seasonId}/reports/bbk/results`)
+  }
+
+  function detailsButton(season) {
+    return (
+      <Button id={season._id} onClick={(e) => bbkReportUrl(e.target.id)} style={{marginTop: "6px", width: "100%"}} variant="outline-primary">
+        Statistics
+      </Button> 
+    )
+  }
+
+  function bbkWebPublishButton(season) {
+    return (
+      <Button id='bbkWebPublishBtn' href={bbkUrl(season)} style={{marginTop: "6px", width: "100%"}} variant="outline-primary">
+        BBK Web Publish
+      </Button> 
+    )
+  }
+  
   if (loading) {
     return <Loading /> 
   } else if (season) {
@@ -119,7 +138,8 @@ function SeasonDetail() {
                     }} /> 
       {season.hasOwnProperty('bbkURL') && 
         <div style={{ alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center', alignItems:'center', height: 'auto'}}>
-          <a href={bbkUrl(season)}>BBK Web Publish</a>
+          {bbkWebPublishButton(season)}
+          {detailsButton(season)}
         </div> }
       <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
       {season &&
