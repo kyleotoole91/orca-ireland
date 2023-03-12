@@ -192,27 +192,31 @@ export class SeasonController extends BaseController {
       if (seasonId) {
         this.season = await this.db.getDocument(seasonId)
         if (this.season) {
-          response = await this.seasonReportDB.getBySeasonId(seasonId)
-          if (response && response.length === 0){
-            response = null  
+          if (parseInt(process.env.TEST_MODE) === 1) {
+            response = await this.bbk.getSeasonReport(this.season)
           } else {
-            response = response[0]
-          }
-          const nowDate = new Date()
-          let lastUpdateDate = new Date(this.season.endDate)
-          lastUpdateDate.setDate(lastUpdateDate.getDate() + 7) //keep updating for 7 days after the season ends, by then the bbk files should be final
-          needsAdding = !response
-          if (!needsAdding) {
-            seasonReportId = response._id
-            const genDate = new Date(response.genDate)
-            let expireDate = new Date(genDate) 
-            expireDate.setDate(expireDate.getDate() + cReportCacheExpDays) //expire after x days
-            needsUpdating = expireDate < nowDate && nowDate < lastUpdateDate //stop updating when the season ends
-            if (needsUpdating) { 
+            response = await this.seasonReportDB.getBySeasonId(seasonId)
+            if (response && response.length === 0){
+              response = null  
+            } else {
+              response = response[0]
+            }
+            const nowDate = new Date()
+            let lastUpdateDate = new Date(this.season.endDate)
+            lastUpdateDate.setDate(lastUpdateDate.getDate() + 7) //keep updating for 7 days after the season ends, by then the bbk files should be final
+            needsAdding = !response
+            if (!needsAdding) {
+              seasonReportId = response._id
+              const genDate = new Date(response.genDate)
+              let expireDate = new Date(genDate) 
+              expireDate.setDate(expireDate.getDate() + cReportCacheExpDays) //expire after x days
+              needsUpdating = expireDate < nowDate && nowDate < lastUpdateDate //stop updating when the season ends
+              if (needsUpdating) { 
+                response = await this.bbk.getSeasonReport(this.season)
+              }
+            } else {
               response = await this.bbk.getSeasonReport(this.season)
             }
-          } else {
-            response = await this.bbk.getSeasonReport(this.season)
           }
           if (!response || response.length === 0) {
             return this.notFoundError(res)   

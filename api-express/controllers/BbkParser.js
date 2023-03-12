@@ -419,6 +419,7 @@ export class BbkParser extends BbkBase {
               raceItem = {}
               raceItem.event = race.event
               raceItem.name = race.name
+              raceItem.roundNum = race.name
               raceItem.class = race.class
               raceItem.pos = result.pos
               raceItem.racerName = nameItem.name
@@ -495,6 +496,15 @@ export class BbkParser extends BbkBase {
     }
     return parseFloat((totalConsistPct / count).toFixed(3))    
   }
+
+  addRoundNum(races) {
+    console.log('addRoundNum')
+    for (var race of races) {
+      const roundTxt = 'Round'
+      const eventName = race.event.trim()
+      race.roundNum = parseInt(eventName.substring(eventName.indexOf(roundTxt) + roundTxt.length + 1, eventName.length))
+    }
+  }
   
   calcImprovSec(racerData) {
     let earlyAvrgSecs = 0.0
@@ -513,7 +523,8 @@ export class BbkParser extends BbkBase {
       return 
     }
 
-    racerData.races.sort(this.compareByEventName)
+    this.addRoundNum(racerData.races)
+    racerData.races.sort(this.compareByRoundNum) 
 
     let count = 0
     for (var i = 0; i < numRaces  && i < racerData.races.length; i++) {

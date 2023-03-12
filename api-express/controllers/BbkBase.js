@@ -129,6 +129,17 @@ export class BbkBase {
     return 0
   }
 
+  compareByRoundNum(a, b) {
+    if ( a.roundNum < b.roundNum ) {
+      return -1
+    }
+    if ( a.roundNum > b.roundNum) {
+      return 1
+    }
+    return 0
+  }
+
+
   findLapTimeUrl(url) {
     const items = url.split('/')
     let res
