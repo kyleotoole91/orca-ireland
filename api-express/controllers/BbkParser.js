@@ -498,7 +498,6 @@ export class BbkParser extends BbkBase {
   }
 
   addRoundNum(races) {
-    console.log('addRoundNum')
     for (var race of races) {
       const roundTxt = 'Round'
       const eventName = race.event.trim()
