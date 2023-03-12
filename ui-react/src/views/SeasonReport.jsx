@@ -109,6 +109,11 @@ function SeasonReport() {
         sortable: true,
     },
     {
+        name: 'Position',
+        selector: row => row.pos,
+        sortable: true,
+    },
+    {
         name: 'Average Lap',
         selector: row => row.avrgLap,
         sortable: true,
@@ -144,9 +149,6 @@ function SeasonReport() {
       </div>
     )
   }
-
-  //TODO add a third level for lap times of each race
-  //Do this by scanning the seasonBbkRepor.races and looking for the lap times by race name, event name, driver
 
   function GenExpDataTable(headerName, columns, data, expComp) {
     return ( 

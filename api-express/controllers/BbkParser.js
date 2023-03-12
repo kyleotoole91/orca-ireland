@@ -420,6 +420,7 @@ export class BbkParser extends BbkBase {
               raceItem.event = race.event
               raceItem.name = race.name
               raceItem.class = race.class
+              raceItem.pos = result.pos
               raceItem.racerName = nameItem.name
               if (parseFloat(result.bestLap) < nameItem.bestLap || nameItem.bestLap === 0) {
                 nameItem.bestLap = result.bestLap
