@@ -2,6 +2,9 @@ import { EventModel } from '../models/EventModel'
 import { BaseController } from './BaseController.js'
 import { BaseModel } from '../models/BaseModel'
 import { BbkParser } from './BbkParser'
+import { SeasonReportModel } from '../models/SeasonReportModel'
+
+const cReportCacheExpDays = 1
 
 export class SeasonController extends BaseController { 
 
@@ -13,8 +16,7 @@ export class SeasonController extends BaseController {
     this.carsDB = new BaseModel('cars')
     this.classes = new BaseModel('classes')
     this.eventTypeDB = new BaseModel('eventTypes')
-    this.bbkReportDB = new BaseModel('bbkReports')
-    this.bbkDataDB = new BaseModel('bbkData')
+    this.seasonReportDB = new SeasonReportModel()
     this.eventTypeId = {}
     this.defaultEventTypeId = {}
     this.cars = {}
@@ -184,16 +186,44 @@ export class SeasonController extends BaseController {
     try {
       const seasonId = req.params.id
       let response
+      let seasonReportId
+      let needsAdding = false
+      let needsUpdating = false
       if (seasonId) {
         this.season = await this.db.getDocument(seasonId)
         if (this.season) {
-          response = await this.bbk.getSeasonReport(this.season)
+          response = await this.seasonReportDB.getBySeasonId(seasonId)
+          if (response && response.length === 0){
+            response = null  
+          } else {
+            response = response[0]
+          }
+          const nowDate = new Date()
+          let lastUpdateDate = new Date(this.season.endDate)
+          lastUpdateDate.setDate(lastUpdateDate.getDate() + 7) //keep updating for 7 days after the season ends, by then the bbk files should be final
+          needsAdding = !response
+          if (!needsAdding) {
+            seasonReportId = response._id
+            const genDate = new Date(response.genDate)
+            let expireDate = new Date(genDate) 
+            expireDate.setDate(expireDate.getDate() + cReportCacheExpDays) //expire after x days
+            needsUpdating = expireDate < nowDate && nowDate < lastUpdateDate //stop updating when the season ends
+            if (needsUpdating) { 
+              response = await this.bbk.getSeasonReport(this.season)
+            }
+          } else {
+            response = await this.bbk.getSeasonReport(this.season)
+          }
           if (!response || response.length === 0) {
             return this.notFoundError(res)   
+          } else if (needsAdding) {
+            this.seasonReportDB.addDocument(response)
+          } else if (needsUpdating && seasonReportId) {
+            this.seasonReportDB.updateDocument(seasonReportId, response) 
           }
           return res.status(200).send({
             success: true,
-            message: `BBK Report: Driver Statistics by Season `,
+            message: `BBK Report: Driver Statistics by Season`,
             data: response,
           })
         } 

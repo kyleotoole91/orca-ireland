@@ -54,15 +54,15 @@ function SeasonReport() {
 
   const columns = [
     {
-        name: 'Name',
-        width: '10rem',
-        selector: row => row.name,
-        sortable: true,
+      name: 'Name',
+      width: '10rem',
+      selector: row => row.name,
+      sortable: true,
     },
     {
-        name: 'Podiums',
-        selector: row => row.podiums,
-        sortable: true,
+      name: 'Podiums',
+      selector: row => row.podiums,
+      sortable: true,
     },
     {
       name: 'Rounds',
@@ -70,10 +70,10 @@ function SeasonReport() {
       sortable: true,
     },
     {
-        name: 'Total Laps',
-        width: '8rem',
-        selector: row => row.totalLaps,
-        sortable: true,
+      name: 'Total Laps',
+      width: '8rem',
+      selector: row => row.totalLaps,
+      sortable: true,
     },
     {
       name: 'Best Lap',
@@ -97,31 +97,37 @@ function SeasonReport() {
 
   const expColumns = [
     {
-        name: 'Event',
-        width: '16rem',
-        selector: row => row.event,
-        sortable: true,
+      name: 'Event',
+      width: '16rem',
+      selector: row => row.event,
+      sortable: true,
     },
     {
-        name: 'Race',
-        selector: row => row.name,
-        width: '16rem',
-        sortable: true,
+      name: 'Race',
+      selector: row => row.name,
+      width: '16rem',
+      sortable: true,
     },
     {
-        name: 'Position',
-        selector: row => row.pos,
-        sortable: true,
+      name: 'Position',
+      selector: row => row.pos,
+      sortable: true,
     },
     {
-        name: 'Average Lap',
-        selector: row => row.avrgLap,
-        sortable: true,
+      name: 'Laps',
+      selector: row => row.lapCount,
+      sortable: true,
     },
     {
-        name: 'Best Lap',
-        selector: row => row.bestLap,
-        sortable: true,
+      name: 'Average Lap',
+      selector: row => row.avrgLap,
+      width: '8rem',
+      sortable: true,
+    },
+    {
+      name: 'Best Lap',
+      selector: row => row.bestLap,
+      sortable: true,
     }
   ]
 
