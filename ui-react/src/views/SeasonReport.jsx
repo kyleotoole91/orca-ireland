@@ -65,10 +65,21 @@ function SeasonReport() {
         sortable: true,
     },
     {
+      name: 'Rounds',
+      selector: row => row.roundCount,
+      sortable: true,
+    },
+    {
         name: 'Total Laps',
         width: '8rem',
         selector: row => row.totalLaps,
         sortable: true,
+    },
+    {
+      name: 'Best Lap',
+      width: '8rem',
+      selector: row => row.bestLap,
+      sortable: true,
     },
     {
       name: 'Improvement (sec)',
@@ -82,29 +93,23 @@ function SeasonReport() {
       selector: row => row.consistPct,
       sortable: true,
     },
-    {
-      name: 'Rounds',
-      selector: row => row.roundCount,
-      sortable: true,
-    },
   ];
 
   const expColumns = [
     {
         name: 'Event',
-        width: '14rem',
+        width: '16rem',
         selector: row => row.event,
         sortable: true,
     },
     {
         name: 'Race',
-        selector: row => row.race,
+        selector: row => row.name,
         width: '16rem',
         sortable: true,
     },
     {
         name: 'Average Lap',
-        width: '8rem',
         selector: row => row.avrgLap,
         sortable: true,
     },
@@ -113,19 +118,40 @@ function SeasonReport() {
         selector: row => row.bestLap,
         sortable: true,
     }
-  ];
+  ]
 
-  const ExpandedRaces = ({ data }) => { 
+  const expColumns2 = [
+    {
+      name: 'Lap Time',
+      selector: row => row,
+      width: '8rem',
+      sortable: true,
+    }
+  ]
+
+  const ExpandedLaps = ({ data }) => { 
     return ( 
-      <div style={{marginLeft: '12px', marginRight: '12px'}}>
-        {GenDataTable('Races', expColumns, data.races)}
+      <div key={data.name} style={{marginLeft: '18px', marginRight: '18px'}}>
+        {GenDataTable('Laps', expColumns2, data.laps)}
       </div>
     )
   }
 
+  const ExpandedDriver = ({ data }) => { 
+    return ( 
+      <div key={data.class} style={{marginLeft: '18px', marginRight: '18px'}}>
+        {GenExpDataTable('Races', expColumns, data.races, ExpandedLaps)}
+      </div>
+    )
+  }
+
+  //TODO add a third level for lap times of each race
+  //Do this by scanning the seasonBbkRepor.races and looking for the lap times by race name, event name, driver
+
   function GenExpDataTable(headerName, columns, data, expComp) {
     return ( 
       <DataTable
+        key={headerName}
         title={headerName}
         columns={columns}
         data={data}
@@ -138,6 +164,7 @@ function SeasonReport() {
   function GenDataTable(headerName, columns, data) {
     return ( 
       <DataTable
+        key={headerName}
         title={headerName}
         columns={columns}
         data={data}
@@ -154,7 +181,9 @@ function SeasonReport() {
                                  dayjs(seasonBbkReport.season.endDate).format('DD/MM/YYYY'),
                     }} /> 
       <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
-      {GenExpDataTable('Driver Performance', columns, seasonBbkReport.racesByRacer, ExpandedRaces)}
+      {seasonBbkReport.classes.map((item) => {
+        return GenExpDataTable(item.class, columns, item.racesByRacer, ExpandedDriver)
+      })}
       </div>
       </>
   } else return <h2>Not found</h2>

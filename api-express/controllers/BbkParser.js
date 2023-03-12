@@ -9,7 +9,9 @@ export class BbkParser extends BbkBase {
 
   constructor() {
     super()
+    this.activeClass = ''
     this.distinctEvents = []
+    this.disctinctClasses = []
     this.raceParams = { tableStartIdx: 17, gap: 2, footerLineCount: 0 }
     this.lapTimeParams = { tableStartIdx: 14, gap: 1, footerLineCount: 1 }
   }
@@ -35,6 +37,17 @@ export class BbkParser extends BbkBase {
     return ''
   }
 
+  getClubByCarNo(carNo) {
+    if (this.data && this.data.results) {
+      for (var result of this.data.results) {
+        if (parseInt(result.clubNo) === parseInt(carNo)) {
+          return result.clubNo
+        }
+      }
+    } 
+    return ''
+  }
+
   getErrorObj(message, url, type) {
     let res = {}
     res.bbkUrl = url
@@ -48,26 +61,22 @@ export class BbkParser extends BbkBase {
     let race
     let url
     let response
+    
     if (season.hasOwnProperty('bbkMtgStart') && season.hasOwnProperty('bbkMtgEnd')) {
+      let data = {}
+      data.races = []
+      let classResponseItem = {}
       response = {}
-      response.season = season
       response.season_id = season._id
+      response.genDate = new Date()
+      response.classNames = []
+      response.season = season
       response.trackLength = parseInt(process.env.TRACK_LENGTH)
-      response.raceCount = 0
-      response.currEventCount = 0
       response.bbkEventCount = 0
       response.bestOf = season.bbkSeasonDir
       response.bbkSeasonDir = season.bbkSeasonDir
       response.bbkUrl = process.env.BBK_ROOT_DIR + '/' + season.bbkSeasonDir
-      response.mostConsistent = {}
-      response.mostImproved = {}
-      response.mostPodiums = {}
-      response.mostLaps = {}
-      response.mostLapsInRace = {}
-      response.bestLapsByClass = []
-      response.bestAvrgLapsByClass = []
-      response.racesByRacer = []
-      response.races = []
+      response.classes = []   
       
       for (var raceType=1; raceType<=2; raceType++) { 
         switch (raceType) {
@@ -77,6 +86,7 @@ export class BbkParser extends BbkBase {
           case 2:
             typePrefix = 'h'
         }
+
         for (var m=season.bbkMtgStart; m<=season.bbkMtgEnd; m++) {
           loop1:
           for (var g=1; g <= process.env.MAX_RACES; g++) { 
@@ -85,7 +95,7 @@ export class BbkParser extends BbkBase {
               url = `${process.env.FRONT_END_HOST}${process.env.BBK_ROOT_DIR}/${season.bbkSeasonDir}/mtg${m}/${typePrefix}${g}r${r}.htm`
               race = await this.getBbkData(url, 1)
               if (race && !race.hasOwnProperty('error')) {
-                response.races.push(race)
+                data.races.push(race)
               } else {
                 break loop2
               }
@@ -96,23 +106,50 @@ export class BbkParser extends BbkBase {
           }
         }
       }
-      if (response.races && response.races.length > 0) {
-        response.raceCount = response.races.length
-        response.bestLapsByClass = this.getBestLapsByClass(response)
-        response.bestAvrgLapsByClass = this.getBestAvrgLapsByClass(response)
-        response.racesByRacer = this.getRacesByRacer(response)
-        response.racesByRacer = this.calRoundCountByRacer(response.racesByRacer) 
-        response.mostConsistent = this.getMostConsistent(response.racesByRacer)
-        response.mostImproved = this.getMostImproved(response.racesByRacer)
-        response.mostPodiums = this.getMostPodiums(response.racesByRacer)
-        response.mostLaps = this.getMostLaps(response.racesByRacer)
-        response.mostLapsInRace = this.getMostLapsInRace(response)
-        response.currEventCount = this.distinctEvents.length
-        response.bbkEventCount = season.bbkMtgEnd - season.bbkMtgStart 
-        response.bestOf = response.bbkEventCount - season.bestOffset  
+
+      response.bbkEventCount = season.bbkMtgEnd - season.bbkMtgStart 
+      response.bestOf = response.bbkEventCount - season.bestOffset
+      this.disctinctClasses = this.getDistinctClasses(data)
+      response.classNames = this.disctinctClasses
+      if (data && data.races.length > 0) {
+        for (var cls of this.disctinctClasses) {
+          this.activeClass = cls
+          classResponseItem = { 'class': this.activeClass }
+          classResponseItem.raceCount = this.getRaceCount(data)
+          classResponseItem.bestLaps = this.getBestLap(data)
+          classResponseItem.bestAvrgLap = this.getBestAvrgLap(data)
+          classResponseItem.racesByRacer = this.getRacesByRacer(data)
+          classResponseItem.racesByRacer = this.getRoundCountByRacer(classResponseItem.racesByRacer) 
+          classResponseItem.mostConsistent = this.getMostConsistent(classResponseItem.racesByRacer)
+          classResponseItem.mostImproved = this.getMostImproved(classResponseItem.racesByRacer)
+          classResponseItem.mostPodiums = this.getMostPodiums(classResponseItem.racesByRacer)
+          classResponseItem.mostLaps = this.getMostLaps(classResponseItem.racesByRacer)
+          classResponseItem.mostLapsInRace = this.getMostLapsInRace(data)
+          response.classes.push(classResponseItem)  
+        }  
       }
     }
     return response
+  }
+
+  getDistinctClasses(data){
+    let res = []
+    for (var race of data.races) {
+      if (res.indexOf(race.class) === -1) {
+        res.push(race.class.trim())
+      }
+    }
+    return res
+  }
+
+  getRaceCount(data){
+    let res = 0
+    for (var race of data.races) {
+      if (this.raceInClass(race)) {
+        res++
+      }
+    }
+    return res
   }
   
   transformLapDataResults(laps) {
@@ -283,7 +320,7 @@ export class BbkParser extends BbkBase {
       let fileStrings = []
       let response = {}
       if (fileStr) {
-        fileStrings = fileStr.text.split(/\r?\n/);
+        fileStrings = fileStr.text.split(/\r?\n/)
       }
       let tableHeaderEndIdx = tableHeaderIdx
       while (fileStrings && tableHeaderEndIdx < fileStrings.length && fileStrings[tableHeaderEndIdx].trim() !== '') {
@@ -291,9 +328,9 @@ export class BbkParser extends BbkBase {
       }
       if (fileStrings && fileStrings.length > 0) {
         response.bbkUrl = this.url
-        response.name = fileStrings[titleIdx]
+        response.event = fileStrings[titleIdx]
         response.duration = fileStrings[timeIdx]
-        response.race = fileStrings[nameIdx]
+        response.name = fileStrings[nameIdx]
         response.class = this.extractClassName(fileStrings[nameIdx])
         response.results = []
         let lines = []
@@ -326,19 +363,26 @@ export class BbkParser extends BbkBase {
     }
   }
 
-  calRoundCountByRacer(racesByRacer) {
+  getRoundCountByRacer(racesByRacer) {
     for (var racer of racesByRacer) {
       let distinctEvents = []
       for (var race of racer.races) {
-        if (this.distinctEvents.indexOf(race.event) === -1) {
-          this.distinctEvents.push(race.event)
-        }
-        if (distinctEvents.indexOf(race.event) === -1) {
-          distinctEvents.push(race.event)
-          if (!racer.hasOwnProperty('roundCount')) {
-            racer.roundCount = 1
+        if (this.raceInClass(race)) {
+          if (!racer.hasOwnProperty('raceCount')) {
+            racer.raceCount = 1
           } else {
-            racer.roundCount++
+            racer.raceCount++
+          }
+          if (this.distinctEvents.indexOf(race.event) === -1) {
+            this.distinctEvents.push(race.event)
+          }
+          if (distinctEvents.indexOf(race.event) === -1) {
+            distinctEvents.push(race.event)
+            if (!racer.hasOwnProperty('roundCount')) {
+              racer.roundCount = 1
+            } else {
+              racer.roundCount++
+            }
           }
         }
       }
@@ -352,7 +396,7 @@ export class BbkParser extends BbkBase {
     let raceItem
     if (data && data.hasOwnProperty('races')) {
       for (var race of data.races) {
-        if (race.hasOwnProperty('results')) {
+        if (race.hasOwnProperty('results') && this.raceInClass(race)) {
           for (var result of race.results) {
             nameItem = nameMap.get(result.name) 
             if (result.name && 
@@ -362,21 +406,33 @@ export class BbkParser extends BbkBase {
               if (!nameItem) {
                 nameItem = {}
                 nameItem.name = result.name
+                nameItem.clubNo = result.clubNo
                 nameItem.podiums = 0
                 nameItem.totalLaps = 0
+                nameItem.bestLap = 0
                 nameItem.consistPct = 0
                 nameItem.improvSec = 0
-                nameItem.roundCount = 0 
+                nameItem.roundCount = 0
+                nameItem.raceCount = 0 
                 nameItem.races = []
               }
               raceItem = {}
-              raceItem.event = race.name
-              raceItem.race = race.race
-              raceItem.avrgLap = result.avrgLap
-              raceItem.bestLap = result.bestLap
-              raceItem.lapCount = result.lapCount
+              raceItem.event = race.event
+              raceItem.name = race.name
+              raceItem.class = race.class
+              raceItem.racerName = nameItem.name
+              if (parseFloat(result.bestLap) < nameItem.bestLap || nameItem.bestLap === 0) {
+                nameItem.bestLap = result.bestLap
+              }
+              raceItem.clubNo = parseInt(result.clubNo)
+              raceItem.carNo = parseInt(result.carNo)
+              raceItem.avrgLap = parseFloat(result.avrgLap)
+              raceItem.bestLap = parseFloat(result.bestLap)
+              raceItem.lapCount = parseInt(result.lapCount)
+              raceItem.laps = this.getLapsByCarNo(race, result.carNo)
+              
               nameItem.totalLaps = nameItem.totalLaps + result.lapCount
-              if (result.pos <= 3 && race.race.includes('Final')) {
+              if (result.pos <= 3 && race.name.includes('Final')) {
                 nameItem.podiums++   
               }
               nameItem.races.push(raceItem)
@@ -397,6 +453,17 @@ export class BbkParser extends BbkBase {
       }
       return res
     }  
+  }
+
+  getLapsByCarNo(race, carNo) {
+    let res = []
+    for (var lap of race.laps) {
+      if (parseInt(lap.carNo) === parseInt(carNo)) {
+        res = lap.secs
+        return res
+      }
+    }
+    return res
   }
 
   calcConsistency(racerData) {
@@ -465,18 +532,22 @@ export class BbkParser extends BbkBase {
     improvSec = parseFloat((lateAvrgSecs - earlyAvrgSecs).toFixed(3)) 
     return improvSec 
   }
+
+  raceInClass(race) {
+    return this.activeClass === '' || this.activeClass === race.class
+  }
   
-  getBestLapsByClass(data) {
+  getBestLap(data) {
     let classMap = new Map()
     let raceItem
     if (data && data.hasOwnProperty('races')) {
       for (var race of data.races) {
-        if (race.hasOwnProperty('results')) {
+        if (race.hasOwnProperty('results') && this.raceInClass(race)) {
           for (var result of race.results) {
             raceItem = classMap.get(race.class)  
             if ((!raceItem) || 
                 ((raceItem.class === race.class) && 
-                 (parseFloat(result.bestLap) < parseFloat(raceItem.bestLap)))) {
+                (parseFloat(result.bestLap) < parseFloat(raceItem.bestLap)))) {
               if ((result.bestLap && result.bestLap > 0)) {
                 raceItem = {}
                 raceItem.bbkUrl = race.bbkUrl
@@ -490,7 +561,6 @@ export class BbkParser extends BbkBase {
                 if (!raceItem.bestLapKph) {
                   raceItem.bestLapKph = 0  
                 }
-                
                 if (!raceItem.bestLap) {
                   raceItem.bestLap = 0  
                 }
@@ -508,12 +578,12 @@ export class BbkParser extends BbkBase {
     }
   }
 
-  getBestAvrgLapsByClass(data) {
+  getBestAvrgLap(data) {
     let classMap = new Map()
     let raceItem
     if (data && data.hasOwnProperty('races')) {
       for (var race of data.races) {
-        if (race.hasOwnProperty('results')) {
+        if (race.hasOwnProperty('results') && this.raceInClass(race)) {
           for (var result of race.results) {
             raceItem = classMap.get(race.class)  
             if ((!raceItem)  || 
@@ -530,10 +600,6 @@ export class BbkParser extends BbkBase {
                 raceItem.lapCount = result.lapCount
                 raceItem.avrgLap = parseFloat(result.avrgLap)
                 raceItem.avrgLapKph = parseFloat(this.calcKph(raceItem.avrgLap))
-                if (raceItem.avrgLap === 0) {
-                  console.log(result.avrgLap && parseFloat(result.avrgLap))
-                  console.log(raceItem)
-                }
                 if (!raceItem.avrgLap) {
                   raceItem.avrgLap = 0
                 }
@@ -557,23 +623,23 @@ export class BbkParser extends BbkBase {
   getMostConsistent(racesByRacer) {
     let res = {}
     racesByRacer = racesByRacer.sort(this.compareByConsistency)
-    if (racesByRacer[0].hasOwnProperty('consistPct')) {
+    if (racesByRacer[0].hasOwnProperty('consistPct') && parseFloat(racesByRacer[0].consistPct) > 0) {
       res.name = racesByRacer[0].name
-      res.consistPct = racesByRacer[0].consistPct
+      res.consistPct = parseFloat(racesByRacer[0].consistPct)
       return res
     }
-    return
+    return res
   }
   
   getMostImproved(racesByRacer) {
     let res = {}
     racesByRacer = racesByRacer.sort(this.compareByImprovSec)
-    if (racesByRacer[0].hasOwnProperty('improvSec')) {
+    if (racesByRacer[0].hasOwnProperty('improvSec') && parseFloat(racesByRacer[0].consistPct)) {
       res.name = racesByRacer[0].name
-      res.improvSec = racesByRacer[0].improvSec
+      res.improvSec = parseFloat(racesByRacer[0].improvSec)
       return res
     }
-    return 
+    return res
   }
 
   getMostPodiums(racesByRacer) {
@@ -586,8 +652,10 @@ export class BbkParser extends BbkBase {
       }
       item = {}
       item.name = racesByRacer[0].name
-      item.podiums = racesByRacer[0].podiums
-      res.push(item)
+      item.podiums = parseInt(racesByRacer[0].podiums)
+      if (item.podiums && item.podiums > 0) {
+        res.push(item)
+      }
     }
     return res
   }
@@ -615,7 +683,7 @@ export class BbkParser extends BbkBase {
     let currBest = 0
     if (data && data.hasOwnProperty('races')) {
       for (var race of data.races) {
-        if (race.hasOwnProperty('results')) {
+        if (race.hasOwnProperty('results') && this.raceInClass(race)) {
           for (var result of race.results) {
             if (result.lapCount >= currBest) {
               if (result.lapCount > currBest) {
