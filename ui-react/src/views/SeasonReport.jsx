@@ -89,13 +89,13 @@ function SeasonReport() {
     },
     {
       name: 'Improvement (sec)',
-      width: '10rem',
+      width: '11rem',
       selector: row => row.improvSec,
       sortable: true,
     },
     {
       name: 'Consistency (%)',
-      width: '9rem',
+      width: '10rem',
       selector: row => row.consistPct,
       sortable: true,
     },
