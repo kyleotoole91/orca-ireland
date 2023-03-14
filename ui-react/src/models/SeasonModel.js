@@ -45,9 +45,22 @@ export class SeasonModel extends BaseModel {
     }
   }
 
+  parseValues(season) {
+    if (season.hasOwnProperty('bestOffset')) {
+      season.bestOffset = parseInt(season.bestOffset)
+    }
+    if (season.hasOwnProperty('pointsOffset')) {
+      season.pointsOffset = parseInt(season.pointsOffset)
+    }
+    if (season.hasOwnProperty('maxPoints')) {
+      season.maxPoints = parseInt(season.maxPoints)
+    }
+  }
+
   async post(season) {
     let origEndpoint = this.endpoint
     try {
+      this.parseValues(season)
       if (!season.name || season.name === '') {
         this.setErrorMessage('Please specify a name')
       } else {
@@ -62,6 +75,7 @@ export class SeasonModel extends BaseModel {
   async put(seasonId, season) {
     let origEndpoint = this.endpoint
     try {
+      this.parseValues(season)
       if (seasonId === '') {
         this.setErrorMessage('Please specify a season')
       } else if (!season.name || season.name === '') {
