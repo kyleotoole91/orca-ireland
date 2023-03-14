@@ -410,6 +410,7 @@ export class BbkParser extends BbkBase {
                 nameItem.podiums = 0
                 nameItem.totalLaps = 0
                 nameItem.bestLap = 0
+                nameItem.bestLapKph = 0
                 nameItem.consistPct = 0
                 nameItem.improvSec = 0
                 nameItem.roundCount = 0
@@ -424,12 +425,15 @@ export class BbkParser extends BbkBase {
               raceItem.pos = result.pos
               raceItem.racerName = nameItem.name
               if (parseFloat(result.bestLap) < nameItem.bestLap || nameItem.bestLap === 0) {
-                nameItem.bestLap = result.bestLap
+                nameItem.bestLap = parseFloat(result.bestLap)
+                nameItem.bestLapKph = parseFloat(this.calcKph(result.bestLap))
               }
               raceItem.clubNo = parseInt(result.clubNo)
               raceItem.carNo = parseInt(result.carNo)
               raceItem.avrgLap = parseFloat(result.avrgLap)
               raceItem.bestLap = parseFloat(result.bestLap)
+              raceItem.avrgLapKph = parseFloat(this.calcKph(raceItem.avrgLap))
+              raceItem.bestLapKph = parseFloat(this.calcKph(raceItem.bestLap))
               raceItem.lapCount = parseInt(result.lapCount)
               raceItem.laps = this.getLapsByCarNo(race, result.carNo)
               
