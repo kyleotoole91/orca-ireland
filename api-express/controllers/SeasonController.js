@@ -196,7 +196,7 @@ export class SeasonController extends BaseController {
             response = await this.bbk.getSeasonReport(this.season)
           } else {
             response = await this.seasonReportDB.getBySeasonId(seasonId)
-            if (response && response.length === 0){
+            if (response && response.length === 0) {
               response = null  
             } else {
               response = response[0]
