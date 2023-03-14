@@ -52,7 +52,7 @@ function App() {
                 <Route path="/home" component={Homepage} />
                 <Route path="/events/:id" component={EventDetail} />
                 <Route path="/events" component={Events} />
-                <Route path="/seasons/:id/reports/bbk/results" component={SeasonReport} />
+                <Route path="/seasons/:id/reports/bbk" component={SeasonReport} />
                 <Route path="/seasons/:id" component={SeasonDetail} />
                 <Route path="/seasons" component={Seasons} />
                 <Route path="/articles" component={Articles} />
