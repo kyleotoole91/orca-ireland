@@ -108,7 +108,7 @@ function SeasonDetail() {
   }
 
   function bbkReportUrl(seasonId) {
-    history.push(`/seasons/${seasonId}/reports/bbk/results`)
+    history.push(`/seasons/${seasonId}/reports/bbk`)
   }
 
   function detailsButton(season) {
