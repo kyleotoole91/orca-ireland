@@ -53,24 +53,29 @@ export class SeasonController extends BaseController {
     }
   }
 
-  async calcDriverStandings() {
+  async calcDriverStandings(eventTypeId) {
     let classId = ''
+    let map
     let classResults = []
     let classResult = {}
     let driver
     let eventPoints
     let classes = await this.classes.getAllDocuments()
-    
+    this.season.eventCount = 0
+    for (var event of this.season.events) {
+      if (this.includeEvent(event)) {
+        this.season.eventCount++
+      }
+    }
     if (classes) {
       for (var cls of classes) {
         classId = cls._id.toString()
         classResult = {}
         classResult.standings = []
         classResult.className = cls.name
-        this.season.eventCount = this.season.events.length
         if (this.season.events) {
           this.cars = await this.carsDB.getAllDocuments()
-          let map = new Map()
+          map = new Map()
           for (var event of this.season.events) {
             if (event.races && this.includeEvent(event)) {
               for (var race of event.races) {
@@ -135,6 +140,7 @@ export class SeasonController extends BaseController {
     this.season.classResults = classResults
     return this.season
   }
+
 
   async getDefaultEventTypeId() {
     let eventTypes = await this.eventTypeDB.getAllDocuments()
