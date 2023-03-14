@@ -76,9 +76,15 @@ function SeasonReport() {
       sortable: true,
     },
     {
-      name: 'Best Lap',
+      name: 'Best Sec',
       width: '8rem',
       selector: row => row.bestLap,
+      sortable: true,
+    },
+    {
+      name: 'Best Kph',
+      width: '8rem',
+      selector: row => row.bestLapKph,
       sortable: true,
     },
     {
@@ -119,14 +125,19 @@ function SeasonReport() {
       sortable: true,
     },
     {
-      name: 'Average Lap',
+      name: 'Average Sec',
       selector: row => row.avrgLap,
       width: '8rem',
       sortable: true,
     },
     {
-      name: 'Best Lap',
+      name: 'Best Sec',
       selector: row => row.bestLap,
+      sortable: true,
+    },
+    {
+      name: 'Best Kph',
+      selector: row => row.bestLapKph,
       sortable: true,
     }
   ]
