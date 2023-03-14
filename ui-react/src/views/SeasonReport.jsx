@@ -196,7 +196,7 @@ function SeasonReport() {
   } else if (seasonBbkReport) {
     return <>
       <Header props={{header: `${seasonBbkReport.season.name}`, 
-                      subHeader: dayjs(seasonBbkReport.startDate).format('DD/MM/YYYY') +' -> '+
+                      subHeader: dayjs(seasonBbkReport.season.startDate).format('DD/MM/YYYY') +' -> '+
                                  dayjs(seasonBbkReport.season.endDate).format('DD/MM/YYYY'),
                     }} /> 
       <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
