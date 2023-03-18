@@ -126,6 +126,17 @@ function Events() {
     eventModel.setApiToken(apiToken)
   }
 
+  async function getApiToken() {
+    try { 
+      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+      eventModel.setApiToken(token)
+      setApiToken(token)   
+    } catch(e) {
+      console.log(e)
+      loginWithRedirect()
+    }
+  }
+
   function getClassName(id) {
     let carClass
     if (classes && classes.length !== 0) { 
@@ -136,17 +147,6 @@ function Events() {
     } else {
       return ''
     } 
-  }
-
-  async function getApiToken() {
-    try { 
-      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
-      eventModel.setApiToken(token)
-      setApiToken(token)   
-    } catch(e) {
-      console.log(e)
-      loginWithRedirect()
-    }
   }
 
   async function handleShowRegistration(e) { 
@@ -393,7 +393,12 @@ function Events() {
               <Button onClick={handleShowRegistration} id={event._id}  style={{width: "100%"}} variant="outline-primary">
                 Registration
               </Button>} 
-            <Button id={event._id} onClick={(e) => showEventDetails(e.target.id)} style={{marginTop: `${detailBtnMrg}`, width: "100%"}} variant="outline-primary">
+            <Button id={event._id} 
+                    disabled={!currentEvent &&new Date(event.date) > new Date()} 
+                    variant={(!currentEvent && new Date(event.date) > new Date() && "outline-secondary") || "outline-primary"} 
+                    onClick={(e) => showEventDetails(e.target.id)} 
+                    style={{marginTop: `${detailBtnMrg}`, 
+                    width: "100%"}}>
               Details
             </Button> 
           </Card.Body>
