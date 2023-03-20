@@ -1,13 +1,12 @@
 import { React, useState, useEffect } from 'react'
 import { useAuth0 } from "@auth0/auth0-react"
-import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 import Loading from '../components/Loading'
 import { PlusButton } from '../components/PlusButton'
-import { GearButton} from '../components/GearButton'
 import { ArticleModel } from '../models/ArticleModel'
 import Header from '../components/Header'
+import NewsArticle from '../components/NewsArticle'
 import Form from 'react-bootstrap/Form'
 import { Permissions } from '../utils/permissions'
 import { DateUtils } from '../utils/DateUtils'
@@ -228,15 +227,6 @@ function Article() {
     )
   }
 
-  function getCardParagraphs(text, id) {
-    let paras = text.split('\n')
-    return (
-      paras.map((p, index) => (
-        <Card.Text key={'para' + index + id}>{p}</Card.Text>
-      ))
-    )
-  }
-
   if (loading) {
     return ( <Loading /> )
   } else if (!data || data.length === 0) {
@@ -260,19 +250,7 @@ function Article() {
         {modalForm()}
         <div style={{alignSelf: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
           {data && data.length > 0 && data.map((article, index) => (
-            <Card key={'card' + article._id} style={{ width: 'auto', maxWidth: '40rem', marginBottom: '18px' }}>
-              <Card.Header className="text-muted">{article.headline}</Card.Header>
-              <Card.Img variant="top" src={article.image} />
-              <Card.Body>
-                <Card.Title>{article.headline}</Card.Title>
-                {getCardParagraphs(article.body, article._id)}
-                {allowAddArticles &&
-                  <div style={{float: 'right'}} >
-                    <GearButton id={article._id} handleClick={() => editArticle(article._id)}/>
-                  </div> }
-              </Card.Body>
-              <Card.Footer className="text-muted">{article.footer} - {dateUtils.stringToWordDate(article.date)}</Card.Footer>
-            </Card>
+            <NewsArticle key={`NewsArticle-${article._id}`} props={{article, allowAddArticles, editArticle}} />
           ))}    
         </div>
       </div>

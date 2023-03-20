@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Header({props}){
+export const Header = ({props}) => {
   return (
     <div style={{ alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center', alignItems:'center', height: 'auto'}}>
       <h4 style={{fontWeight: 'bold'}}>{props.header}</h4>
