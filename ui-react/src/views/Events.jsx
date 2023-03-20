@@ -384,9 +384,7 @@ function Events() {
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
             <Card.Text>Entry fee &euro;{event.fee}</Card.Text>
-           
               <Card.Text>{dateUtils.stringToWordDateTime(event.date)}</Card.Text>
-       
             {currentEvent && 
               <Button onClick={handleShowRegistration} id={event._id}  style={{width: "100%"}} variant="outline-primary">
                 Registration
