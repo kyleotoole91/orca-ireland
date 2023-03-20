@@ -380,7 +380,7 @@ function Events() {
           <Card.Header>
              <b>{event.name}</b>
              <div style={{float: 'right'}} >
-              {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/> }
+              {allowDelEvents && <GearButton id={event._id} handleClick={() => editEvent(event._id)}/>}
             </div>
           </Card.Header>
           <Card.Body>
@@ -394,7 +394,7 @@ function Events() {
                 Registration
               </Button>} 
             <Button id={event._id} 
-                    disabled={!currentEvent &&new Date(event.date) > new Date()} 
+                    disabled={!currentEvent && new Date(event.date) > new Date()} 
                     variant={(!currentEvent && new Date(event.date) > new Date() && "outline-secondary") || "outline-primary"} 
                     onClick={(e) => showEventDetails(e.target.id)} 
                     style={{marginTop: `${detailBtnMrg}`, 

@@ -92,7 +92,7 @@ export class BbkParser extends BbkBase {
           for (var g=1; g <= process.env.MAX_RACES; g++) { 
             loop2:
             for (var r=1; r <= process.env.MAX_GROUPS; r++){
-              url = `${process.env.FRONT_END_HOST}${process.env.BBK_ROOT_DIR}/${season.bbkSeasonDir}/mtg${m}/${typePrefix}${g}r${r}.htm`
+              url = `${process.env.BBK_HOST}${process.env.BBK_ROOT_DIR}/${season.bbkSeasonDir}/mtg${m}/${typePrefix}${g}r${r}.htm`
               race = await this.getBbkData(url, 1)
               if (race && !race.hasOwnProperty('error')) {
                 data.races.push(race)

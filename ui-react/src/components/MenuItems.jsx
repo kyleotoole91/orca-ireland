@@ -18,8 +18,9 @@ class MenuItems extends Component {
         <>
           <MenuItem><Link id="home" to='/'>Home</Link></MenuItem>
           <MenuItem><Link id="gallery" to="/gallery">Gallery</Link></MenuItem>
-          {<MenuItem><Link id="events" to='/events'>Events</Link></MenuItem>}
-          {this.props.authenticated && <MenuItem><Link id="seasons" to='/seasons'>Seasons</Link></MenuItem>}
+          <MenuItem><Link id="articles" to='/articles'>News</Link></MenuItem>
+          <MenuItem><Link id="events" to='/events'>Events</Link></MenuItem>
+          <MenuItem><Link id="seasons" to='/seasons'>Results</Link></MenuItem>
           {this.props.authenticated && <MenuItem><Link id="garage" to='/garage'>Garage</Link></MenuItem>}
           {this.props.authenticated && <MenuItem><Link id="membership" to="/membership">Membership</Link></MenuItem>}
           {this.props.authenticated && <MenuItem><Link id="membership" to="/polls">Polls</Link></MenuItem>}

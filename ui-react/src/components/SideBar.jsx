@@ -36,10 +36,13 @@ export default class SideBar extends Component {
       <Menu isOpen={this.state.menuOpen} onStateChange={(state) => this.handleStateChange(state)} styles={styles} >
         <Link onClick={() => this.closeMenu()} id="home" to="/">Home</Link>
         <Link onClick={() => this.closeMenu()} id="gallery" to="/gallery">Gallery</Link>
+        {!this.props.authenticated && <Link onClick={() => this.closeMenu()} id="articles" className="menu-item" to="/articles">News</Link>}
         {!this.props.authenticated && <Link onClick={() => this.closeMenu()} id="events" className="menu-item" to="/events">Events</Link>}
+        {!this.props.authenticated && <Link onClick={() => this.closeMenu()} id="seasons" className="menu-item" to="/seasons">Results</Link>}
         {!this.props.authenticated && <Link onClick={() => this.closeMenu()} id="about" className="menu-item--small" to="/about">About</Link>}
+        {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="articles" className="menu-item" to="/articles">News</Link>}
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="events" className="menu-item" to="/events">Events</Link>}
-        {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="seasons" className="menu-item" to="/seasons">Seasons</Link>}
+        {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="seasons" className="menu-item" to="/seasons">Results</Link>}
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="garage" className="menu-item" to="/garage">Garage</Link>}
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="membership" className="menu-item--small" to="/membership">Membership</Link>}
         {this.props.authenticated && <Link onClick={() => this.closeMenu()} id="polls" className="menu-item--small" to="/polls">Polls</Link>}

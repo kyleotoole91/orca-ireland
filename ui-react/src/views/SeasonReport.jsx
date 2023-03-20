@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react'
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react"
+import { useAuth0 } from "@auth0/auth0-react"
 import Loading from '../components/Loading'
 import Header from '../components/Header'
 import { SeasonModel } from '../models/SeasonModel'
@@ -17,22 +17,20 @@ function SeasonReport() {
   useEffect(() => {
     async function loadData () {
       setLoading(true)
-      if (apiToken !== '') {
-        try {
-          const seasonModel = new SeasonModel(apiToken)
-          await seasonModel.getSeasonBbkReport(id)
-          if (seasonModel.success) {
-            setSeasonBbkReport(seasonModel.responseData)
-          } else {
-            window.alert(seasonModel.message)
-          }
-        } finally {
-          setLoading(false)
+      try {
+        const seasonModel = new SeasonModel(apiToken)
+        await seasonModel.getSeasonBbkReport(id)
+        if (seasonModel.success) {
+          setSeasonBbkReport(seasonModel.responseData)
+        } else {
+          window.alert(seasonModel.message)
         }
+      } finally {
+        setLoading(false)
       }
     }  
     loadData()
-  }, [id, apiToken, user.sub])
+  }, [id, apiToken, user])
 
   async function getApiToken() {
     try { 
@@ -45,9 +43,7 @@ function SeasonReport() {
   }
 
   if (apiToken === '') {
-    if (!isAuthenticated) {
-      loginWithRedirect()
-    } else {
+    if (isAuthenticated) {
       getApiToken()
     }
   }
@@ -208,4 +204,4 @@ function SeasonReport() {
   } else return <h2>Not found</h2>
 }
 
-export default withAuthenticationRequired(SeasonReport, { onRedirecting: () => (<Loading />) })
+export default SeasonReport

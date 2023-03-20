@@ -4,6 +4,7 @@ import { EventController } from './controllers/EventController'
 import { CarController } from './controllers/CarController' 
 import { SeasonController } from './controllers/SeasonController' 
 import { PollController } from './controllers/PollController' 
+import { ArticleModel } from './models/ArticleModel' 
 import validateJwt from './utils/validate-jwt'
 require('dotenv').config()
 const fs = require('fs')
@@ -72,6 +73,8 @@ const racesController = new BaseController('races')
 const memberTypesController = new BaseController('memberTypes')
 const eventTypesController = new BaseController('eventTypes')
 const articlesController = new BaseController('articles')
+articlesController.db = new ArticleModel();
+
 //races
 app.get('/races', validateJwt, (req, res) => racesController.getAllDocuments(req, res))
 app.get('/races/:id', validateJwt, (req, res) => racesController.getDocument(req, res))
@@ -79,10 +82,10 @@ app.post('/races', validateJwt, (req, res) => racesController.addDocument(req, r
 app.put('/races/:id', validateJwt, (req, res) => racesController.updateEvent(req, res))
 app.delete('/races/:id', validateJwt, (req, res) => racesController.deleteDocument(req, res))
 //seasons
-app.get('/seasons', validateJwt, (req, res) => seasonsController.getAllDocuments(req, res))
-app.get('/seasons/:id', validateJwt, (req, res) => seasonsController.getDocument(req, res))
-app.get('/seasons/:id/results', validateJwt, (req, res) => seasonsController.getSeasonResults(req, res))
-app.get('/seasons/:id/reports/bbk', validateJwt, (req, res) => seasonsController.getSeasonBbkResults(req, res))
+app.get('/seasons', (req, res) => seasonsController.getAllDocuments(req, res))
+app.get('/seasons/:id', (req, res) => seasonsController.getDocument(req, res))
+app.get('/seasons/:id/results', (req, res) => seasonsController.getSeasonResults(req, res))
+app.get('/seasons/:id/reports/bbk', (req, res) => seasonsController.getSeasonBbkResults(req, res))
 app.post('/seasons', validateJwt, (req, res) => seasonsController.addDocument(req, res))
 app.put('/seasons/:id', validateJwt, (req, res) => seasonsController.updateDocument(req, res))
 app.delete('/seasons/:id', validateJwt, (req, res) => seasonsController.deleteDocument(req, res))

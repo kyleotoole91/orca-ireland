@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react'
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react"
+import { useAuth0 } from "@auth0/auth0-react"
 import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
@@ -49,51 +49,48 @@ function Seasons() {
   const [eventTypes, setEventTypes] = useState([])
   const [eventTypeId, setEventTypeId] = useState('')
 
+  useEffect(() => {
+    async function loadData () {
+      setLoading(true)
+      try {
+        const seasonModel = new SeasonModel(apiToken)
+        const eventTypeModel = new EventTypeModel(apiToken)
+        await seasonModel.get()
+        await eventTypeModel.get()
+        if (seasonModel.success && eventTypeModel.success) {
+          seasonModel.responseData.sort((a, b) => parseFloat(b.startDate) - parseFloat(a.startDate)) //sort desc by date
+          setData(seasonModel.responseData)
+          setEventTypes(eventTypeModel.responseData)
+        } else {
+          window.alert(seasonModel.message + eventTypeModel.message)
+        }
+        const permissions = new Permissions()
+        setAllowAddSeasons(permissions.check(apiToken, 'post', 'seasons'))
+      } finally {
+        setLoading(false) 
+      }  
+    }  
+    loadData()
+  }, [refresh, user, apiToken])
+
   if (apiToken === '') {
-    if (!isAuthenticated) {
-      loginWithRedirect()
-    } else {
-      getApiToken()
+    if (isAuthenticated) {
+      getApiToken()  
     }
   } else { 
     seasonModel.setApiToken(apiToken)
   }
 
   async function getApiToken() {
-    try{ 
+    try { 
       const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
       seasonModel.setApiToken(token)
-      setApiToken(token)
+      setApiToken(token)   
     } catch(e) {
+      console.log(e)
       loginWithRedirect()
-    }   
+    }
   }
-
-  useEffect(() => {
-    async function loadData () {
-      if (apiToken !== '') {
-        setLoading(true)
-        try {
-          const seasonModel = new SeasonModel(apiToken)
-          const eventTypeModel = new EventTypeModel(apiToken)
-          await seasonModel.get()
-          await eventTypeModel.get()
-          if (seasonModel.success && eventTypeModel.success) {
-            seasonModel.responseData.sort((a, b) => parseFloat(b.startDate) - parseFloat(a.startDate)) //sort desc by date
-            setData(seasonModel.responseData)
-            setEventTypes(eventTypeModel.responseData)
-          } else {
-            window.alert(seasonModel.message + eventTypeModel.message)
-          }
-          const permissions = new Permissions()
-          setAllowAddSeasons(permissions.check(apiToken, 'post', 'seasons'))
-        } finally {
-          setLoading(false) 
-        }  
-      }
-    }  
-    loadData()
-  }, [refresh, apiToken, user.sub])
 
   async function deleteDoc() {
     try {
@@ -281,17 +278,13 @@ function Seasons() {
   }
   
   function showSeasonDetails(id) {
-    if (!isAuthenticated) {
-      loginWithRedirect({ appState: { targetUrl: window.location.pathname+'/'+id } })
-    } else {
-      history.push('/seasons/'+id)
-    }
+    history.push('/seasons/'+id)
   }
 
   function detailsButton(season) {
     return (
       <Button id={season._id} onClick={(e) => showSeasonDetails(e.target.id)} style={{marginTop: "6px", width: "100%"}} variant="outline-primary">
-        Details
+        Results
       </Button> 
     )
   }
@@ -301,14 +294,14 @@ function Seasons() {
   } else {
     return (
       <div>
-        <Header props={{header:'Seasons'}} /> 
+        <Header props={{header:'Results'}} /> 
         <div onClick={addDoc} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
         {allowAddSeasons && <PlusButton /> }
         </div>
         {modalForm()}         
-        <div style={{display: 'flex', flexFlow: 'wrap'}}>
+        <div style={{alignSelf: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
           {data && data.length > 0 && data.map((doc, index) => (
-            <Card style={{width: '240px', margin: '3px', zIndex: 0}} key={index}>
+            <Card style={{width: '250px', margin: '3px', zIndex: 0}} key={index}>
               <Card.Header>
                 <b>{doc.hasOwnProperty('name') && doc.name}</b>
                 {allowAddSeasons && 
@@ -331,4 +324,4 @@ function Seasons() {
   }
 }
 
-export default withAuthenticationRequired(Seasons, { onRedirecting: () => (<Loading />) });
+export default Seasons;

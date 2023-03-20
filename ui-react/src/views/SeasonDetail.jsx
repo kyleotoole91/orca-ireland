@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react'
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react"
+import { useAuth0 } from "@auth0/auth0-react"
 import Loading from '../components/Loading'
 import Header from '../components/Header'
 import { SeasonModel } from '../models/SeasonModel'
@@ -20,24 +20,22 @@ function SeasonDetail() {
   useEffect(() => {
     async function loadData () {
       setLoading(true)
-      if (apiToken !== '') {
-        try {
-          const seasonModel = new SeasonModel(apiToken)
-          await seasonModel.getSeasonResults(id)
-          if (seasonModel.success) {
-            setSeason(seasonModel.responseData)
-          } else {
-            setSeason()
-            window.alert(seasonModel.message)
-            history.push('/seasons')
-          }
-        } finally {
-          setLoading(false)
+      try {
+        const seasonModel = new SeasonModel(apiToken)
+        await seasonModel.getSeasonResults(id)
+        if (seasonModel.success) {
+          setSeason(seasonModel.responseData)
+        } else {
+          setSeason()
+          window.alert(seasonModel.message)
+          history.push('/seasons')
         }
+      } finally {
+        setLoading(false)
       }
     }  
     loadData()
-  }, [id, apiToken, user.sub, history])
+  }, [id, apiToken, user, history])
 
   async function getApiToken() {
     try { 
@@ -50,9 +48,7 @@ function SeasonDetail() {
   }
 
   if (apiToken === '') {
-    if (!isAuthenticated) {
-      loginWithRedirect()
-    } else {
+    if (isAuthenticated) {
       getApiToken()
     }
   }
@@ -76,7 +72,18 @@ function SeasonDetail() {
     ))) 
   }
 
+  function removeEmptyClasses() {
+    if (season && season.hasOwnProperty('classResults')) {
+      for (let i = 0; i < season.classResults.length; i++) {
+        if (!season.classResults[i].hasOwnProperty('standings') || season.classResults[i].standings.length === 0) {
+          season.classResults.splice(i, 1)
+        }
+      }
+    }
+  }
+
   function showDriverStandings() {
+    removeEmptyClasses()
     return (
       season.classResults.map((classResult, index) => (
           <div style={{ alignSelf: 'center'}} key={index+'-div'}>
@@ -150,4 +157,4 @@ function SeasonDetail() {
   } else return <h2>Not found</h2>
 }
 
-export default withAuthenticationRequired(SeasonDetail, { onRedirecting: () => (<Loading />) })
+export default SeasonDetail

@@ -11,11 +11,11 @@ function MenuBar () {
   const { width } = useWindowDimensions()
   return (
     <>
-      {width <= 900 &&
+      {width <= 975 &&
         <SideBar authenticated={isAuthenticated} />
       }
       <MenuBarContainer style={{zIndex: 3}} > 
-        {width <= 900 &&
+        {width <= 975 &&
           <BurgerContainer />
         }
         {width > 250 && 
@@ -41,7 +41,7 @@ const BurgerContainer = styled.div`
   }
 `
 const MenuBarContainer = styled.div`
-background: ${({theme}) => theme.colorWhite};
+  background: ${({theme}) => theme.colorWhite};
   position: sticky;
   height: 48px;
   top: 0px;
