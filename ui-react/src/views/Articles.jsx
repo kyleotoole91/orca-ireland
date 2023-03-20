@@ -33,30 +33,11 @@ function Article() {
   const [allowAddArticles, setAllowAddArticles] = useState(false)
   const [editing, setEditing] = useState(false)
   const [refresh, setRefresh] = useState(false)
-
   const handleClose = () => {
     setShow(false)
   }
   const handleShow = () => {
     setShow(true)
-  }
-
-  if (apiToken === '') {
-    if (isAuthenticated) {
-      getApiToken()  
-    }
-  } else { 
-    articleModel.setApiToken(apiToken)
-  }
-
-  async function getApiToken() {
-    try { 
-      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
-      articleModel.setApiToken(token)
-      setApiToken(token)   
-    } catch(e) {
-      console.log(e)
-    }
   }
 
   useEffect(() => {
@@ -78,6 +59,24 @@ function Article() {
     }  
     loadData()
   }, [refresh, apiToken, user])
+
+  if (apiToken === '') {
+    if (isAuthenticated) {
+      getApiToken()  
+    }
+  } else { 
+    articleModel.setApiToken(apiToken)
+  }
+
+  async function getApiToken() {
+    try { 
+      const token = await getAccessTokenSilently({ audience: process.env.REACT_APP_AUTH0_AUDIENCE })
+      articleModel.setApiToken(token)
+      setApiToken(token)   
+    } catch(e) {
+      console.log(e)
+    }
+  }
 
   async function deleteArticle() {
     try {
@@ -262,6 +261,7 @@ function Article() {
         <div style={{alignSelf: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
           {data && data.length > 0 && data.map((article, index) => (
             <Card key={'card' + article._id} style={{ width: 'auto', maxWidth: '40rem', marginBottom: '18px' }}>
+              <Card.Header className="text-muted">{article.headline}</Card.Header>
               <Card.Img variant="top" src={article.image} />
               <Card.Body>
                 <Card.Title>{article.headline}</Card.Title>
@@ -271,7 +271,7 @@ function Article() {
                     <GearButton id={article._id} handleClick={() => editArticle(article._id)}/>
                   </div> }
               </Card.Body>
-              <Card.Footer className="text-muted">{article.footer + ' - '+ dateUtils.stringToWordDate(article.date)}</Card.Footer>
+              <Card.Footer className="text-muted">{article.footer} - {dateUtils.stringToWordDate(article.date)}</Card.Footer>
             </Card>
           ))}    
         </div>

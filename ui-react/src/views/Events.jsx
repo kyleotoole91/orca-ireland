@@ -368,15 +368,13 @@ function Events() {
   }
 
   function addCards(events, currentEvent) {
-    let margin = '0px'
     let detailBtnMrg = '10px'
     if (currentEvent) {
-      margin = '10px'
       detailBtnMrg = '6px'
     }
     return (
       events.map((event) => (
-        <Card style={{minWidth: '225px', maxWidth: '225px', margin: '3px', zIndex: 0}} key={event._id}>
+        <Card style={{minWidth: '225px', maxWidth: '225px', textAlign: 'center', margin: '3px', zIndex: 0}} key={event._id}>
           <Card.Header>
              <b>{event.name}</b>
              <div style={{float: 'right'}} >
@@ -386,9 +384,9 @@ function Events() {
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
             <Card.Text>Entry fee &euro;{event.fee}</Card.Text>
-            <div style={{marginBottom: `${margin}`, float: 'left'}}>
+           
               <Card.Text>{dateUtils.stringToWordDateTime(event.date)}</Card.Text>
-            </div>
+       
             {currentEvent && 
               <Button onClick={handleShowRegistration} id={event._id}  style={{width: "100%"}} variant="outline-primary">
                 Registration

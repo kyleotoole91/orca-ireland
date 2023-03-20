@@ -301,7 +301,7 @@ function Seasons() {
         {modalForm()}         
         <div style={{alignSelf: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
           {data && data.length > 0 && data.map((doc, index) => (
-            <Card style={{width: '250px', margin: '3px', zIndex: 0}} key={index}>
+            <Card style={{width: '100%', minWidth: '22rem', textAlign: 'center', maxWidth: '80rem', margin: '3px', zIndex: 0}} key={index}>
               <Card.Header>
                 <b>{doc.hasOwnProperty('name') && doc.name}</b>
                 {allowAddSeasons && 
@@ -310,15 +310,12 @@ function Seasons() {
                   </div> }
               </Card.Header>
               <Card.Body>
-                <b>Start Date:</b>
-                <Card.Text>{dateUtils.stringToWordDate(doc.startDate)}</Card.Text> 
-                <b>End Date:</b>
-                <Card.Text>{dateUtils.stringToWordDate(doc.endDate)}</Card.Text>
+                <Card.Text>{dateUtils.stringToWordDate(doc.startDate)} <b>to</b> {dateUtils.stringToWordDate(doc.endDate)}</Card.Text> 
                 {detailsButton(doc)}
               </Card.Body>
             </Card>
-          ))}    
-        </div>                                  
+          ))}       
+        </div>             
       </div>
     )
   }

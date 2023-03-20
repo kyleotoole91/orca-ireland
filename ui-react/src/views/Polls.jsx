@@ -543,7 +543,7 @@ function Polls() {
         {modalCastVote()}
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
           {data && data.length > 0 && data.map((doc, index) => (
-            <Card style={{width: '240px', margin: '3px', zIndex: 0}} key={index}>
+            <Card style={{width: '240px', textAlign: 'center', margin: '3px', zIndex: 0}} key={index}>
               <Card.Header>
                 <b>{doc.title}</b>
                 {allowAddPolls && 
