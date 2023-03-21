@@ -48,6 +48,10 @@ function Seasons() {
   const handleShow = () => setShow(true)
   const [eventTypes, setEventTypes] = useState([])
   const [eventTypeId, setEventTypeId] = useState('')
+  const [bbkMtgStart, setBbkMtgStart] = useState(1)
+  const [bbkMtgEnd, setBbkMtgEnd] = useState(6)
+  const [bbkURL, setBbkUrl] = useState('/bbk/[season_folder]/index.htm')
+  const [bbkSeasonDir, setBbkSeasonDir] = useState('')
 
   useEffect(() => {
     async function loadData () {
@@ -111,7 +115,8 @@ function Seasons() {
 
   async function postDoc() {
     try {
-      await seasonModel.post({name, startDate, endDate, maxPoints, pointsOffset, bestOffset, 'eventType_id': eventTypeId})  
+      await seasonModel.post({name, startDate, endDate, maxPoints, pointsOffset, bestOffset,
+        bbkMtgStart, bbkMtgEnd, bbkURL, bbkSeasonDir, 'eventType_id': eventTypeId})  
       if (seasonModel.success) {
         setRefresh(!refresh)
         handleClose()
@@ -127,7 +132,8 @@ function Seasons() {
 
   async function putDoc(id) {
     try {
-      await seasonModel.put(id.toString(), {name, startDate, endDate, maxPoints, pointsOffset, bestOffset, 'eventType_id': eventTypeId})  
+      await seasonModel.put(id.toString(), {name, startDate, endDate, maxPoints, pointsOffset, bestOffset, 
+        bbkMtgStart, bbkMtgEnd, bbkURL, bbkSeasonDir, 'eventType_id': eventTypeId})  
       if (seasonModel.success) {
         setRefresh(!refresh)
         handleClose()
@@ -162,6 +168,10 @@ function Seasons() {
       setPointsOffset(season.pointsOffset)
       setBestOffset(season.bestOffset)
       setMaxPoints(season.maxPoints)
+      setBbkMtgStart(season.bbkMtgStart)
+      setBbkMtgEnd(season.bbkMtgEnd)
+      setBbkUrl(season.bbkURL)
+      setBbkSeasonDir(season.bbkSeasonDir)
       setEditing(true)
       handleShow()
     } else {
@@ -235,6 +245,13 @@ function Seasons() {
         </Modal.Header>
         <Modal.Body>
           <Form>
+            <Form.Group className="mb-3" controlId="formEventType">
+              <Form.Label>Event Type</Form.Label>
+              <Form.Select id='cb-event-type' onChange={(e) => handleEventTypeChange(e)} value={getEventTypeName(eventTypeId)}>
+                {eventTypes && eventTypes.map((eventType, index) => 
+                  <option id={eventType._id} key={index} >{eventType.name}</option> )}
+              </Form.Select>
+            </Form.Group>
             <Form.Group className="mb-3" controlId="formTitle">
               <Form.Label>Name</Form.Label>
               <Form.Control value={name} type="text" name="name" onChange={(e) => setName(e.target.value)}/>
@@ -259,12 +276,21 @@ function Seasons() {
               <Form.Label>Best Rounds Offset</Form.Label>
               <Form.Control value={bestOffset} type="number" name="pointsOffset" onChange={(e) => setBestOffset(e.target.value)} />
             </Form.Group> 
-            <Form.Group className="mb-3" controlId="formEventType">
-              <Form.Label>Event Type</Form.Label>
-              <Form.Select id='cb-event-type' onChange={(e) => handleEventTypeChange(e)} value={getEventTypeName(eventTypeId)}>
-                {eventTypes && eventTypes.map((eventType, index) => 
-                  <option id={eventType._id} key={index} >{eventType.name}</option> )}
-              </Form.Select>
+            <Form.Group className="mb-3" controlId="bbkMtgStart">
+              <Form.Label>BBK Meeting Start</Form.Label>
+              <Form.Control value={bbkMtgStart} type="number" name="pointsOffset" onChange={(e) => setBbkMtgStart(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="bbkMtgEnd">
+              <Form.Label>BBK Meeting End</Form.Label>
+              <Form.Control value={bbkMtgEnd} type="number" name="pointsOffset" onChange={(e) => setBbkMtgEnd(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBbkUrl">
+              <Form.Label>BBK Url</Form.Label>
+              <Form.Control value={bbkURL} type="text" name="name" onChange={(e) => setBbkUrl(e.target.value)}/>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBbkUrl">
+              <Form.Label>BBK Dir</Form.Label>
+              <Form.Control value={bbkSeasonDir} type="text" name="name" onChange={(e) => setBbkSeasonDir(e.target.value)}/>
             </Form.Group>
           </Form>
         </Modal.Body>
