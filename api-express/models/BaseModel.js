@@ -8,7 +8,16 @@ export class BaseModel {
     this.result = null
     this.db = null
     this.loadDetail = false
+    this.limit = 0
     this.setCollectionName(collectionName)
+  }
+
+  parseQueryParams(req) {
+    if (req.query.limit && parseInt(req.query.limit)) {
+      this.limit = parseInt(req.query.limit)
+    } else {
+      this.limit = 0
+    }
   }
 
   setCollectionName(name) {
@@ -76,13 +85,13 @@ export class BaseModel {
     }
   }
 
-  async getAllDocuments() {
+  async getAllDocuments(req) {
     try {
       let sort = {}
       if (this.collectionName === 'images') {
         sort = {"$natural": -1}
       } 
-      this.result = await this.db.find({"deleted": {"$in": [null, false]}}).sort(sort).toArray()
+      this.result = await this.db.find({"deleted": {"$in": [null, false]}}).sort(sort).limit(this.limit).toArray()
       if(!this.result) {
         this.message = 'Not found'
       } else {

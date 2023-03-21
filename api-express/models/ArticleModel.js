@@ -8,10 +8,11 @@ export class ArticleModel extends BaseModel {
     this.setCollectionName('articles')
   }
 
-  async getAllDocuments() {
+  async getAllDocuments(req) {
     try {
+      this.parseQueryParams(req) 
       const sort = {"date": -1}
-      this.result = await this.db.find({"deleted": {"$in": [null, false]}}).sort(sort).toArray()
+      this.result = await this.db.find({"deleted": {"$in": [null, false]}}).sort(sort).limit(this.limit).toArray()
       if(!this.result) {
         this.message = 'Not found'
       } else {
