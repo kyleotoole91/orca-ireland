@@ -206,7 +206,7 @@ function Article() {
             </Form.Group> 
             <Form.Group className="mb-3">
               <Form.Label>Body</Form.Label>
-              <Form.Control value={body} onChange={(e) => setBody(e.target.value)} type="text" as="textarea"/>
+              <Form.Control value={body} onChange={(e) => setBody(e.target.value)} type="text" as="textarea" style={{height: '8rem'}}/>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Footer</Form.Label>

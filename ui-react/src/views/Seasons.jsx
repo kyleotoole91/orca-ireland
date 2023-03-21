@@ -33,7 +33,7 @@ function Seasons() {
   const [data, setData] = useState([])
   const [name, setName] = useState('')
   const [pointsOffset, setPointsOffset] = useState(1)
-  const [bestOffset, setBestOffset] = useState(1)
+  const [bestOffset, setBestOffset] = useState(2)
   const [maxPoints, setMaxPoints] = useState(100)
   const [endDate, setEndDate] = useState(defaultDate)
   const [startDate, setStartDate] = useState(new Date())
