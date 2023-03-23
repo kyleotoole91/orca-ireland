@@ -149,9 +149,7 @@ function SeasonDetail() {
           {detailsButton(season)}
         </div> }
       <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
-      {season &&
-       season.hasOwnProperty('classResults') && 
-       showDriverStandings()}
+        {season && season.hasOwnProperty('classResults') && showDriverStandings()}
       </div>
       </>
   } else return <h2>Not found</h2>

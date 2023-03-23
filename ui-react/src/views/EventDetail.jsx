@@ -445,8 +445,8 @@ function EventDetail() {
     const filteredClasses = classesWithEntries(classes)
     return (
       filteredClasses.map((carClass, index) => (
-          <div key={index+'-div'}>
-            <h2 style={{fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={index+'-header-label'}>{carClass.name}</h2> 
+          <div style={{overflow: 'auto'}} key={index+'-div'}>
+            <h4 style={{fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={index+'-header-label'}>{carClass.name}</h4> 
             <Table striped bordered hover size="sm" key={index+'-roster'}>
               <thead key={index+'-roster-head'}>
                 <tr key={index+'-roster-row'}>
@@ -479,12 +479,12 @@ function EventDetail() {
   } else if (event) {
     return <>
       <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
-      <div style={{position: 'relative', width: 'auto', height: 'auto', maxWidth: '900px'}}>
+      <div style={{display: 'grid', justifyContent: 'center'}}>
         {showRoster()}  
         {raceForm()}
         {changeCarModal()}
       </div>
-          </>
+    </>
   } else return <h2>Not found</h2>
 }
 

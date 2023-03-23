@@ -22,7 +22,7 @@ function Article() {
   const [image, setImage] = useState('')
   const [headline, setHeadline] = useState('')
   const [body, setBody] = useState('')
-  const [footer, setFooter] = useState('')
+  const [footer, setFooter] = useState('Written by ')
   const [date, setDate] = useState(new Date())
   const [dateCtrl, setDateCtrl] = useState(defaultDateCtrl)
   const [data, setData] = useState([])
