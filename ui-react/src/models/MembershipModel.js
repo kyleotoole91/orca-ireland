@@ -19,7 +19,6 @@ export class MembershipModel extends BaseModel {
     } else {
       let prc = membership.fee 
       if (typeof prc == 'string') {
-        console.log(prc)
         membership.fee = parseFloat(prc.replace('€', ''))
       }
       return super.post(membership)
