@@ -83,7 +83,6 @@ export class BaseController {
   async getAllDocuments(req, res, next) {
     try {
       if (req.query.hasOwnProperty('user_id')) {
-        console.log(req.query.user_id)
         this.data = await this.db.getDocumentsByUserId(req.query.user_id) 
       } else {
         this.data = await this.db.getAllDocuments(req) 
