@@ -3,6 +3,8 @@ import Card from 'react-bootstrap/Card'
 import { DateUtils } from '../utils/DateUtils'
 import { GearButton} from '../components/GearButton'
 
+const cLinkMask='link:'
+
 export const NewsArticle = ({props}) => {
   const dateUtils = new DateUtils()
   const article = props.article
@@ -29,10 +31,17 @@ export const NewsArticle = ({props}) => {
 function getCardParagraphs(text, id) {
   let paras = text.split('\n')
   return (
-    paras.map((p, index) => (
-      <Card.Text key={'para' + index + id}>{p}</Card.Text>
-    ))
+    paras.map((p, index) => getCardTextType(index + id, p))
   )
+}
+
+function getCardTextType(id, text) {
+  if (text.startsWith(cLinkMask)) {
+    const url = text.substring(cLinkMask.length, text.length)
+    return <Card.Link href={url} key={'link' + id}>{url}</Card.Link>
+  } else {
+    return <Card.Text key={'para' + id}>{text}</Card.Text>
+  }
 }
 
 export default NewsArticle
