@@ -147,12 +147,6 @@ app.get('/articles/:id', (req, res) => articlesController.getDocument(req, res))
 app.post('/articles', validateJwt, (req, res) => articlesController.addDocument(req, res))
 app.put('/articles/:id', validateJwt, (req, res) => articlesController.updateDocument(req, res))
 app.delete('/articles/:id', validateJwt, (req, res) => articlesController.deleteDocument(req, res))
-//articles
-app.get('/articles', (req, res) => articlesController.getAllDocuments(req, res))
-app.get('/articles/:id', (req, res) => articlesController.getDocument(req, res))
-app.post('/articles', validateJwt, (req, res) => articlesController.addDocument(req, res))
-app.put('/articles/:id', validateJwt, (req, res) => articlesController.updateDocument(req, res))
-app.delete('/articles/:id', validateJwt, (req, res) => articlesController.deleteDocument(req, res))
 
 app.use(function (req, res) {
   res.status(404).send({'success': false, 'message': 'not found'})
