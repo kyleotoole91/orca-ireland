@@ -22,7 +22,7 @@ const raceModel = new RaceModel()
 const carModel = new CarModel()
 const eventModel = new EventModel()
 carModel.useExtId = false
-const max_per_race = 10
+const max_per_race = 50
 let currentCar = {}
 
 function EventDetail() {
