@@ -16,6 +16,8 @@ const dateUtils = new DateUtils()
 const defaultDate = new Date()
 const defaultDateCtrl = dateUtils.formatDate(defaultDate, 'yyyy-mm-dd')
 
+const cImageGalleryHost = 'https://orcaireland.com';
+
 function Article() {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0()
   const [articleId, setArticleId] = useState('')
@@ -96,7 +98,7 @@ function Article() {
 
   async function postArticle() {
     try {
-      await articleModel.post({ headline, image, date, body, footer })  
+      await articleModel.post({ headline, image: cleanseImageUrl(image), date, body, footer })  
       if (articleModel.success) {
         setRefresh(!refresh)
         handleClose()
@@ -112,7 +114,7 @@ function Article() {
 
   async function putArticle(id) {
     try {
-      await articleModel.put(id.toString(), { headline, image, date, body, footer })  
+      await articleModel.put(id.toString(), { headline, image: cleanseImageUrl(image), date, body, footer })  
       if (articleModel.success) {
         setRefresh(!refresh)
         handleClose()
@@ -188,6 +190,14 @@ function Article() {
     setDateCtrl(stringDate)  
   }
 
+  function cleanseImageUrl(url) {
+    if (url.startsWith(cImageGalleryHost)) {
+      return url.substring(cImageGalleryHost.length, url.length)
+    } else {
+      return url   
+    }
+  }
+
   function modalForm(){
     return (  
       <Modal key='articleForm' show={show} onHide={handleClose} >
@@ -196,13 +206,13 @@ function Article() {
         </Modal.Header>
         <Modal.Body style={{ display: 'grid' } } >
           <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Image URL</Form.Label>
-              <Form.Control value={image} onChange={(e) => setImage(e.target.value)} type="text" />
-            </Form.Group> 
             <Form.Group className="mb-3" >
               <Form.Label>Headline</Form.Label>
               <Form.Control value={headline} type="text" onChange={(e) => setHeadline(e.target.value)}/>
+            </Form.Group> 
+            <Form.Group className="mb-3">
+              <Form.Label>Image URL</Form.Label>
+              <Form.Control value={image} onChange={(e) => setImage(e.target.value)} type="text" />
             </Form.Group> 
             <Form.Group className="mb-3">
               <Form.Label>Body</Form.Label>
