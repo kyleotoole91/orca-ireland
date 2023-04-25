@@ -2,6 +2,8 @@ import { BbkBase } from './BbkBase.js'
 
 const cMinRaces = 5
 const cRaceDivider = 2
+const cFinal = 1
+const cHeat = 2
 const cManualLapChar = '*'
 const cEndOfFileString = 'bbkRC 2011-1� 2000, 2011 bbk Software Ltd' 
 
@@ -80,18 +82,18 @@ export class BbkParser extends BbkBase {
       
       for (var raceType=1; raceType<=2; raceType++) { 
         switch (raceType) {
-          case 1:
+          case cFinal:
             typePrefix = 'f'
             break
-          case 2:
+          case cHeat:
             typePrefix = 'h'
         }
 
-        for (var m=season.bbkMtgStart; m<=season.bbkMtgEnd; m++) {
+        for (var m = season.bbkMtgStart; m <= season.bbkMtgEnd; m++) {
           loop1:
-          for (var g=1; g <= process.env.MAX_RACES; g++) { 
+          for (var g = 1; g <= process.env.MAX_RACES; g++) { 
             loop2:
-            for (var r=1; r <= process.env.MAX_GROUPS; r++){
+            for (var r = 1; r <= process.env.MAX_GROUPS; r++){
               url = `${process.env.BBK_HOST}${process.env.BBK_ROOT_DIR}/${season.bbkSeasonDir}/mtg${m}/${typePrefix}${g}r${r}.htm`
               race = await this.getBbkData(url, 1)
               if (race && !race.hasOwnProperty('error')) {
@@ -99,9 +101,6 @@ export class BbkParser extends BbkBase {
               } else {
                 break loop2
               }
-            }
-            if ((g >= 1) && (race && !race.hasOwnProperty('error'))) {
-              break loop1
             }
           }
         }
