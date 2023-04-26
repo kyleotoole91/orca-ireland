@@ -117,8 +117,7 @@ export class BbkParser extends BbkBase {
           classResponseItem.raceCount = this.getRaceCount(data)
           classResponseItem.bestLaps = this.getBestLap(data)
           classResponseItem.bestAvrgLap = this.getBestAvrgLap(data)
-          classResponseItem.racesByRacer = this.getRacesByRacer(data)
-          classResponseItem.racesByRacer = this.getRoundCountByRacer(classResponseItem.racesByRacer) 
+          classResponseItem.racesByRacer = this.getRoundCountByRacer(this.getRacesByRacer(data))
           classResponseItem.mostConsistent = this.getMostConsistent(classResponseItem.racesByRacer)
           classResponseItem.mostImproved = this.getMostImproved(classResponseItem.racesByRacer)
           classResponseItem.mostPodiums = this.getMostPodiums(classResponseItem.racesByRacer)
@@ -409,6 +408,8 @@ export class BbkParser extends BbkBase {
                 nameItem.podiums = 0
                 nameItem.totalLaps = 0
                 nameItem.bestLap = 0
+                nameItem.avrgLap = 0
+                nameItem.totalAvrg = 0
                 nameItem.bestLapKph = 0
                 nameItem.consistPct = 0
                 nameItem.improvSec = 0
@@ -436,7 +437,11 @@ export class BbkParser extends BbkBase {
               raceItem.lapCount = parseInt(result.lapCount)
               raceItem.laps = this.getLapsByCarNo(race, result.carNo)
               
+              nameItem.raceCount++
               nameItem.totalLaps = nameItem.totalLaps + result.lapCount
+              nameItem.totalAvrg = nameItem.totalAvrg + raceItem.avrgLap
+              nameItem.avrgLap = parseFloat(nameItem.totalAvrg / nameItem.raceCount).toFixed(2)
+
               if (result.pos <= 3 && race.name.includes('Final')) {
                 nameItem.podiums++   
               }

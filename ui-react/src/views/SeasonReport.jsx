@@ -72,6 +72,12 @@ function SeasonReport() {
       sortable: true,
     },
     {
+      name: 'Avrg Lap',
+      width: '8rem',
+      selector: row => row.avrgLap,
+      sortable: true,
+    },
+    {
       name: 'Best Sec',
       width: '8rem',
       selector: row => row.bestLap,
