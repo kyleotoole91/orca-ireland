@@ -68,6 +68,7 @@ const usersController = new BaseController('users')
 const pollsController = new PollController()
 const classesController = new BaseController('classes')
 const imagesController = new BaseController('images')
+const videosController = new BaseController('videos')
 const seasonsController = new SeasonController('seasons')
 const racesController = new BaseController('races')
 const memberTypesController = new BaseController('memberTypes')
@@ -104,6 +105,9 @@ app.delete('/eventtypes/:id', validateJwt, (req, res) => eventTypesController.de
 //images
 app.get('/images', (req, res) => imagesController.getAllDocuments(req, res))
 app.get('/images/:id', (req, res) => imagesController.getDocument(req, res))
+//videos
+app.get('/videos', (req, res) => videosController.getAllDocuments(req, res))
+app.get('/videos/:id', (req, res) => videosController.getDocument(req, res))
 //users 
 app.get('/users', validateJwt, (req, res) => usersController.getAllDocuments(req, res))
 app.get('/users/:id', validateJwt, (req, res) => usersController.getUserDocument(req, res))

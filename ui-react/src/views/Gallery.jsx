@@ -3,10 +3,12 @@ import ImageGallery from 'react-image-gallery' //https://openbase.com/js/react-i
 import 'react-image-gallery/styles/scss/image-gallery.scss'
 import 'react-image-gallery/styles/css/image-gallery.css'
 import { ImageModel } from '../models/ImageModel'
+import { VideoModel } from '../models/VideoModel'
 import Loading from '../components/Loading'
 
 function Home() {
   const [images, setImages] = useState([])
+  const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -14,6 +16,7 @@ function Home() {
       setLoading(true)
       try {
         const imageModel = new ImageModel()
+        const videoModel = new VideoModel()
         await imageModel.get()
         if (imageModel.success) {
           if (imageModel.responseData.length > 0) {
@@ -21,6 +24,14 @@ function Home() {
           }
         } else {
           window.alert(imageModel.message)
+        }
+        await videoModel.get()
+        if (videoModel.success) {
+          if (videoModel.responseData.length > 0) {
+            setVideos(videoModel.responseData)
+          }
+        } else {
+          window.alert(videoModel.message)
         }
       } finally {
         setLoading(false)
@@ -37,9 +48,15 @@ function Home() {
   } else {
     return (
       <>
-        <div style={{width:'100%', height:'100%', alignItems: 'center', position: 'absolute'}}> 
+        <div>
           <ImageGallery items={images} lazyLoad={true} thumbnailPosition='left' /> 
         </div>
+        <div style={{marginTop: '6px', textAlign: 'center'}}>
+          <h2>Videos</h2>
+          {videos && videos.length > 0 && videos.map((video) => (
+            <video style={{width: '100%', maxWidth: '1230px', padding: '6px'}} controls src={video.url} />
+          ))}  
+        </div> 
       </>
     )
   }

@@ -36,3 +36,5 @@ ui-react/.eslintcache
 ui-react/src/components/ProdBackup/TrashCan.jsx
 api-express/models/ProdBackup/BaseModel.js
 api-express/models/ProdBackup/EventModel.js
+ui-react/public/videos/gt-race.mp4
+node_version.txt
