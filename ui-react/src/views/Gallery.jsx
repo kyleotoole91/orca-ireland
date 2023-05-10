@@ -49,12 +49,16 @@ function Home() {
     return (
       <>
         <div>
+          <h2 style={{textAlign: 'center'}}>Photos</h2> 
           <ImageGallery items={images} lazyLoad={true} thumbnailPosition='left' /> 
         </div>
         <div style={{marginTop: '6px', textAlign: 'center'}}>
-          <h2>Videos</h2>
-          {videos && videos.length > 0 && videos.map((video) => (
-            <video style={{width: '100%', maxWidth: '1230px', padding: '6px'}} controls src={video.url} />
+          <h4 style={{marginBottom: '12px', marginTop: '12px'}}>Videos</h4>
+          {videos && videos.length > 0 && videos.map((video, index) => (
+            <div key={'div-vid-' + index}>
+              {video.hasOwnProperty('description') && <h6 key={'heading-' + index}>{video.description}</h6>}
+              <video key={'video-' + index} style={{width: '100%', maxWidth: '1230px', padding: '6px'}} controls src={video.url} />
+            </div>
           ))}  
         </div> 
       </>
