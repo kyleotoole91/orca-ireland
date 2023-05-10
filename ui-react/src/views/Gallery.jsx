@@ -6,7 +6,7 @@ import { ImageModel } from '../models/ImageModel'
 import { VideoModel } from '../models/VideoModel'
 import Loading from '../components/Loading'
 
-function Home() {
+function Gallery() {
   const [images, setImages] = useState([])
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
@@ -67,11 +67,11 @@ function Home() {
     return (
       <>
         <h4 style={{textAlign: 'center'}}>Photos</h4> 
-        <ImageGallery items={images} lazyLoad={true} thumbnailPosition='left' /> 
+        <ImageGallery items={images} lazyLoad={true} thumbnailPosition='left' />  
         {videos && videos.length > 0 && listVideos()}
       </>
     )
   }
 }
 
-export default Home
+export default Gallery
