@@ -40,18 +40,9 @@ function Home() {
     loadData()
   }, [])
 
-  if (loading) {
-    return ( <Loading /> )
-  } else if (images.length === 0) {
-  return (
-    <h2>No images</h2>)
-  } else {
-    return (
-      <>
-        <div>
-          <h2 style={{textAlign: 'center'}}>Photos</h2> 
-          <ImageGallery items={images} lazyLoad={true} thumbnailPosition='left' /> 
-        </div>
+  function listVideos() {
+    if (videos && videos.length > 0) {
+      return (
         <div style={{marginTop: '6px', textAlign: 'center'}}>
           <h4 style={{marginBottom: '12px', marginTop: '12px'}}>Videos</h4>
           {videos && videos.length > 0 && videos.map((video, index) => (
@@ -61,6 +52,23 @@ function Home() {
             </div>
           ))}  
         </div> 
+      )
+    } else {
+      return <></>
+    }
+  }
+
+  if (loading) {
+    return ( <Loading /> )
+  } else if (images.length === 0) {
+  return (
+    <h2>No images</h2>)
+  } else {
+    return (
+      <>
+        <h4 style={{textAlign: 'center'}}>Photos</h4> 
+        <ImageGallery items={images} lazyLoad={true} thumbnailPosition='left' /> 
+        {videos && videos.length > 0 && listVideos()}
       </>
     )
   }
