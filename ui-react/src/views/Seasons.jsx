@@ -65,6 +65,9 @@ function Seasons() {
           seasonModel.responseData.sort((a, b) => parseFloat(b.startDate) - parseFloat(a.startDate)) //sort desc by date
           setData(seasonModel.responseData)
           setEventTypes(eventTypeModel.responseData)
+          if (eventTypeModel.responseData.length > 0) {
+            setEventTypeId(eventTypeModel.responseData[0]._id)
+          }
         } else {
           window.alert(seasonModel.message + eventTypeModel.message)
         }
