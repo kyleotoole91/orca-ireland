@@ -1,6 +1,6 @@
 import { BbkBase } from './BbkBase.js'
 
-const cMinRaces = 5
+const cMinRaces = 3
 const cRaceDivider = 2
 const cFinal = 1
 const cHeat = 2
@@ -498,6 +498,7 @@ export class BbkParser extends BbkBase {
         } else {
           consist =  parseFloat((100 + consist).toFixed(3))    
         }
+        racerData.races[i].consistPct = consist
         totalConsistPct = totalConsistPct + Math.abs(consist) 
         count++
       }

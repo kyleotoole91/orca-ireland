@@ -21,6 +21,7 @@ function SeasonReport() {
         const seasonModel = new SeasonModel(apiToken)
         await seasonModel.getSeasonBbkReport(id)
         if (seasonModel.success) {
+          console.log(JSON.stringify(seasonModel.responseData))
           setSeasonBbkReport(seasonModel.responseData)
         } else {
           window.alert(seasonModel.message)
@@ -141,7 +142,13 @@ function SeasonReport() {
       name: 'Best Kph',
       selector: row => row.bestLapKph,
       sortable: true,
-    }
+    },
+    {
+      name: 'Consistency (%)',
+      width: '10rem',
+      selector: row => row.consistPct,
+      sortable: true,
+    },
   ]
 
   const expColumns2 = [

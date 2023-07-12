@@ -9,7 +9,15 @@ export class BaseModel {
     this.db = null
     this.loadDetail = false
     this.limit = 0
+    this.includeDeleted = false
     this.setCollectionName(collectionName)
+  }
+
+  deletedFilter(){
+    if (this.includeDeleted)
+      return {"$in": [null, false, true]}
+    else
+      return {"$in": [null, false]}
   }
 
   parseQueryParams(req) {
@@ -91,7 +99,7 @@ export class BaseModel {
       if (this.collectionName === 'images') {
         sort = {"$natural": -1}
       } 
-      this.result = await this.db.find({"deleted": {"$in": [null, false]}}).sort(sort).limit(this.limit).toArray()
+      this.result = await this.db.find({"deleted": this.deletedFilter()}).sort(sort).limit(this.limit).toArray()
       if(!this.result) {
         this.message = 'Not found'
       } else {
@@ -108,7 +116,7 @@ export class BaseModel {
   
   async getDocumentByExtId(extId, force) { 
     try {
-      this.result = await this.db.findOne({ 'extId': extId, "deleted": {"$in": [null, false]} })
+      this.result = await this.db.findOne({ 'extId': extId, "deleted": this.deletedFilter() })
       if (!this.result || !this.result.hasOwnProperty('_id') && force) {
         this.result = await this.db.insertOne({ 'extId': extId }) 
         if (this.result.insertedId !== '') {
@@ -133,7 +141,7 @@ export class BaseModel {
   async getDocumentsByUserId(userId) { 
     try {
       const userObjId = new ObjectId(userId) 
-      this.result = await this.db.find({ 'user_id': userObjId, "deleted": {"$in": [null, false]} }).toArray()
+      this.result = await this.db.find({ 'user_id': userObjId, "deleted": this.deletedFilter() }).toArray()
       if (!this.result) {
         this.message = 'Not found'
       } else {
@@ -151,7 +159,7 @@ export class BaseModel {
   async getDocument(id) {
     try {
       const objId = new ObjectId(id)
-      this.result = await this.db.findOne({ '_id': objId, "deleted": {"$in": [null, false]} })
+      this.result = await this.db.findOne({ '_id': objId, "deleted": this.deletedFilter() })
       if(!this.result || !this.result.hasOwnProperty('_id')) {
         this.result = null 
         this.message = 'Not found: ' + id 
@@ -252,7 +260,7 @@ export class BaseModel {
   async getUserDocuments(userId) {
     try {
       const objId = new ObjectId(userId) 
-      this.result = await this.db.find({'user_id': objId, "deleted": {"$in": [null, false]}}).toArray()
+      this.result = await this.db.find({'user_id': objId, "deleted": this.deletedFilter()}).toArray()
       if(!this.result) {
         this.result = null
         this.message = 'Not found'
@@ -272,7 +280,7 @@ export class BaseModel {
     try {
       const objUserId = new ObjectId(userId) 
       const objDocId = new ObjectId(docId) 
-      this.result = await this.db.find({'user_id': objUserId, '_id': objDocId, "deleted": {"$in": [null, false]}}).toArray()
+      this.result = await this.db.find({'user_id': objUserId, '_id': objDocId, "deleted": this.deletedFilter()}).toArray()
       if(!this.result || this.result.length === 0) {
         this.result = null
         this.message = 'Not found'

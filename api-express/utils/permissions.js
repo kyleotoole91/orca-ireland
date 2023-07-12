@@ -8,16 +8,16 @@ export class Permissions {
         let tokenDecoded = jwt_decode(token)
         if (tokenDecoded.permissions !== undefined) {
           for (var permission of tokenDecoded.permissions) {
-            if (permission === 'super:super' || permission === action+':'+resource) { 
+            if (permission === 'super:super' || permission === action + ':' + resource) { 
               return true 
             }
           }
         }
-        return false
       }
     } catch (e) {
       console.error(e)
     }    
+    return false
   }
 
   userInToken(encodedToken, extId) {

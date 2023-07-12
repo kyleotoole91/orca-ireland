@@ -14,6 +14,7 @@ export class SeasonController extends BaseController {
     this.bbk = new BbkParser()
     this.eventDB = new EventModel()
     this.carsDB = new BaseModel('cars')
+    this.carsDB.includeDeleted = true
     this.classes = new BaseModel('classes')
     this.eventTypeDB = new BaseModel('eventTypes')
     this.seasonReportDB = new SeasonReportModel()
