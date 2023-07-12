@@ -85,7 +85,7 @@ export class SeasonController extends BaseController {
                     if (race.class_id.toString() === classId) {
                       result.user_id = this.getUserIdByCar(result.car_id)
                       result.points = this.calcPoints(result.position)
-                      driver = map.get(result.user_id)
+                      driver = map.get(result.user_id.toString())
                       eventPoints = {}
                       eventPoints.event_id = event._id
                       eventPoints.date = event.date
@@ -96,6 +96,7 @@ export class SeasonController extends BaseController {
                         driver.totalPoints = driver.totalPoints + eventPoints.points
                       } else {
                         driver = {}
+                        driver.user_id = result.user_id
                         driver.eventCount = 1 
                         driver.driverName = result.name
                         driver.totalPoints = eventPoints.points
@@ -110,7 +111,7 @@ export class SeasonController extends BaseController {
                       }
                       driver.eventPoints.push(eventPoints)
                       driver.pointsArray.push(eventPoints.points)
-                      map.set(result.user_id, driver)
+                      map.set(result.user_id.toString(), driver)
                     }
                   }
                 }
