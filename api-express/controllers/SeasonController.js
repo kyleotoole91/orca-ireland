@@ -96,7 +96,7 @@ export class SeasonController extends BaseController {
                         driver.totalPoints = driver.totalPoints + eventPoints.points
                       } else {
                         driver = {}
-                        driver.user_id = result.user_id
+                        driver.user_id = result.user_id.toString()
                         driver.eventCount = 1 
                         driver.driverName = result.name
                         driver.totalPoints = eventPoints.points
