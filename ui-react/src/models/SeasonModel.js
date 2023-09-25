@@ -46,6 +46,8 @@ export class SeasonModel extends BaseModel {
   }
 
   parseValues(season) {
+    season.bbkMtgStart = parseInt(season.bbkMtgStart)
+    season.bbkMtgEnd = parseInt(season.bbkMtgEnd)
     if (season.hasOwnProperty('bestOffset')) {
       season.bestOffset = parseInt(season.bestOffset)
     }
