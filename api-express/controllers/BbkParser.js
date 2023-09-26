@@ -14,12 +14,17 @@ export class BbkParser extends BbkBase {
     this.activeClass = ''
     this.distinctEvents = []
     this.disctinctClasses = []
-    this.raceParams = { tableStartIdx: 17, gap: 2, footerLineCount: 0 }
-    this.lapTimeParams = { tableStartIdx: 14, gap: 1, footerLineCount: 1 }
+    this.newLayout = false
+    this.oldRaceParams = { tableStartIdx: 17, gap: 2, footerLineCount: 0, startIdxOffset: 0 } 
+    this.raceParams = { tableStartIdx: 19, gap: 2, footerLineCount: 0, startIdxOffset: 1 } 
+    this.lapTimeParams = { tableStartIdx: 14, gap: 1, footerLineCount: 1, startIdxOffset: 0 }
   }
 
   addResultData(response) {
-    this.data = this.toJsonCsv(response, this.raceParams)
+    this.newLayout = response.text.includes('Speed Kph');
+    this.newLayout
+      ? this.data = this.toJsonCsv(response, this.raceParams)
+      : this.data = this.toJsonCsv(response, this.oldRaceParams)
     this.data = this.transformResults(this.data)
   }
 
@@ -245,6 +250,12 @@ export class BbkParser extends BbkBase {
   }
 
   transformResults(data) {
+    return this.newLayout 
+      ? this.transformNewLayout(data) 
+      : this.transformOldLayout(data)
+  }
+
+  transformOldLayout(data) {
     const posIdx = 0
     const carNoIdx = 1
     const nameIdx = 2
@@ -309,7 +320,64 @@ export class BbkParser extends BbkBase {
     return data
   }
 
-  toJsonCsv(fileStr, { tableStartIdx, gap, footerLineCount }) {
+  transformNewLayout(data) {
+    const posIdx = 0
+    const carNoIdx = 1
+    const nameIdx = 2
+    const resultIdx = 3
+    const avrgLapIdx = 4
+    const bestLapIdx = 5
+    //const speedKphIdx = 6
+    //const scaleSpeedKphIdx = 7
+    const clubNoIdx = 8
+    //const roofColorIdx = 9
+    let row
+    let rows = []
+    let csvLine = ''
+    for (var i=1; i < data.results.length; i++) {
+      csvLine = data.results[i]
+      if (csvLine && csvLine !== '') {
+        row = {}
+        row.pos = parseInt(csvLine[posIdx].trim())
+        row.carNo = parseInt(csvLine[carNoIdx].trim())
+        row.name = csvLine[nameIdx].trim()
+        row.result = csvLine[resultIdx].trim()
+        row.clubNo = parseInt(csvLine[clubNoIdx].trim()) 
+        row.avrgLap = 0
+        row.bestLap = 0
+        row.bestLapKph = 0
+        row.bestLapNo = 0
+        row.lapCount = 0
+        if (row.result !== '' && row.result.trim() !== 'DNS' && !row.result.includes(cManualLapChar)) {
+          //row.roofColor = csvLine[roofColorIdx].trim()
+          const bestLapLine = csvLine[bestLapIdx].trim()
+          const avrgLapLine = csvLine[avrgLapIdx].trim() 
+          row.avrgLap = this.convertToSecs(avrgLapLine)
+          row.bestLap = this.convertToSecs(bestLapLine)
+          row.bestLapKph = parseFloat(this.calcKph(row.bestLap, 1))
+          row.bestLapNo = parseInt(bestLapLine.substring(bestLapLine.indexOf('(') + 1, bestLapLine.indexOf(')')).trim())
+          const result = csvLine[resultIdx]
+          row.lapCount = parseInt(result.substring(0, result.indexOf('/')).trim())
+          row.mins = parseInt(result.substring(result.indexOf('/') + 1, result.indexOf('m')).trim())
+          row.secs = parseInt(result.substring(result.indexOf('m') + 1, result.indexOf('.')).trim())
+          row.ms = parseInt(result.substring(result.indexOf('.') + 1, result.length - 1).trim())
+          if (row.mins === 0) {
+            row.totalSecs = parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim())
+          } else {
+            row.totalSecs = row.mins * 60 + parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim()) 
+          }
+          row.avrgLapKph = parseFloat(this.calcKph(row.totalSecs, row.lapCount))  
+        }
+        if (row.clubNo && row.clubNo > 0) {
+          rows.push(row)
+        }
+      }
+    }
+    data.results = rows
+    return data
+  }
+  
+  toJsonCsv(fileStr, { tableStartIdx, gap, footerLineCount, startIdxOffset }) {
     try {
       const titleIdx = 3
       const nameIdx = 7
@@ -352,7 +420,7 @@ export class BbkParser extends BbkBase {
           }
           response.results.push(lines)
           lines = []
-          sIdx = sIdx + gap + (tableHeaderEndIdx - tableHeaderIdx)
+          sIdx = sIdx + gap + (tableHeaderEndIdx - tableHeaderIdx) + startIdxOffset
         }
       }
       return response
