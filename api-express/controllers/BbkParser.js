@@ -5,7 +5,8 @@ const cRaceDivider = 2
 const cFinal = 1
 const cHeat = 2
 const cManualLapChar = '*'
-const cEndOfFileString = 'bbkRC 2011-1� 2000, 2011 bbk Software Ltd' 
+const cEndOfFileString = 'bbkRC 2011-1� 2000, 2011 bbk Software Ltd' //windows
+//const cEndOfFileString = 'bbkRC 2011-1ï¿½ 2000, 2011 bbk Software Ltd' //linux 
 
 export class BbkParser extends BbkBase {
 
@@ -99,7 +100,7 @@ export class BbkParser extends BbkBase {
           for (var g = 1; g <= process.env.MAX_RACES; g++) { 
             loop2:
             for (var r = 1; r <= process.env.MAX_GROUPS; r++){
-              url = `${process.env.BBK_HOST}${process.env.BBK_ROOT_DIR}/${season.bbkSeasonDir}/mtg${m}/${typePrefix}${g}r${r}.htm`
+              url = `${process.env.FRONT_END_HOST}${process.env.BBK_ROOT_DIR}/${season.bbkSeasonDir}/mtg${m}/${typePrefix}${g}r${r}.htm`
               race = await this.getBbkData(url, 1)
               if (race && !race.hasOwnProperty('error')) {
                 data.races.push(race)
