@@ -5,8 +5,10 @@ const cRaceDivider = 2
 const cFinal = 1
 const cHeat = 2
 const cManualLapChar = '*'
-const cEndOfFileString = 'bbkRC 2011-1� 2000, 2011 bbk Software Ltd' //windows
-//const cEndOfFileString = 'bbkRC 2011-1ï¿½ 2000, 2011 bbk Software Ltd' //linux 
+let cEndOfFileString
+process.env.OPERATING_SYSTEM === 'windows'
+  ? cEndOfFileString = 'bbkRC 2011-1� 2000, 2011 bbk Software Ltd' 
+  : cEndOfFileString = 'bbkRC 2011-1ï¿½ 2000, 2011 bbk Software Ltd' //linux 
 
 export class BbkParser extends BbkBase {
 
@@ -18,7 +20,8 @@ export class BbkParser extends BbkBase {
     this.newLayout = false
     this.oldRaceParams = { tableStartIdx: 17, gap: 2, footerLineCount: 0, startIdxOffset: 0 } 
     this.raceParams = { tableStartIdx: 19, gap: 2, footerLineCount: 0, startIdxOffset: 1 } 
-    this.lapTimeParams = { tableStartIdx: 14, gap: 1, footerLineCount: 1, startIdxOffset: 0 }
+    this.oldLapTimeParams = { tableStartIdx: 14, gap: 1, footerLineCount: 1, startIdxOffset: 0 }
+    this.lapTimeParams = { tableStartIdx: 15, gap: 1, footerLineCount: 1, startIdxOffset: 0 }
   }
 
   addResultData(response) {
@@ -30,7 +33,10 @@ export class BbkParser extends BbkBase {
   }
 
   addLapData(response) {
-    const json = this.toJsonCsv(response, this.lapTimeParams)
+    let json
+    this.newLayout
+      ? json = this.toJsonCsv(response, this.lapTimeParams)
+      : json= this.toJsonCsv(response, this.oldLapTimeParams)
     this.data.laps = this.transformLapDataResults(json)
   }
 
