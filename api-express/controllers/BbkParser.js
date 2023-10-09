@@ -6,6 +6,8 @@ const cFinal = 1
 const cHeat = 2
 const cManualLapChar = '*'
 let cEndOfFileString
+const speedHeaderKph = 'Speed Kph'
+const speedHeaderMph = 'Speed Mph'
 process.env.OPERATING_SYSTEM === 'windows'
   ? cEndOfFileString = 'bbkRC 2011-1� 2000, 2011 bbk Software Ltd' 
   : cEndOfFileString = 'bbkRC 2011-1ï¿½ 2000, 2011 bbk Software Ltd' //linux 
@@ -25,7 +27,7 @@ export class BbkParser extends BbkBase {
   }
 
   addResultData(response) {
-    this.newLayout = response.text.includes('Speed Kph');
+    this.newLayout = response.text.includes(speedHeaderKph) || response.text.includes(speedHeaderMph);
     this.newLayout
       ? this.data = this.toJsonCsv(response, this.raceParams)
       : this.data = this.toJsonCsv(response, this.oldRaceParams)
