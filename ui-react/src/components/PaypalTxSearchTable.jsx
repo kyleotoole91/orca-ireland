@@ -9,7 +9,7 @@ import { Permissions } from '../utils/permissions'
 import { useAuth0 } from "@auth0/auth0-react"
 
 const MAX_DAYS = 30; 
-const DEF_DAYS = 30; 
+const DEF_DAYS = 7; 
 const PAYPAL_MAX_RECS = 500; 
 const dateUtils = new DateUtils()
 const today = new Date();

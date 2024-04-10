@@ -1,6 +1,19 @@
 import fetch from 'node-fetch';
+import { UserModel } from '../models/UserModel';
+import { EventModel } from '../models/EventModel';
+import { PaymentModel } from '../models/PaymentModel';
+import { MembershipModel } from '../models/MembershipModel';
 
-const DEFAULT_EVENT_DAYS = 7;
+const DEFAULT_DAYS = 14;
+
+const objectIdExists = (array, targetVal) => {
+  for (const item of array){
+    if (item.toString() === targetVal.toString()){
+      return true 
+    }
+  }
+  return false
+}
 
 let paypalToken = {
   scope: '',
@@ -47,6 +60,7 @@ const transformPaypalTxList = (txs) => txs.map(tx => {
     date: tx.transaction_info.transaction_initiation_date,
     note: tx.transaction_info.transaction_note,
     status: tx.transaction_info.transaction_status,
+    transaction_id: tx.transaction_info.transaction_id,
     available_balance: tx.transaction_info.available_balance.value
   }
 });
@@ -108,7 +122,7 @@ export const authAndTransactions = async (startDateIso, endDateIso, keyword = ''
 
   const userTxs = name = '' ? [...txDetails] : findTxByName([...txDetails], name);
   const filteredTxs = findTxByKeywordAndAmt([...userTxs], keyword, amount);
-
+  
   return transformPaypalTxList(filteredTxs) || [];
 }
 
@@ -119,25 +133,171 @@ export const getPaypalTransactionsByEvent = async (event, email = '') => {
 
   const startDate = new Date(event.date);
   const eventDate = new Date(event.date);
-  const numDays = event.paypalDays || DEFAULT_EVENT_DAYS;
+  const numDays = event.paypalDays || DEFAULT_DAYS;
   startDate.setDate(startDate.getDate() - numDays);
   const startDateIso = startDate.toISOString().substring(0, 10);
-  const fee = event.fee && parseFloat(event.fee || 0).toFixed(2);
   const endDateIso = eventDate.toISOString().substring(0, 10);
+  const fee = event.fee && parseFloat(event.fee || 0).toFixed(2);
   const keyword = !!event.keyword ? '' : event.keyword;
 
   const response = await authAndTransactions(startDateIso, endDateIso, keyword, email, fee);
-
+  
   return response.transaction_details ? response.transaction_details : response;
 }
 
-export const addPaypalPaidStatusToEventDetails = async (eventDetail, email = '') => {
+export const addPaypalTxToEventDetails = async (eventDetail, email = '') => {
   if (!eventDetail.cars) return eventDetail;
   
   const response = await getPaypalTransactionsByEvent(eventDetail, email);
-  eventDetail.cars.forEach((raceEntry) => raceEntry.paid = response.some(tx => tx.email === raceEntry.user.email));
-
+  eventDetail.cars.forEach((raceEntry) => {
+    raceEntry.payment_tx = response.find(tx => tx.email === raceEntry.user.email);
+  });
   return eventDetail;
+}
+
+// function to call existing code to get the current events for this date
+export const generateCurrentEventPayments = async () => {
+  const paymentDb = new PaymentModel();
+  const eventDb = new EventModel(true);
+  const events = await eventDb.getUpcomingEvents();
+  const newPayments = [];
+
+  for (const event of events) {
+    const eventPayments = await paymentDb.getPaymentsByEventId(event._id);
+
+    const alreadyFullyPaid = eventPayments && eventPayments.length === event.cars.length;
+    
+    if (!alreadyFullyPaid) {
+      const eventWithPaidFlags = await addPaypalTxToEventDetails(event);
+
+      for (const eventEntry of eventWithPaidFlags.cars || []) { 
+        const userAlreadyPaid = eventPayments.some(ep => ep.user_id === eventEntry.user._id);
+        
+        if (!userAlreadyPaid && eventEntry.payment_tx) {
+          
+          const payment = {
+            event_id: event._id,
+            payment_date: eventEntry.payment_tx.date,
+            transaction_ref: eventEntry.payment_tx.transaction_id,
+            user_id: eventEntry.user._id,
+            user_email: eventEntry.user.email,
+            name: eventEntry.payment_tx.name,
+            amount: eventEntry.payment_tx.amount,
+            currency: "EUR",
+            date: eventEntry.payment_tx.date,
+            status: eventEntry.payment_tx.status,
+            available_balance: eventEntry.payment_tx.available_balance
+          };
+          // multiple events at the same time may create dupe payments, assign one payment to one event at a time
+          const alreadyAddedPayment = newPayments.some(p => p.transaction_ref === payment.transaction_ref);
+          if (!alreadyAddedPayment) {
+            newPayments.push(payment);
+          }
+        }
+      };
+    }
+  }
+
+  for (const payment of newPayments) {
+    try {
+      const event = await eventDb.getDocument(payment.event_id);
+      if (event) {
+        await paymentDb.addDocument(payment);
+
+        if (!event.paid_user_ids) {
+          event.paid_user_ids = [];
+        }
+        
+        if (!event.paid_user_ids.includes(payment.user_id)) {
+          event.paid_user_ids.push(payment.user_id);
+          await eventDb.updateDocument(event._id, event);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  return newPayments;
+}
+
+export const generateCurrentMembershipPayments = async () => {
+  const membershipDb = new MembershipModel();
+  const paymentDb = new PaymentModel();
+  const userDb = new UserModel();
+  const currentMemberships = await membershipDb.getCurrentMembership();
+  const currentMembership = currentMemberships[0] || {};
+  
+  if (!currentMembership) { return; }
+
+  const startDate = new Date();
+  const eventDate = new Date();
+  const numDays = DEFAULT_DAYS;
+  startDate.setDate(startDate.getDate() - numDays);
+  const startDateIso = startDate.toISOString().substring(0, 10);
+  const endDateIso = eventDate.toISOString().substring(0, 10);
+  const keyword = currentMembership.keyword || '';
+  const fee = parseFloat(currentMembership.fee || 0).toFixed(2);
+
+  const response = await authAndTransactions(startDateIso, endDateIso, keyword, '', fee);
+
+  const currentMembershipPayments = await paymentDb.getPaymentsByMembershipId(currentMembership._id) || [];
+
+  const alreadyActiveUserIds = currentMembership.user_ids || [];
+  const newPayments = [];
+  /// map to store user_id and email
+  const userMap = new Map();
+
+  for (const tx of response) {
+    if (
+      alreadyActiveUserIds.includes(tx.user_id) || 
+      currentMembershipPayments.some(p => p.user_id === tx.user_id)
+    ) { continue; }
+      
+    const payment = {
+      membership_id: currentMembership._id,
+      payment_date: tx.date,
+      transaction_ref: tx.transaction_id,
+      user_id: undefined,
+      user_email: tx.email,
+      name: tx.name,
+      amount: tx.amount,
+      currency: tx.currency,
+      date: tx.date,
+      status: tx.status,
+      available_balance: tx.available_balance
+    };
+
+    const alreadyAddedPayment = newPayments.some(p => p.user_id === payment.user_id);
+
+    if (!alreadyAddedPayment) {
+      if (userMap.has(tx.email)) {
+        payment.user_id = userMap.get(tx.email);
+      } else {
+        const user = await userDb.getUserByEmail(tx.email);
+        payment.user_id = user._id;
+        userMap.set(tx.email, user._id);
+      }
+      newPayments.push(payment);
+    }
+  }
+
+  for (const payment of newPayments) {
+    try {
+      await paymentDb.addDocument(payment);
+
+      if (!alreadyActiveUserIds.includes(payment.user_id)) {
+        if (!currentMembership.user_ids) {
+          currentMembership.user_ids = [];
+        }
+        currentMembership.user_ids.push(payment.user_id);
+        currentMembership.users = undefined; // added by join, adds  array to db if not removed
+        membershipDb.updateDocument(currentMembership._id, currentMembership);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  return newPayments;
 }
 
 // event

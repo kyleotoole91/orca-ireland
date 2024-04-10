@@ -1,14 +1,16 @@
 import { BaseModel } from './BaseModel'
-import { addPaypalPaidStatusToEventDetails } from '../adapters/paypal.js'
 
 const ObjectId = require('mongodb').ObjectId
 const cUpcomingEventDays = 30
 export class EventModel extends BaseModel {
   
-  constructor() {
+  constructor(includeEmail) {
     super()
     this.result = null
     this.setCollectionName('events')
+    const exlusions = includeEmail 
+      ? { "user.phone": 0 }
+      : { "user.email": 0, "user.phone": 0 }
     this.mongoPipeline = [{$lookup:{from: "users", // join the user document onto the car (from the result of the root lookup)
                                     localField: "user_id",
                                     foreignField: "_id",
@@ -21,7 +23,7 @@ export class EventModel extends BaseModel {
                                       as: "class"}
                             },
                             {$unwind: '$class'}, //remove array, making it a one to one
-                            {$project: { "user.phone": 0} } //exclude these fields from the tables joined
+                            {$project: exlusions } //exclude these fields from the tables joined
                           ]                  
                                     
   }
@@ -72,7 +74,7 @@ export class EventModel extends BaseModel {
   async getUpcomingEvents() {
     try {
       const maxDate = new Date()
-      maxDate.setDate(maxDate.getDate()+cUpcomingEventDays)
+      maxDate.setDate(maxDate.getDate() + cUpcomingEventDays)
       const joins = [{$lookup:{from: "cars", // join many cars onto events using event.car_ids
                       localField: "car_ids",
                       foreignField: "_id",
@@ -155,7 +157,7 @@ export class EventModel extends BaseModel {
         this.result = null
         this.message = 'Not found: ' + id 
       } else {
-        this.result = await addPaypalPaidStatusToEventDetails(this.result[0])  
+        this.result = this.result[0] 
         this.message = this.collectionName
       }
     } catch (error) {
