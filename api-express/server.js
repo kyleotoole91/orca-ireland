@@ -4,7 +4,8 @@ import { EventController } from './controllers/EventController'
 import { CarController } from './controllers/CarController' 
 import { SeasonController } from './controllers/SeasonController' 
 import { PollController } from './controllers/PollController' 
-import { ArticleModel } from './models/ArticleModel' 
+import { ArticleModel } from './models/ArticleModel'
+import { PayPalController } from './controllers/PayPalController'
 import validateJwt from './utils/validate-jwt'
 require('dotenv').config()
 const fs = require('fs')
@@ -74,6 +75,7 @@ const racesController = new BaseController('races')
 const memberTypesController = new BaseController('memberTypes')
 const eventTypesController = new BaseController('eventTypes')
 const articlesController = new BaseController('articles')
+const paypalController = new PayPalController('paypal')
 articlesController.db = new ArticleModel();
 
 //races
@@ -151,6 +153,8 @@ app.get('/articles/:id', (req, res) => articlesController.getDocument(req, res))
 app.post('/articles', validateJwt, (req, res) => articlesController.addDocument(req, res))
 app.put('/articles/:id', validateJwt, (req, res) => articlesController.updateDocument(req, res))
 app.delete('/articles/:id', validateJwt, (req, res) => articlesController.deleteDocument(req, res))
+//paypal
+app.get('/paypal/transactions', (req, res) => paypalController.getTransactions(req, res))
 
 app.use(function (req, res) {
   res.status(404).send({'success': false, 'message': 'not found'})

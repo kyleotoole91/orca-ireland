@@ -1,4 +1,6 @@
 import { BaseModel } from './BaseModel'
+import { addPaypalPaidStatusToEventDetails } from '../adapters/paypal.js'
+
 const ObjectId = require('mongodb').ObjectId
 const cUpcomingEventDays = 30
 export class EventModel extends BaseModel {
@@ -19,7 +21,7 @@ export class EventModel extends BaseModel {
                                       as: "class"}
                             },
                             {$unwind: '$class'}, //remove array, making it a one to one
-                            {$project: { "user.email": 0, "user.phone": 0} } //exclude these fields from the tables joined
+                            {$project: { "user.phone": 0} } //exclude these fields from the tables joined
                           ]                  
                                     
   }
@@ -153,7 +155,7 @@ export class EventModel extends BaseModel {
         this.result = null
         this.message = 'Not found: ' + id 
       } else {
-        this.result = this.result[0]  
+        this.result = await addPaypalPaidStatusToEventDetails(this.result[0])  
         this.message = this.collectionName
       }
     } catch (error) {

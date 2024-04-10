@@ -62,6 +62,8 @@ function EventDetail() {
           setAllowDelRaces(permissions.check(apiToken, 'delete', 'races'))
           await eventModel.get(id)
           if (eventModel.success) {
+            eventModel.responseData.cars = eventModel.responseData.cars
+              .filter(car => car.paid === undefined || car.paid === true)
             setEvent(eventModel.responseData)
             await classModel.get()
             if (classModel.success) {

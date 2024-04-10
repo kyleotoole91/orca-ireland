@@ -17,6 +17,7 @@ import Accordion  from 'react-bootstrap/Accordion'
 import styled from 'styled-components'
 import Spinner from 'react-bootstrap/Spinner'
 import { PlusButton } from '../components/PlusButton'
+import { PaypalTxSearchTable } from '../components/PaypalTxSearchTable'
 
 const userModel = new UserModel() 
 const membershipModel = new MembershipModel() 
@@ -58,6 +59,7 @@ function Membership() {
   const [activeMember, setActiveMember] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [allowAddMemberships, setAllowAddMemberships] = useState(false)
+  const [allowPaypalAccess, setAllowPaypalAccess] = useState(false)
   const [editing, setEditing] = useState(false)
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
@@ -92,6 +94,7 @@ function Membership() {
           const membershipModel = new MembershipModel(apiToken) 
           const memberTypesModel = new MemberTypes(apiToken) 
           const permissions = new Permissions()
+          setAllowPaypalAccess(permissions.check(apiToken, 'post', 'paypal'))
           setAllowAddMemberships(permissions.check(apiToken, 'post', 'memberships'))
           setAllowViewMembers(permissions.check(apiToken, 'get', 'users'))
           await userModel.get(user.sub)
@@ -212,6 +215,7 @@ function Membership() {
 
   function userInMemebership(userExtId, membership) {
     let found = false
+    if (!membership.users || !membership.users) return false;
     for (var user of membership.users) {
       found = userExtId === user.extId 
       if (found) break 
@@ -554,15 +558,6 @@ function Membership() {
     }
   }
 
-  function allMembersAccordian(){
-    return <Accordion.Item eventKey="1">
-            <StyledAccordionHeader onClick={allMembersClick}>Active Members</StyledAccordionHeader>
-            <Accordion.Body>
-              {getAllMembersCards()} 
-            </Accordion.Body>
-          </Accordion.Item>
-  }
-
   function getAllMembershipsCards() {
     function addCard(membership, index) {
       let memberCount = 0
@@ -592,6 +587,23 @@ function Membership() {
     }
   }
 
+  function paypalSearchForm() {
+    return (
+      <div style={{display: 'flex', flexFlow: 'wrap'}}> 
+        <PaypalTxSearchTable />
+      </div>
+    )
+  }
+
+  function allMembersAccordian(){
+    return <Accordion.Item eventKey="1">
+            <StyledAccordionHeader onClick={allMembersClick}>Active Members</StyledAccordionHeader>
+            <Accordion.Body>
+              {getAllMembersCards()} 
+            </Accordion.Body>
+          </Accordion.Item>
+  }
+
   function allMembershipsAccordian() {
     return <Accordion.Item eventKey="2">
             <StyledAccordionHeader onClick={allMembersShipsClick}>All Memberships</StyledAccordionHeader>
@@ -601,12 +613,21 @@ function Membership() {
           </Accordion.Item>
   }
 
+  const paypalSearchAccordian = () => 
+    <Accordion.Item eventKey="3">
+      <StyledAccordionHeader onClick={allMembersShipsClick}>Paypal Transactions</StyledAccordionHeader>
+      <Accordion.Body>
+      {paypalSearchForm()} 
+      </Accordion.Body>
+    </Accordion.Item>
+  
+
   if (loading) {
     return ( <Loading /> )
   } else {
     return (
       <>
-        <Header props={{header:'Membership'}} />
+        <Header props={{header:'Admin'}} />
         {allowAddMemberships && 
             <div onClick={addMembershipClick} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
               <PlusButton />
@@ -621,6 +642,7 @@ function Membership() {
           </Accordion.Item>
           {allowViewMembers && allMembersAccordian()}
           {allowAddMemberships && allMembershipsAccordian()}
+          {allowPaypalAccess && paypalSearchAccordian()} 
         </Accordion>
       </>
     )
