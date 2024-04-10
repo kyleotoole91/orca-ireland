@@ -60,8 +60,8 @@ const findTxByKeywordAndAmt = (txs, keyword = '', txAmount = '') => txs
     (txAmount === '' || tx.transaction_info.transaction_amount.value === txAmount))
   : [];
 
-const findTxByEmail = (txs, email) => txs 
-  ? txs.filter(tx => email === '' || tx.payer_info.email_address === email)
+const findTxByName = (txs, name) => txs
+  ? txs.filter(tx => tx.payer_info.payer_name.alternate_full_name.toLowerCase().includes(name.toLowerCase()))
   : [];
 
 export const paypalTxByDateRange = async (token, startDateIso, endDateIso) => {
@@ -91,7 +91,7 @@ export const paypalTxByDateRange = async (token, startDateIso, endDateIso) => {
   return response || [];
 };
 
-export const authAndTransactions = async (startDateIso, endDateIso, keyword = '', email = '', amount = '') => { //2024-03-29
+export const authAndTransactions = async (startDateIso, endDateIso, keyword = '', name = '', amount = '') => { //2024-03-29
   const { access_token: token } = await paypalAuth();
   const response = await paypalTxByDateRange(token, startDateIso, endDateIso);
   const txDetails = response.transaction_details;
@@ -106,7 +106,7 @@ export const authAndTransactions = async (startDateIso, endDateIso, keyword = ''
     };
   };
 
-  const userTxs = email = '' ? [...txDetails] : findTxByEmail([...txDetails], email);
+  const userTxs = name = '' ? [...txDetails] : findTxByName([...txDetails], name);
   const filteredTxs = findTxByKeywordAndAmt([...userTxs], keyword, amount);
 
   return transformPaypalTxList(filteredTxs) || [];

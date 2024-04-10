@@ -50,7 +50,7 @@ export const PaypalTxSearchTable = () => {
   const [startDate, setStartDate] = useState(defaultStartDateCtrl);
   const [endDate, setEndDate] = useState(defaultEndDateCtrl);
   const [keyword, setKeyword] = useState('');
-  const [email, setEmail] = useState('');
+  const [payerName, setPayerName] = useState('');
   const [data, setData] = useState();
   const [amount, setAmount] = useState('');
 
@@ -91,9 +91,9 @@ export const PaypalTxSearchTable = () => {
       const startDateQry = startDate === '' ? '' : `?start_date=${startDate}`;
       const endDateQry = endDate === '' ? '' : `&end_date=${endDate}`;
       const keywordQry = keyword === '' ? '' : `&keyword=${keyword}`;
-      const emailQry = email === '' ? '' : `&email=${email}`;
+      const nameQry = payerName === '' ? '' : `&name=${payerName}`;
       const amountQry = amount === '' ? '' : `&amount=${parseFloat(amount).toFixed(2)}`;
-      const paypalTxUrl = `${process.env.REACT_APP_API_URL}/paypal/transactions${startDateQry}${endDateQry}${keywordQry}${emailQry}${amountQry}`;
+      const paypalTxUrl = `${process.env.REACT_APP_API_URL}/paypal/transactions${startDateQry}${endDateQry}${keywordQry}${nameQry}${amountQry}`;
 
       const response = await fetch(paypalTxUrl, {
           method: 'GET', 
@@ -147,9 +147,9 @@ export const PaypalTxSearchTable = () => {
               <Form.Label>Keyword</Form.Label>
               <Form.Control type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="ppFrmEmail" >
-              <Form.Label>Payer email</Form.Label>
-              <Form.Control type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Form.Group className="mb-3" controlId="ppFrmName" >
+              <Form.Label>Payer Name</Form.Label>
+              <Form.Control type="text" value={payerName} onChange={(e) => setPayerName(e.target.value)} />
             </Form.Group>
             <Form.Group className="mb-3" controlId="ppFrmAmount">
               <Form.Label>Amount </Form.Label>

@@ -29,7 +29,7 @@ export class PayPalController extends BaseController {
       const startDate = req.query.start_date;
       const endDate = req.query.end_date;
       const keyword = req.query.keyword;
-      const email = req.query.email;
+      const name = req.query.name;
       const amount = req.query.amount;
 
       if (this.checkDateRange(startDate, endDate)) {
@@ -39,7 +39,7 @@ export class PayPalController extends BaseController {
         })
       }
 
-      const data = await authAndTransactions(startDate, endDate, keyword, email, amount);
+      const data = await authAndTransactions(startDate, endDate, keyword, name, amount);
       const error = data.error;
       if (error) {
         return res.status(data.error.code).send({
