@@ -6,15 +6,6 @@ import { MembershipModel } from '../models/MembershipModel';
 
 const DEFAULT_DAYS = 14;
 
-const objectIdExists = (array, targetVal) => {
-  for (const item of array){
-    if (item.toString() === targetVal.toString()){
-      return true 
-    }
-  }
-  return false
-}
-
 let paypalToken = {
   scope: '',
   access_token: '',
@@ -155,7 +146,6 @@ export const addPaypalTxToEventDetails = async (eventDetail, email = '') => {
   return eventDetail;
 }
 
-// function to call existing code to get the current events for this date
 export const generateCurrentEventPayments = async () => {
   const paymentDb = new PaymentModel();
   const eventDb = new EventModel(true);
@@ -190,6 +180,7 @@ export const generateCurrentEventPayments = async () => {
           };
           // multiple events at the same time may create dupe payments, assign one payment to one event at a time
           const alreadyAddedPayment = newPayments.some(p => p.transaction_ref === payment.transaction_ref);
+
           if (!alreadyAddedPayment) {
             newPayments.push(payment);
           }

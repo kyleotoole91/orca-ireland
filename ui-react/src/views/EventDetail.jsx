@@ -62,8 +62,9 @@ function EventDetail() {
           setAllowDelRaces(permissions.check(apiToken, 'delete', 'races'))
           await eventModel.get(id)
           if (eventModel.success) {
+            const eventHasPayments = !!eventModel.responseData.paid_user_ids;
             eventModel.responseData.cars = eventModel.responseData.cars
-              .filter(car => car.paid === undefined || car.paid === true)
+              .filter(car => eventHasPayments && eventModel.responseData.paid_user_ids.includes(car.user._id));
             setEvent(eventModel.responseData)
             await classModel.get()
             if (classModel.success) {
