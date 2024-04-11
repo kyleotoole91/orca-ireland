@@ -7,6 +7,8 @@ import { PollController } from './controllers/PollController'
 import { ArticleModel } from './models/ArticleModel'
 import { PayPalController } from './controllers/PayPalController'
 import validateJwt from './utils/validate-jwt'
+import { generateCurrentEventPayments, generateCurrentMembershipPayments } from './adapters/paypal'
+const cron = require('node-cron')
 require('dotenv').config()
 const fs = require('fs')
 const express = require('express')
@@ -62,6 +64,10 @@ async function listMongoCollections() {
 }
 listMongoCollections()
 */
+
+cron.schedule('30 */2 * * *', async () => await generateCurrentMembershipPayments()); // '0 * * * *' every hour, 0 */2 * * * every 2 hours
+cron.schedule('0 */2 * * *', async () => await generateCurrentEventPayments()); // '0 * * * *' every hour, 0 */2 * * * every 2 hours
+
 const eventsController = new EventController()
 const membershipsController = new MembershipController()
 const carsController = new CarController()

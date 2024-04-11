@@ -89,7 +89,7 @@ export class BaseModel {
         }*/
       })
     } catch(e) {
-      console.log('Error applyDataTypes(): '+e.message)
+      //console.log('Error applyDataTypes(): '+e.message)
     }
   }
 

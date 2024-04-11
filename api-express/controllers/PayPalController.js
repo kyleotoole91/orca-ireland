@@ -1,5 +1,5 @@
 import { BaseController } from './BaseController.js'
-import { authAndTransactions } from '../adapters/paypal.js'
+import { authAndTransactions, generateCurrentMembershipPayments } from '../adapters/paypal.js'
 
 const MAX_DAYS = 31;
 
@@ -38,10 +38,10 @@ export class PayPalController extends BaseController {
           message: `date range must not exceed ${MAX_DAYS} days`
         })
       }
-
+      
       const data = await authAndTransactions(startDate, endDate, keyword, name, amount);
-      const error = data.error;
-      if (error) {
+
+      if (data.error) {
         return res.status(data.error.code).send({
           success: false,
           message: error.message

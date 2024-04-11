@@ -65,6 +65,7 @@ function Membership() {
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
   const [secret, setSecret] = useState('')
+  const [paymentRef, setPaymentRef] = useState('')
   const [name, setName] = useState('')
   const [startDate, setStartDate] = useState(todayDate)
   const [startDateCtrl, setStartDateCtrl] = useState(todayDateCtrl)
@@ -277,6 +278,7 @@ function Membership() {
   function addMembershipClick() {
     setEditing(false)
     setSecret('')
+    setPaymentRef('')
     setName('')
     setStartDate(todayDate)
     setStartDateCtrl(todayDateCtrl) 
@@ -286,8 +288,8 @@ function Membership() {
     handleShow()
   }
 
-  async function postMembership(){
-    await membershipModel.post({name, startDate, endDate, fee, secret})
+  async function postMembership() {
+    await membershipModel.post({name, startDate, endDate, fee, keyword: paymentRef, secret})
     if (membershipModel.success){
       setRefresh(!refresh)
       handleClose() 
@@ -409,6 +411,10 @@ function Membership() {
             <label style={{ margin: '3px' }} >
               Fee (&euro;): &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <NumberFormat id="eventFee" name="event-fee"  value={fee} onChange={(e) => setFee(e.target.value)} thousandSeparator={ true } /*prefix="€"*/ />
+            </label>
+            <label style={{ margin: '3px' }} >
+              Payment Ref: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <input value={paymentRef} onChange={(e) => setPaymentRef(e.target.value)} id="paymentref" name="membership-payment-ref" />
             </label>
             <label style={{ margin: '3px' }} >
               Activation Code: &nbsp;

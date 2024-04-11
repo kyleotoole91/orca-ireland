@@ -147,11 +147,11 @@ export const addPaypalTxToEventDetails = async (eventDetail, email = '') => {
 }
 
 export const generateCurrentEventPayments = async () => {
+  //console.log('generateCurrentEventPayments at', new Date());
   const paymentDb = new PaymentModel();
   const eventDb = new EventModel(true);
   const events = await eventDb.getUpcomingEvents();
   const newPayments = [];
-
   for (const event of events) {
     const eventPayments = await paymentDb.getPaymentsByEventId(event._id);
 
@@ -168,7 +168,7 @@ export const generateCurrentEventPayments = async () => {
           const payment = {
             event_id: event._id,
             payment_date: eventEntry.payment_tx.date,
-            transaction_ref: eventEntry.payment_tx.transaction_id,
+            transaction_id: eventEntry.payment_tx.transaction_id,
             user_id: eventEntry.user._id,
             user_email: eventEntry.user.email,
             name: eventEntry.payment_tx.name,
@@ -179,7 +179,7 @@ export const generateCurrentEventPayments = async () => {
             available_balance: eventEntry.payment_tx.available_balance
           };
           // multiple events at the same time may create dupe payments, assign one payment to one event at a time
-          const alreadyAddedPayment = newPayments.some(p => p.transaction_ref === payment.transaction_ref);
+          const alreadyAddedPayment = newPayments.some(p => p.transaction_id === payment.transaction_id);
 
           if (!alreadyAddedPayment) {
             newPayments.push(payment);
@@ -212,6 +212,7 @@ export const generateCurrentEventPayments = async () => {
 }
 
 export const generateCurrentMembershipPayments = async () => {
+  //console.log('generateCurrentMembershipPayments at', new Date());
   const membershipDb = new MembershipModel();
   const paymentDb = new PaymentModel();
   const userDb = new UserModel();
@@ -219,6 +220,10 @@ export const generateCurrentMembershipPayments = async () => {
   const currentMembership = currentMemberships[0] || {};
   
   if (!currentMembership) { return; }
+
+  if (!currentMembership.user_ids) {
+    currentMembership.user_ids = [];
+  }
 
   const startDate = new Date();
   const eventDate = new Date();
@@ -232,64 +237,40 @@ export const generateCurrentMembershipPayments = async () => {
   const response = await authAndTransactions(startDateIso, endDateIso, keyword, '', fee);
 
   const currentMembershipPayments = await paymentDb.getPaymentsByMembershipId(currentMembership._id) || [];
-
-  const alreadyActiveUserIds = currentMembership.user_ids || [];
-  const newPayments = [];
-  /// map to store user_id and email
-  const userMap = new Map();
-
-  for (const tx of response) {
-    if (
-      alreadyActiveUserIds.includes(tx.user_id) || 
-      currentMembershipPayments.some(p => p.user_id === tx.user_id)
-    ) { continue; }
-      
-    const payment = {
-      membership_id: currentMembership._id,
-      payment_date: tx.date,
-      transaction_ref: tx.transaction_id,
-      user_id: undefined,
-      user_email: tx.email,
-      name: tx.name,
-      amount: tx.amount,
-      currency: tx.currency,
-      date: tx.date,
-      status: tx.status,
-      available_balance: tx.available_balance
+  
+  response.forEach(async tx => {
+    const user = await userDb.getUserByEmail(tx.email);
+    if (user && !currentMembershipPayments.some(p => p.transaction_id === tx.transaction_id)) { 
+      try {
+        const payment = {
+          membership_id: currentMembership._id,
+          payment_date: tx.date,
+          transaction_id: tx.transaction_id,
+          user_id: user ? user._id : '',
+          user_email: tx.email,
+          name: tx.name,
+          amount: tx.amount,
+          currency: tx.currency,
+          date: tx.date,
+          status: tx.status,
+          available_balance: tx.available_balance
+        };
+        await paymentDb.addDocument(payment);
+        const userIds = objectIdsToStrings(currentMembership.user_ids);
+        const paymentUserId = payment.user_id.toString();
+        if (!userIds.includes(paymentUserId)) {
+          currentMembership.user_ids.push(payment.user_id);
+          await membershipDb.updateDocument(currentMembership._id, currentMembership);
+        }
+      } catch (error) {
+        console.error(error);
+      }
     };
 
-    const alreadyAddedPayment = newPayments.some(p => p.user_id === payment.user_id);
-
-    if (!alreadyAddedPayment) {
-      if (userMap.has(tx.email)) {
-        payment.user_id = userMap.get(tx.email);
-      } else {
-        const user = await userDb.getUserByEmail(tx.email);
-        payment.user_id = user._id;
-        userMap.set(tx.email, user._id);
-      }
-      newPayments.push(payment);
-    }
-  }
-
-  for (const payment of newPayments) {
-    try {
-      await paymentDb.addDocument(payment);
-
-      if (!alreadyActiveUserIds.includes(payment.user_id)) {
-        if (!currentMembership.user_ids) {
-          currentMembership.user_ids = [];
-        }
-        currentMembership.user_ids.push(payment.user_id);
-        currentMembership.users = undefined; // added by join, adds  array to db if not removed
-        membershipDb.updateDocument(currentMembership._id, currentMembership);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-  return newPayments;
+  });
 }
+
+const objectIdsToStrings = (obj) =>   obj.map(o => o ? o.toString() : '');
 
 // event
 // {

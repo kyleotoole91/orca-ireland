@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom'
 import Table  from 'react-bootstrap/Table'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
 import dayjs from 'dayjs'
 import { Permissions } from '../utils/permissions'
 import { PlusButton } from '../components/PlusButton'
@@ -48,6 +49,8 @@ function EventDetail() {
   const displayRaceForm = () => setShowRaceForm(true)
   const [showChangeCarForm, setShowChangeCarForm] = useState(false) 
   const hideUserCarModal = () => setShowChangeCarForm(false)
+  const [carsAwaitingPayment, setCarsAwaitingPayment] = useState([])
+  
 
   useEffect(() => {
     async function loadData () {
@@ -62,9 +65,13 @@ function EventDetail() {
           setAllowDelRaces(permissions.check(apiToken, 'delete', 'races'))
           await eventModel.get(id)
           if (eventModel.success) {
-            const eventHasPayments = !!eventModel.responseData.paid_user_ids;
-            eventModel.responseData.cars = eventModel.responseData.cars
-              .filter(car => eventHasPayments && eventModel.responseData.paid_user_ids.includes(car.user._id));
+            const hasPaidUserIds = !!eventModel.responseData.paid_user_ids;
+            const carsAwaitingPayment = eventModel.responseData.cars
+              .filter(car => !car.user.paymentExempt && !(hasPaidUserIds && eventModel.responseData.paid_user_ids.includes(car.user._id)))
+            const carsPaid = eventModel.responseData.cars
+              .filter(car => !!car.user.paymentExempt || (hasPaidUserIds && eventModel.responseData.paid_user_ids.includes(car.user._id)));
+            eventModel.responseData.cars = carsPaid
+            setCarsAwaitingPayment(carsAwaitingPayment || [])
             setEvent(eventModel.responseData)
             await classModel.get()
             if (classModel.success) {
@@ -137,7 +144,7 @@ function EventDetail() {
     }
   }
 
-  function addRacers(class_id) {
+  function addRacers(cars, class_id, dontCheckClass) {
     function addTableRow(car, index){
       return (
         <tr key={index+'-racersRow'}>
@@ -150,9 +157,12 @@ function EventDetail() {
         </tr>
       )
     }  
-    return (event.cars.map((car, index) => ( 
-      car.class_id===class_id && addTableRow(car, index) 
-    ))) 
+    
+    return (cars.map((car, index) => {
+      if (dontCheckClass || car.class_id === class_id) {
+        return addTableRow(car, index)
+      }  
+    }))
   }
 
   function carIdToUserName(carId) {
@@ -371,12 +381,19 @@ function EventDetail() {
     return (
       <Modal show={showChangeCarForm} onHide={hideUserCarModal} >
         <Modal.Header closeButton>
-          <Modal.Title>Change car for {ownerName}</Modal.Title>
+          <Modal.Title>Edit Entry {ownerName}</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ display: 'grid'} } >
-        {carsDropdown()}   
+        <Form.Check
+          type={'checkbox'}
+          label={`Payment Received`}
+          id={`cb-mark-as-paid`}
+          checked={false}
+        />
+        {carsDropdown()}  
         </Modal.Body>
         <Modal.Footer>
+          <Button onClick={deleteUserCar} variant="outline-danger">Delete</Button>
           <Button onClick={deleteUserCar} variant="outline-danger">Delete</Button>
           <Button variant="outline-secondary" onClick={hideUserCarModal}>Close</Button>
           <Button variant="outline-primary" onClick={putUserCarChange}>Save </Button>
@@ -411,6 +428,7 @@ function EventDetail() {
         ))
       )
     }
+
     function addRaceResults(race) {
       return (
         <div key={race._id+'-div'}>
@@ -462,7 +480,7 @@ function EventDetail() {
                 </tr>
               </thead>
               <tbody>
-                {addRacers(carClass._id, index)}
+                {addRacers(event.cars, carClass._id)}
               </tbody>
             </Table>
             <div style={{display: 'flex', flexFlow: 'wrap'}}>
@@ -476,6 +494,31 @@ function EventDetail() {
       )
     )
   }
+  
+  const showCarsAwaitingPayment = () => {
+    return (
+      <>
+        <div style={{overflow: 'auto'}} key={'pending-div'}>
+        <h4 style={{color: 'red', fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={'pending-header-label'}>Pending Payment</h4> 
+        <Table striped bordered hover size="sm" key={'pending-roster'}>
+          <thead key={'pending-roster-head'}>
+            <tr key={'pending-roster-row'}>
+              <th>Name</th>
+              <th>Mfr.</th>
+              <th>Model</th>
+              <th>Colour</th>
+              <th>Tpdr.</th>
+              {allowAddRaces && <th style={{width: '18px'}}></th>}
+            </tr>
+          </thead>
+          <tbody>
+          { addRacers(carsAwaitingPayment, '', true) }
+          </tbody>
+        </Table>
+        <div style={{height: '25px'}}></div>
+      </div>
+    </>
+  )}
 
   if (loading) {
     return <Loading /> 
@@ -483,6 +526,7 @@ function EventDetail() {
     return <>
       <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
       <div style={{display: 'grid', justifyContent: 'center'}}>
+        {showCarsAwaitingPayment()}
         {showRoster()}  
         {raceForm()}
         {changeCarModal()}

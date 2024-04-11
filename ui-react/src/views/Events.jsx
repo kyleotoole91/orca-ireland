@@ -21,6 +21,8 @@ import { PlusButton } from '../components/PlusButton'
 import { GearButton } from '../components/GearButton'
 import { ClassModel } from '../models/ClassModel'
 
+const REGISTRATION_LEAD_DAYS = 7;
+
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
 const eventStartTimeHours = 10
@@ -57,6 +59,7 @@ function Events() {
   const [classes, setClasses] = useState([])
   const [eventTypes, setEventTypes] = useState([])
   const [eventTypeId, setEventTypeId] = useState('')
+  const [paymentRef, setPaymentRef] = useState('')
   const handleClose = () => setShow(false)
   const handleShow = () => setShow(true)
   const handleCloseRegistration = () => { 
@@ -226,7 +229,7 @@ function Events() {
 
   async function postEvent() {
     let date = eventDate
-    await eventModel.post({name, location, date, fee, 'eventType_id': eventTypeId})
+    await eventModel.post({name, location, date, fee, keyword: paymentRef, 'eventType_id': eventTypeId})
     if (eventModel.success) {
       setRefresh(!refresh)
       handleClose()
@@ -340,6 +343,7 @@ function Events() {
         setEventTypeId(selEvent.eventType_id)
         setLocation(selEvent.location)
         setEventDate(new Date(selEvent.date))
+        setPaymentRef(selEvent.keyword)
         setDate(dateUtils.formatDate(new Date(selEvent.date), 'yyyy-mm-dd')) 
         setFee(selEvent.fee)
         handleShow()
@@ -354,6 +358,7 @@ function Events() {
     setName(defaultEventName)
     setLocation("Saint Anne's Park")
     setEventDate(defaultEventDate)
+    setPaymentRef('')
     setDate(defaultEventDateCtrl) 
     setFee(10)
     handleShow()
@@ -365,6 +370,14 @@ function Events() {
     } else {
       postEvent()
     }
+  }
+
+  const getRegistrationState = (date) => {
+    if (!currentEvent) return;
+    const now = new Date();
+    const eventDate = new Date(date);
+    const paymentDueFromDate = new Date(eventDate.getTime() - REGISTRATION_LEAD_DAYS * 24 * 60 * 60 * 1000);
+    return eventDate > now && paymentDueFromDate > now;
   }
 
   function addCards(events, currentEvent) {
@@ -386,7 +399,13 @@ function Events() {
             <Card.Text>Entry fee &euro;{event.fee}</Card.Text>
               <Card.Text>{dateUtils.stringToWordDateTime(event.date)}</Card.Text>
             {currentEvent && 
-              <Button onClick={handleShowRegistration} id={event._id}  style={{width: "100%"}} variant="outline-primary">
+              <Button 
+                onClick={handleShowRegistration} 
+                id={event._id}
+                style={{width: "100%"}} 
+                disabled={getRegistrationState(event.date)} 
+                variant={(getRegistrationState(event.date) && "outline-secondary") || "outline-primary"} 
+              >
                 Registration
               </Button>} 
             <Button id={event._id} 
@@ -449,6 +468,10 @@ function Events() {
               <Form.Label>Fee </Form.Label>
               <Form.Control value={fee} type="number" name="event-fee" onChange={(e) => setFee(e.target.value)} />
             </Form.Group> 
+            <Form.Group className="mb-3" controlId="eventFormPaymentRef">
+              <Form.Label>Payment Ref</Form.Label>
+              <Form.Control value={paymentRef} type="text" id="paymentRef" name="event-payment-ref" onChange={(e) => setPaymentRef(e.target.value)} />
+            </Form.Group>
             <Form.Group className="mb-3" controlId="formEventType">
               <Form.Label>Event Type</Form.Label>
               <Form.Select onChange={(e) => handleEventTypeChange(e)} value={getEventTypeName(eventTypeId)}>
