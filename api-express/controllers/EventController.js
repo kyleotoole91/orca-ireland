@@ -175,6 +175,65 @@ export class EventController extends BaseController {
       }) 
     }
   }
+
+  async addPaidUser(req, res) {
+    try {
+      let hasPermission = this.permissions.check(this.getToken(req), 'post', this.collectionName)
+      if (!hasPermission){
+        return res.status(403).send({
+          success: false,
+          message: 'forbidden'
+        })
+      }
+      let event = await this.db.addPaidUserId(req.params.id, req.body.paid_user_id)
+      if (!event) {
+        return res.status(500).send({
+          success: false,
+          message: this.db.message
+        })
+      } else {
+        return res.status(200).send({
+          success: true,
+          message: 'user added to paid list'
+        })
+      }
+    } catch(e) {
+      return res.status(500).send({
+        success: false,
+        message: 'internal server error: '+e.message
+      }) 
+    }
+  }
+
+  async deletePaidUser(req, res) {
+    try {
+      let hasPermission = this.permissions.check(this.getToken(req), 'put', this.collectionName)
+      if (!hasPermission){
+        return res.status(403).send({
+          success: false,
+          message: 'forbidden'
+        })
+      }
+      let event = await this.db.deletePaidUser(req.params.id, req.params.paid_user_id)
+      if (!event) {
+        return res.status(500).send({
+          success: false,
+          message: this.db.message
+        })
+      } else {
+        return res.status(200).send({
+          success: true,
+          message: 'user removed from paid list'
+        })
+      }
+    } catch(e) {
+      return res.status(500).send({
+        success: false,
+        message: 'internal server error: '+e.message
+      }) 
+    }
+  }
+
 }
 
 /*

@@ -103,6 +103,8 @@ app.get('/events', (req, res) => eventsController.getAllDocuments(req, res))
 app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(req, res))
 app.post('/events', validateJwt, (req, res) => eventsController.addDocument(req, res))
 app.put('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
+app.post('/events/:id/paid_user', validateJwt, (req, res) => eventsController.addPaidUser(req, res))
+app.delete('/events/:id/paid_user/:paid_user_id', validateJwt, (req, res) => eventsController.deletePaidUser(req, res))
 app.delete('/events/:id', validateJwt, (req, res) => eventsController.deleteDocument(req, res))
 //eventtypes
 app.get('/eventtypes', (req, res) => eventTypesController.getAllDocuments(req, res))

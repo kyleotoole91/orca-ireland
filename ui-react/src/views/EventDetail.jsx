@@ -50,7 +50,10 @@ function EventDetail() {
   const [showChangeCarForm, setShowChangeCarForm] = useState(false) 
   const hideUserCarModal = () => setShowChangeCarForm(false)
   const [carsAwaitingPayment, setCarsAwaitingPayment] = useState([])
-  
+  const [allCars, setAllCars] = useState([])
+  const [entryPaid, setEntryPaid] = useState(false)
+  const [allowEditEvents, setAllowEditEvents] = useState(false)
+  const [allowEditPaidUsers, setAllowEditPaidUsers] = useState(false)
 
   useEffect(() => {
     async function loadData () {
@@ -61,11 +64,14 @@ function EventDetail() {
           eventModel.urlParams = '?detail=1'
           const classModel = new ClassModel(apiToken)
           const permissions = new Permissions()
+          setAllowEditEvents(permissions.check(apiToken, 'put', 'events'))
+          setAllowEditPaidUsers(permissions.check(apiToken, 'put', 'paid_users'))
           setAllowAddRaces(permissions.check(apiToken, 'post', 'races'))
           setAllowDelRaces(permissions.check(apiToken, 'delete', 'races'))
           await eventModel.get(id)
           if (eventModel.success) {
             const hasPaidUserIds = !!eventModel.responseData.paid_user_ids;
+            setAllCars(eventModel.responseData.cars)
             const carsAwaitingPayment = eventModel.responseData.cars
               .filter(car => !car.user.paymentExempt && !(hasPaidUserIds && eventModel.responseData.paid_user_ids.includes(car.user._id)))
             const carsPaid = eventModel.responseData.cars
@@ -138,6 +144,8 @@ function EventDetail() {
     }
     if (success) {
       setUserCars(carModel.responseData)
+      const item = carModel.responseData[0]
+      setEntryPaid(event.paid_user_ids && event.paid_user_ids.includes(item.user_id))
       setShowChangeCarForm(true)
     } else {
       window.alert(carModel.message)
@@ -330,6 +338,15 @@ function EventDetail() {
     }
   }
 
+  function getUserIdByCarId(carId) {
+    for (var car of allCars) {
+      if (car._id === carId) {
+        return car.user._id
+      }
+    }
+    return ''
+  }
+
   function handleCarChange(e) {
     const option = e.target.childNodes[e.target.selectedIndex]
     const id = option.getAttribute('id')
@@ -337,22 +354,45 @@ function EventDetail() {
   }
 
   async function putUserCarChange() {
-    await eventModel.get(event._id) 
-    let tmpEvent = eventModel.responseData
-    if (eventModel.success && carId !== oldCarId) {
-      if (tmpEvent.car_ids.indexOf(carId) >= 0) {
-        return window.alert('The selected car is already in this race')
+    const eventRec = await eventModel.get(event._id) 
+    if (!eventModel.success) {
+      return
+    }
+    const wasPaid = eventRec.paid_user_ids && event.paid_user_ids.includes(getUserIdByCarId(oldCarId));
+    const entryPaidChanged = wasPaid !== entryPaid;
+    const userId = getUserIdByCarId(oldCarId);
+
+    if (entryPaidChanged && userId) {
+      if (!wasPaid) {
+        if (!eventRec.paid_user_ids) {
+          eventRec.paid_user_ids = []
+        }
+        eventRec.paid_user_ids.push(userId)
+      } else if (eventRec.paid_user_ids && eventRec.paid_user_ids.includes(userId)) {
+        eventRec.paid_user_ids.splice(eventRec.paid_user_ids.indexOf(userId), 1)
       }
-      for (let i = 0; i < tmpEvent.car_ids.length; i++) {
-        if (tmpEvent.car_ids[i] === oldCarId) {
-          tmpEvent.car_ids[i] = carId
-          eventModel.put(event._id, tmpEvent)
-          hideUserCarModal()
-          setRefresh(!refresh)
-          return
+    }
+
+    const carChanged = carId !== oldCarId
+
+    if (carChanged) {
+      for (let i = 0; i < eventRec.car_ids.length; i++) {
+        if (!eventRec.car_ids.includes(carId) && eventRec.car_ids[i] === oldCarId) {
+          eventRec.car_ids[i] = carId
+          break;
         }
       }
     }
+
+    if (entryPaidChanged || carChanged) {
+      const res = await eventModel.put(event._id, eventRec)
+      if (res && res.errorMesage) {
+        window.alert(res.errorMesage)
+      }
+    }
+
+    hideUserCarModal()
+    setRefresh(!refresh)
   }
 
   async function deleteUserCar() {
@@ -369,31 +409,28 @@ function EventDetail() {
     }
   }
 
-  function changeCarModal() {
-    function carsDropdown() {
-      return ( 
-        <select value={getUserCarName(carId)} id='cb-user-car' onChange={(e) => handleCarChange(e)} style={{width: '100%', height: '30px'}} > 
-          {userCars && userCars.map((car, index) => 
-            <option id={car._id} key={index} >{getUserCarName(car._id)}</option> ) }
-        </select>  
-      )
-    }
+  function editEntryModal() {
     return (
       <Modal show={showChangeCarForm} onHide={hideUserCarModal} >
         <Modal.Header closeButton>
           <Modal.Title>Edit Entry {ownerName}</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ display: 'grid'} } >
-        <Form.Check
-          type={'checkbox'}
-          label={`Payment Received`}
-          id={`cb-mark-as-paid`}
-          checked={false}
-        />
-        {carsDropdown()}  
+        { allowEditPaidUsers &&
+          <Form.Check
+            type={'checkbox'}
+            label={`Payment Received`}
+            id={`cb-mark-as-paid`}
+            checked={entryPaid}
+            onChange={(e) => setEntryPaid(e.target.checked)}
+          />
+        }
+        <select value={getUserCarName(carId)} id='cb-user-car' onChange={(e) => handleCarChange(e)} style={{width: '100%', height: '30px'}} > 
+          {userCars && userCars.map((car, index) => 
+            <option id={car._id} key={index} >{getUserCarName(car._id)}</option> ) }
+        </select>    
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={deleteUserCar} variant="outline-danger">Delete</Button>
           <Button onClick={deleteUserCar} variant="outline-danger">Delete</Button>
           <Button variant="outline-secondary" onClick={hideUserCarModal}>Close</Button>
           <Button variant="outline-primary" onClick={putUserCarChange}>Save </Button>
@@ -496,6 +533,18 @@ function EventDetail() {
   }
   
   const showCarsAwaitingPayment = () => {
+    const addTableRow = (car, index) => {
+      return (
+        <tr style={{color: 'red'}} key={index+'-pending-row'}>
+          <td>{car.user.firstName+' '+car.user.lastName}</td>
+          <td>{getClassName(car.class_id)}</td>
+          <td>{car.manufacturer}</td>
+          <td>{car.model}</td>
+          <td>{car.color}</td>
+          {allowAddRaces && <td><PencilSquare key={car._id+'-change-car'} id={car._id} handleClick={() => changeCar(car._id)} /></td>}
+        </tr>
+      )
+    }
     return (
       <>
         <div style={{overflow: 'auto'}} key={'pending-div'}>
@@ -504,15 +553,15 @@ function EventDetail() {
           <thead key={'pending-roster-head'}>
             <tr key={'pending-roster-row'}>
               <th>Name</th>
+              <th>Class</th>
               <th>Mfr.</th>
               <th>Model</th>
               <th>Colour</th>
-              <th>Tpdr.</th>
               {allowAddRaces && <th style={{width: '18px'}}></th>}
             </tr>
           </thead>
           <tbody>
-          { addRacers(carsAwaitingPayment, '', true) }
+          { carsAwaitingPayment.map((car, index) => addTableRow(car, index)) }
           </tbody>
         </Table>
         <div style={{height: '25px'}}></div>
@@ -526,10 +575,10 @@ function EventDetail() {
     return <>
       <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
       <div style={{display: 'grid', justifyContent: 'center'}}>
-        {showCarsAwaitingPayment()}
-        {showRoster()}  
-        {raceForm()}
-        {changeCarModal()}
+        { carsAwaitingPayment.length > 0 && showCarsAwaitingPayment()}
+        { showRoster() }  
+        { allowAddRaces && raceForm() }
+        { allowEditEvents && editEntryModal() }
       </div>
     </>
   } else return <h2>Not found</h2>

@@ -43,6 +43,45 @@ export class EventModel extends BaseModel{
     }
   }
 
+  async addPaidUser(eventId, userId) {
+    try {
+      const url = `${this.baseURL}/events/${eventId.toString()}/paid_user`
+      console.log('addPaidUser', userId)
+      await fetch(url, {
+                  method: 'POST', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
+                  body: JSON.stringify({paid_user_id: userId})
+                })
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+            })  
+    } catch(e) {
+      this.setErrorMessage(e)
+    } finally {
+      this.reset()
+      return this.responseData
+    }
+  }
+
+  async deletePaidUser(eventId, userId) {
+    console.log('deletePaidUser', eventId, userId)
+    try {
+      await fetch(`${this.baseURL}/events/${eventId.toString()}/paid_user/${userId}`, {
+                  method: 'DELETE', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"}})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+            })  
+    } catch(e) {
+      this.setErrorMessage(e)
+    } finally {
+      this.reset()
+      return this.responseData
+    }
+  }
+
   async enterEvent(eventId, car_ids) {
     return await this.put(eventId.toString(), {car_ids})
   }

@@ -216,4 +216,71 @@ export class EventModel extends BaseModel {
       return this.result  
     } 
   }
+
+  async addPaidUserId(id, userId) {
+    this.message = 'Updated'
+    try {
+      const objId = new ObjectId(id)
+      const userObjId = new ObjectId(userId)
+      
+      this.result = await this.db.findOne({'_id': objId})
+      const paidUsers = this.result.paid_user_ids;
+      const mappedPaidUsers = paidUsers ? paidUsers.map(x => x.toString()) : [];
+      if (!this.result || mappedPaidUsers.length !== 0 && mappedPaidUsers.indexOf(userId) !== -1) { 
+        this.result = null
+        this.message = 'user already paid: ' + userId
+        return this.result
+      }
+
+      this.result = await this.db.findOneAndUpdate({'_id': objId}, {$push: { "paid_user_ids": userObjId }})
+      
+      if(!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
+        this.result = null
+        this.message = 'Error updating: ' + id
+      } else {
+        this.result = this.result.value
+      }
+
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    } 
+  }
+
+  async deletePaidUser(id, userId) {
+    this.message = 'Updated'
+    try {
+      const objId = new ObjectId(id)
+      const userObjId = new ObjectId(userId)
+      
+      this.result = await this.db.findOne({'_id': objId})
+      const paidUsers = this.result.paid_user_ids;
+      const mappedPaidUsers = paidUsers ? paidUsers.map(x => x.toString()) : [];
+      if (!this.result || mappedPaidUsers.length === 0 || mappedPaidUsers.indexOf(userId) === -1) { 
+        this.result = null
+        this.message = 'user not found: ' + userId
+        return this.result
+      }
+
+      this.result = await this.db.findOneAndUpdate({'_id': objId}, {$pull: { "paid_user_ids": userObjId }})
+      
+      if(!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
+        this.result = null
+        this.message = 'Error updating: ' + id
+      } else {
+        this.result = this.result.value
+      }
+
+    } catch (error) {
+      this.result = null
+      this.message = error.message
+      console.log(error)
+    } finally {
+      return this.result  
+    } 
+  }
+
 }
