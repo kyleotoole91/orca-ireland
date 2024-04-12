@@ -161,16 +161,19 @@ function EventDetail() {
           <td>{car.model}</td>
           <td>{car.color}</td>
           <td>{car.transponder}</td>
-          {allowAddRaces && <td><PencilSquare key={car._id+'-change-car'} id={car._id} handleClick={() => changeCar(car._id)} /></td>}
+          {allowAddRaces && 
+            <td>
+              <PencilSquare key={car._id+'-change-car'} id={car._id} handleClick={() => changeCar(car._id)} />
+            </td>}
         </tr>
       )
     }  
     
-    return (cars.map((car, index) => {
-      if (dontCheckClass || car.class_id === class_id) {
-        return addTableRow(car, index)
-      }  
-    }))
+    return cars.map((car, index) => 
+      dontCheckClass || car.class_id === class_id 
+        ? addTableRow(car, index) 
+        : <></>
+    );
   }
 
   function carIdToUserName(carId) {
@@ -419,7 +422,7 @@ function EventDetail() {
         { allowEditPaidUsers &&
           <Form.Check
             type={'checkbox'}
-            label={`Payment Received`}
+            label={`Payment Confirmed`}
             id={`cb-mark-as-paid`}
             checked={entryPaid}
             onChange={(e) => setEntryPaid(e.target.checked)}

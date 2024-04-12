@@ -240,6 +240,7 @@ export class BaseModel {
     this.message = 'Updated'
     try {
       const objId = new ObjectId(id)
+      delete document._id
       this.applyDataTypes(document)
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set:  document })
       if(!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
@@ -302,6 +303,7 @@ export class BaseModel {
     try {
       this.applyDataTypes(document)
       const objId = new ObjectId(id)
+      delete document._id
       this.result = await this.db.findOneAndUpdate({'_id': objId, 'user_id': userId}, {$set:  document })
       if(!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
         this.message = 'Error updating: ' + id

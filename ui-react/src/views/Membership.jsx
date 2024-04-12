@@ -18,6 +18,7 @@ import styled from 'styled-components'
 import Spinner from 'react-bootstrap/Spinner'
 import { PlusButton } from '../components/PlusButton'
 import { PaypalTxSearchTable } from '../components/PaypalTxSearchTable'
+import { MemberCard } from '../components/MemberCard'
 
 const userModel = new UserModel() 
 const membershipModel = new MembershipModel() 
@@ -60,6 +61,7 @@ function Membership() {
   const [refresh, setRefresh] = useState(false)
   const [allowAddMemberships, setAllowAddMemberships] = useState(false)
   const [allowPaypalAccess, setAllowPaypalAccess] = useState(false)
+  const [allowEditUsers, setAllowEditUsers] = useState(false)
   const [editing, setEditing] = useState(false)
   const [show, setShow] = useState(false)
   const handleClose = () => setShow(false)
@@ -98,6 +100,8 @@ function Membership() {
           setAllowPaypalAccess(permissions.check(apiToken, 'post', 'paypal'))
           setAllowAddMemberships(permissions.check(apiToken, 'post', 'memberships'))
           setAllowViewMembers(permissions.check(apiToken, 'get', 'users'))
+          setAllowEditUsers(permissions.check(apiToken, 'put', 'users'))
+          
           await userModel.get(user.sub)
           await memberTypesModel.get()
           if (memberTypesModel.success && memberTypesModel.responseData.length > 0) {
@@ -536,29 +540,26 @@ function Membership() {
   }
 
   function getAllMembersCards(){
-    function addCard(user, index){
-      if (userInMemebership(user.extId, currMembership)) {
-        return <Card key={user.extId+'-card'+index} style={{minWidth: '300px', maxWidth: '300px', margin: '3px', zIndex: 0}}>
-                 <Card.Header key={user.extId+'-header'+index}>{user.firstName+' '+user.lastName}</Card.Header>
-                 <Card.Body key={user.extId+'-body'+index}>
-                   {user.hasOwnProperty('memberType') && <Card.Text key={user.extId+'-type'+index}>Member Type: {user.memberType.name}</Card.Text>}
-                   <Card.Text key={user.extId+'-email'+index}>Email: {user.email}</Card.Text>
-                   <Card.Text key={user.extId+'-phone'+index}>Phone: {user.phone}</Card.Text>
-                   {user.hasOwnProperty('dateOfBirth') && <Card.Text key={user.extId+'-dob'+index}>DOB: {dateUtils.formatDate(new Date(user.dateOfBirth), 'dd/mm/yyyy')}</Card.Text>}
-                   {user.hasOwnProperty('ecName') && <Card.Text key={user.extId+'-ecName'+index}>Emergency Name: {user.ecName}</Card.Text>}
-                   {user.hasOwnProperty('ecPhone') && <Card.Text key={user.extId+'-ecPhone'+index}>Emergency Phone: {user.ecPhone}</Card.Text>}
-                 </Card.Body>
-               </Card> 
-      } 
-    }
     if (loadingAllMembers) {
-      return <div className="text-center">
-               <Spinner animation="border" variant="primary"/>
-             </div>
+      return (
+        <div className="text-center">
+          <Spinner animation="border" variant="primary"/>
+        </div>
+      )
     } else if (userData && userData.length > 0) {
-      return <div style={{display: 'flex', flexFlow: 'wrap'}}>
-              {userData.map((user, index) => (addCard(user, index)))}
-            </div> 
+      return ( 
+        <div style={{display: 'flex', flexFlow: 'wrap'}}>
+          {userData.map((user, index) => 
+            userInMemebership(user.extId, currMembership) && 
+              <MemberCard
+                key={user.extId+'-MemberCard'+index} 
+                user={user} 
+                index={index} 
+                canEdit={allowEditUsers && allowAddMemberships} 
+              />
+          )}
+        </div>
+      )
     } else { 
       return <h4>No active members</h4> 
     }
