@@ -27,9 +27,9 @@ export const MemberCard = ({user, index, canEdit }) => {
   const handleSetPaymentExempt = async () => {
     try {
       setLoading(true);
-      const userModel = new UserModel(apiToken);
+      const userModel = new UserModel(apiToken, false);
       const updatedUser = {...user, paymentExempt: !paymentExempt};
-      await userModel.put(user.extId, updatedUser);
+      await userModel.putConfig(user._id, updatedUser);
       if (!userModel.success) {
         window.alert(userModel.message);
         return;

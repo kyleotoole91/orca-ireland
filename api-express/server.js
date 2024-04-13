@@ -123,6 +123,7 @@ app.get('/users', validateJwt, (req, res) => usersController.getAllDocuments(req
 app.get('/users/:id', validateJwt, (req, res) => usersController.getUserDocument(req, res))
 app.post('/users', validateJwt, (req, res) => usersController.addUserDocument(req, res))
 app.put('/users/:id', validateJwt, (req, res) => usersController.updateUserDocument(req, res))
+app.put('/users/:id/config', validateJwt, (req, res) => usersController.updateDocument(req, res))
 app.delete('/users/:id', validateJwt, (req, res) => usersController.deleteUserDocument(req, res))
 //memberships
 app.get('/memberships', validateJwt, (req, res) => membershipsController.getAllDocuments(req, res))

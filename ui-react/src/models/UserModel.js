@@ -3,9 +3,10 @@ import {Validator} from '../utils/Validator'
 
 export class UserModel extends BaseModel {
   
-  constructor(token) {
+  constructor(token, useExtId = true) {
     super(token)
     this.Validator = new Validator()
+    this.useExtId = useExtId
     this.setEndpoint(process.env.REACT_APP_API_USERS)
   }
 
@@ -39,10 +40,29 @@ export class UserModel extends BaseModel {
 
   async put(userId, user) {
     if (this.validUser(user)) {
-      this.urlParams = '?extLookup=1' //use Auth0 user_id instead of our MongoDB ObjectID
+      this.urlParams = this.useExtId ? '?extLookup=1' : '' //use Auth0 user_id instead of our MongoDB ObjectID
       return await super.put(userId, user)
     } 
     return null
+  }
+
+  async putConfig(userId, user) {
+    try {
+      this.itemId = userId
+      await fetch(this.getUrl() + '/config', {
+                  method: 'PUT', 
+                  headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
+                  body: JSON.stringify(user)})
+            .then(response => response.json())
+            .then((response) => {
+              this.setResponseData(response)
+            })  
+    } catch(e) {
+      this.setErrorMessage(e)
+    } finally {
+      this.reset()
+      return this.responseData
+    } 
   }
 
   async post(user) {

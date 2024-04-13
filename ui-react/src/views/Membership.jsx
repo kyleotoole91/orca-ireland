@@ -613,7 +613,7 @@ function Membership() {
 
   function allMembershipsAccordian() {
     return <Accordion.Item eventKey="2">
-            <StyledAccordionHeader onClick={allMembersShipsClick}>All Memberships</StyledAccordionHeader>
+            <StyledAccordionHeader onClick={allMembersShipsClick}>Membership History</StyledAccordionHeader>
             <Accordion.Body>
               {getAllMembershipsCards()} 
             </Accordion.Body>
