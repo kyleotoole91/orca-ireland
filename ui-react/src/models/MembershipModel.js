@@ -33,4 +33,25 @@ export class MembershipModel extends BaseModel {
       return super.put(membershipId, {extId, secret})
     }
   }
+
+  async putActiveUser(membershipId, userId, active) {
+    try {
+      this.itemId = membershipId
+      const body = { user_id: userId, active }
+      await fetch(this.baseURL + this.endpoint + `/${this.itemId}` + '/active_user', {
+          method: 'PUT', 
+          headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
+          body: JSON.stringify(body)})
+      .then(response => response.json())
+      .then((response) => {
+        this.setResponseData(response)
+      })  
+    } catch(e) {
+      this.setErrorMessage(e)
+    } finally {
+      this.reset()
+      return this.responseData
+    } 
+  }
+
 }

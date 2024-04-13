@@ -2,6 +2,8 @@ import { BaseModel } from '../models/BaseModel'
 import { MembershipModel } from '../models/MembershipModel'
 import { BaseController } from './BaseController.js'
 
+const ObjectId = require('mongodb').ObjectId
+
 export class MembershipController extends BaseController { 
 
   constructor () {
@@ -152,6 +154,59 @@ export class MembershipController extends BaseController {
         return res.status(200).send({
           success: true,
           message: 'membership activated'
+        })
+      }
+    } catch(e) {
+      return res.status(500).send({
+        success: false,
+        message: 'internal server error: '+e.message
+      }) 
+    }
+  }
+  
+  async activateUserMembership(req, res) {
+    try {
+      const hasPermission = this.permissions.check(this.getToken(req), 'put', 'activate_users')
+      if (!hasPermission) {
+        return res.status(403).send({
+          success: false,
+          message: 'forbidden'
+        })  
+      }
+      const userDb = new BaseModel('users')
+      console.log(req.body)
+      const user = await userDb.getDocument(req.body.user_id)
+      if (!user) {
+        return res.status(404).send({
+          success: false,
+          message: 'user not found'
+        })  
+      }
+      let membership = await this.db.getDocument(req.params.id)
+      if (!membership.hasOwnProperty('user_ids')) {  
+        membership.user_ids = []
+      }
+      const newMember = req.body.user_id
+      const addingMember = req.body.active === undefined ? true : req.body.active
+      if (addingMember && !this.objectIdExists(membership.user_ids, newMember)) {
+        membership.user_ids.push(new ObjectId(newMember))
+        membership = await this.db.updateDocument(req.params.id, membership) 
+      } else if (!addingMember && this.objectIdExists(membership.user_ids, newMember)) {
+        membership.user_ids = membership.user_ids.filter(id => id.toString() !== newMember)
+        console.log(membership.user_ids)
+        membership = await this.db.updateDocument(req.params.id, membership) 
+      }
+      if (!membership) {
+        return res.status(500).send({
+          success: false,
+          message: this.db.message
+        })
+      } else {
+        const currentMembership = await this.db.getCurrentMembership(this.permissions.check(this.getToken(req), 'get', 'users'))
+        return res.status(200).send({
+          success: true,
+          message: addingMember ? 'membership activated' : 'membership deactivated',
+          data: currentMembership
         })
       }
     } catch(e) {

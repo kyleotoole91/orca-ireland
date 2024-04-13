@@ -130,6 +130,7 @@ app.get('/memberships', validateJwt, (req, res) => membershipsController.getAllD
 app.get('/memberships/:id', validateJwt, (req, res) => membershipsController.getDocument(req, res))
 app.post('/memberships', validateJwt, (req, res) => membershipsController.addDocument(req, res))
 app.put('/memberships/:id', validateJwt, (req, res) => membershipsController.updateDocument(req, res))
+app.put('/memberships/:id/active_user', validateJwt, (req, res) => membershipsController.activateUserMembership(req, res))
 app.delete('/memberships/:id', validateJwt, (req, res) => membershipsController.deleteDocument(req, res))
 //cars
 app.get('/cars', validateJwt, (req, res) => carsController.getAllDocuments(req, res))

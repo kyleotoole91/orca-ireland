@@ -131,10 +131,10 @@ export const PaypalTxSearchTable = () => {
 
   return ( 
     <>
-      <Card style={{margin: '3px', minWidth: '284px', maxWidth: '500px'}}>
+      <Card style={{margin: '3px', width: '100%'}}>
       <Card.Header>Search Paypal Transactions</Card.Header>
         <Card.Body>
-          <Form style={{width: '250px'}}>
+          <Form style={{width: '100%'}}>
             <Form.Group className="mb-3" controlId="ppFrmStartDate">
               <Form.Label>Start Date</Form.Label>
               <Form.Control type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />

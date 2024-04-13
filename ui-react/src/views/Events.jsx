@@ -251,19 +251,18 @@ function Events() {
 
   async function enterEvent() {  
     await eventModel.enterEvent(selectedEventId, car_ids)
-    let payNow = false
     if (eventModel.success) {
-      if (car_ids && car_ids.length > 0) {
-        payNow = window.confirm('You have successfully registered for this event! \n\n'+
-                                'Club rounds: \u20AC10 \n'+
-                                'National rounds: \u20AC20 \n'+
-                                'Two classes: Club \u20AC15 National \u20AC30 \n'+
-                                'Cadet: Half price \n\n'+
-                                'Would you like to be redirected to PayPal to make this payment now?\nUse "Friends and Family" for no fees') 
+      if (car_ids && car_ids.length > 0 && eventModel.response.paymentRequired) {
+        window.alert(
+          'Thank you for your registration.\n\n'+
+          'Club rounds: \u20AC10 \n'+
+          'National rounds: \u20AC20 \n'+
+          'Additional car/family: \u20AC5 \n\n'+
+          'Please pay now to secure your place.'
+        );
+        window.location.href = process.env.REACT_APP_PAYPAL_PAYMENT_LINK;
       }
-      if (payNow) {
-        window.location.href=process.env.REACT_APP_PAYPAL_PAYMENT_LINK  
-      } else if (car_ids && car_ids.length > 0) {
+      if (car_ids && car_ids.length > 0) {
         history.push('/events/'+selectedEventId)   
       } else {
         setRefresh(!refresh)

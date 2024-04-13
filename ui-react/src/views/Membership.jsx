@@ -60,6 +60,7 @@ function Membership() {
   const [activeMember, setActiveMember] = useState(false)
   const [refresh, setRefresh] = useState(false)
   const [allowAddMemberships, setAllowAddMemberships] = useState(false)
+  const [allowActivateMembers, setAllowActivateMembers] = useState(false)
   const [allowPaypalAccess, setAllowPaypalAccess] = useState(false)
   const [allowEditUsers, setAllowEditUsers] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -99,6 +100,7 @@ function Membership() {
           const permissions = new Permissions()
           setAllowPaypalAccess(permissions.check(apiToken, 'post', 'paypal'))
           setAllowAddMemberships(permissions.check(apiToken, 'post', 'memberships'))
+          setAllowActivateMembers(permissions.check(apiToken, 'post', 'activate_users'))
           setAllowViewMembers(permissions.check(apiToken, 'get', 'users'))
           setAllowEditUsers(permissions.check(apiToken, 'put', 'users'))
           
@@ -332,7 +334,7 @@ function Membership() {
     setEndDateCtrl(stringDate)  
   }
 
-  async function allMembersClick(){
+  async function allMembersClick() {
     try {
       if (!allMembersExpanded) {
         setLoadingAllMembers(true)
@@ -347,7 +349,7 @@ function Membership() {
     }
   }
 
-  async function allMembersShipsClick(){
+  async function allMembersShipsClick() {
     try {
       if (!allMembersShipsExpanded) {
         setLoadingAllMembersShips(true)
@@ -476,7 +478,7 @@ function Membership() {
       return (
         memberTypes.map((memberType) => {
           if (allowedDOB(memberType) && dobHasChanged) {
-            console.log('Changing selected member type to: '+memberType.name)
+            console.log('Changing selected member type to: ' + memberType.name)
             setMemberTypeName(memberType.name)
             setMemberTypeID(memberType._id)  
             setDobChanged(false) //delayed so using dobHasChanged
@@ -555,7 +557,10 @@ function Membership() {
                 key={user.extId+'-MemberCard'+index} 
                 user={user} 
                 index={index} 
-                canEdit={allowEditUsers && allowAddMemberships} 
+                canEdit={allowEditUsers && allowAddMemberships}
+                canActivateMember={allowActivateMembers}
+                currentMembership={currMembership}
+                setCurrMembership={setCurrMembership}
               />
           )}
         </div>
@@ -565,72 +570,113 @@ function Membership() {
     }
   }
 
+  const getAllUsersCards = () => {
+    if (loadingAllMembers) {
+      return (
+        <div className="text-center">
+          <Spinner animation="border" variant="primary"/>
+        </div>
+      )
+    } else 
+    if (userData && userData.length > 0) {
+      return ( 
+        <div style={{display: 'flex', flexFlow: 'wrap'}}>
+          {userData.map((user, index) =>
+            <MemberCard
+              key={user.extId+'-UserCard'+index} 
+              user={user} 
+              index={index} 
+              canEdit={allowEditUsers && allowAddMemberships}
+              canActivateMember={allowActivateMembers}
+              currentMembership={currMembership}
+              setCurrMembership={setCurrMembership}
+            />
+          )}
+        </div>
+      )
+    }
+    return <h4>No active members</h4> 
+  }
+
   function getAllMembershipsCards() {
     function addCard(membership, index) {
       let memberCount = 0
       if (membership.hasOwnProperty('user_ids')) {
         memberCount = membership.user_ids.length  
       }
-      return <Card key={user.extId+'-card'+index} style={{minWidth: '300px', maxWidth: '300px', margin: '3px', zIndex: 0}}>
-                <Card.Header key={membership.extId+'-header'+index}>{membership.name}</Card.Header>
-                <Card.Body>
-                  <Card.Text>Start Date: {dateUtils.stringToWordDate(membership.startDate)}</Card.Text>
-                  <Card.Text>End Date: {dateUtils.stringToWordDate(membership.endDate)}</Card.Text>
-                  <Card.Text>Price: &euro;{membership.fee}</Card.Text>
-                  <Card.Text>Member count: {memberCount}</Card.Text>
-                </Card.Body>
-              </Card> 
+      return ( 
+        <Card key={user.extId+'-card'+index} style={{minWidth: '300px', maxWidth: '300px', margin: '3px', zIndex: 0}}>
+          <Card.Header key={membership.extId+'-header'+index}>{membership.name}</Card.Header>
+          <Card.Body>
+            <Card.Text>Start Date: {dateUtils.stringToWordDate(membership.startDate)}</Card.Text>
+            <Card.Text>End Date: {dateUtils.stringToWordDate(membership.endDate)}</Card.Text>
+            <Card.Text>Price: &euro;{membership.fee}</Card.Text>
+            <Card.Text>Member count: {memberCount}</Card.Text>
+          </Card.Body>
+        </Card>
+      ) 
     }
     if (loadingAllMembersShips) {
-      return <div className="text-center">
-               <Spinner animation="border" variant="primary"/>
-             </div>
+      return ( 
+        <div className="text-center">
+          <Spinner animation="border" variant="primary"/>
+        </div>
+      )
     } else if (allMembersShips && allMembersShips.length > 0) {
-      return <div style={{display: 'flex', flexFlow: 'wrap'}}>
-              {allMembersShips.map((user, index) => (addCard(user, index)))}
-            </div> 
+      return (
+        <div style={{display: 'flex', flexFlow: 'wrap'}}>
+          {allMembersShips.map((user, index) => (addCard(user, index)))}
+        </div>
+      ) 
     } else { 
       return <h4>No active members</h4> 
     }
   }
 
-  function paypalSearchForm() {
-    return (
-      <div style={{display: 'flex', flexFlow: 'wrap'}}> 
-        <PaypalTxSearchTable />
-      </div>
-    )
-  }
+  const paypalSearchForm = () => (
+    <div style={{display: 'flex', flexFlow: 'wrap'}}> 
+      <PaypalTxSearchTable />
+    </div>
+  )
 
-  function allMembersAccordian(){
-    return <Accordion.Item eventKey="1">
-            <StyledAccordionHeader onClick={allMembersClick}>Active Members</StyledAccordionHeader>
-            <Accordion.Body>
-              {getAllMembersCards()} 
-            </Accordion.Body>
-          </Accordion.Item>
-  }
+  const allMembersAccordian = () => (
+    <Accordion.Item eventKey="1">
+      <StyledAccordionHeader onClick={allMembersClick}>Active Members</StyledAccordionHeader>
+      <Accordion.Body>
+        { getAllMembersCards() } 
+      </Accordion.Body>
+    </Accordion.Item>
+  )
 
-  function allMembershipsAccordian() {
-    return <Accordion.Item eventKey="2">
-            <StyledAccordionHeader onClick={allMembersShipsClick}>Membership History</StyledAccordionHeader>
-            <Accordion.Body>
-              {getAllMembershipsCards()} 
-            </Accordion.Body>
-          </Accordion.Item>
-  }
+  const allUsersAccordian = () => (
+    <Accordion.Item eventKey="2">
+      <StyledAccordionHeader onClick={allMembersClick}>All Members</StyledAccordionHeader>
+      <Accordion.Body>
+        { getAllUsersCards() } 
+      </Accordion.Body>
+    </Accordion.Item>
+  )
 
-  const paypalSearchAccordian = () => 
+  const allMembershipsAccordian = () => (
     <Accordion.Item eventKey="3">
+      <StyledAccordionHeader onClick={allMembersShipsClick}>Membership History</StyledAccordionHeader>
+      <Accordion.Body>
+        {getAllMembershipsCards()} 
+      </Accordion.Body>
+    </Accordion.Item>
+  )
+
+  const paypalSearchAccordian = () => (
+    <Accordion.Item eventKey="4">
       <StyledAccordionHeader onClick={allMembersShipsClick}>Paypal Transactions</StyledAccordionHeader>
       <Accordion.Body>
       {paypalSearchForm()} 
       </Accordion.Body>
     </Accordion.Item>
+  )
   
-
   if (loading) {
-    return ( <Loading /> )
+    return <Loading />
   } else {
     return (
       <>
@@ -648,6 +694,7 @@ function Membership() {
             </Accordion.Body>
           </Accordion.Item>
           {allowViewMembers && allMembersAccordian()}
+          {allowViewMembers && allUsersAccordian()}
           {allowAddMemberships && allMembershipsAccordian()}
           {allowPaypalAccess && paypalSearchAccordian()} 
         </Accordion>

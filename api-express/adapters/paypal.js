@@ -147,7 +147,7 @@ export const addPaypalTxToEventDetails = async (eventDetail, email = '') => {
 }
 
 export const generateCurrentEventPayments = async () => {
-  console.log('generateCurrentEventPayments at', new Date());
+  //console.log('generateCurrentEventPayments at', new Date());
   const paymentDb = new PaymentModel();
   const eventDb = new EventModel(true);
   const events = await eventDb.getUpcomingEvents();
@@ -212,7 +212,7 @@ export const generateCurrentEventPayments = async () => {
 }
 
 export const generateCurrentMembershipPayments = async () => {
-  console.log('generateCurrentMembershipPayments at', new Date());
+  //console.log('generateCurrentMembershipPayments at', new Date());
   const membershipDb = new MembershipModel();
   const paymentDb = new PaymentModel();
   const userDb = new UserModel();

@@ -165,7 +165,8 @@ export class EventController extends BaseController {
       } else {
         return res.status(200).send({
           success: true,
-          message: 'event application successfull'
+          message: 'event application successfull',
+          paymentRequired: user.paymentExempt ? false : true
         })
       }
     } catch(e) {
