@@ -7,6 +7,7 @@ import { PollController } from './controllers/PollController'
 import { ArticleModel } from './models/ArticleModel'
 import { PayPalController } from './controllers/PayPalController'
 import validateJwt from './utils/validate-jwt'
+import { sendEmailToActiveMembers } from './adapters/email'
 import { generateCurrentEventPayments, generateCurrentMembershipPayments } from './adapters/paypal'
 const cron = require('node-cron')
 require('dotenv').config()
@@ -16,24 +17,10 @@ const https = require('https')
 const http = require('http')
 const app = express()
 const cors = require('cors')
+
 const httpPort = 8000
 const httpsPort = 8001
-/*// linux droplet
-const ssl = {key: fs.readFileSync('/etc/letsencrypt/live/orcaireland.com/privkey.pem', 'utf8'), 
-             cert: fs.readFileSync('/etc/letsencrypt/live/orcaireland.com/fullchain.pem', 'utf8')}
-const corsOpts = {
-  origin: 'https://orcaireland.com',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Bearer']
-}
-app.use(express.urlencoded({extended: true})) 
-app.use(express.json())   
-app.use(cors(corsOpts))
-app.get('/cors', (req, res) => {
-  res.set('Access-Control-Allow-Origin', 'https://orcaireland.com');
-  res.send({ "msg": "This has CORS enabled" })
-})
-*/
+
 const ssl = {key: fs.readFileSync('./SSL/privkey.pem', 'utf8'), 
              cert: fs.readFileSync('./SSL/fullchain.pem', 'utf8')}
 const corsOpts = {
@@ -49,21 +36,6 @@ app.get('/cors', (req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:3001');
   res.send({ "msg": "CORS enabled" })
 })
-/*
-import mongoClient from './mongo-client' 
-async function listMongoCollections() {
-  await mongoClient.db(process.env.MONGO_DB_NAME)
-                   .listCollections()
-                   .toArray() 
-                   .then(collections => { 
-                     console.log('MongoDB Collections:')
-                     for (var collection of collections) {
-                       console.log(collection.name)
-                     }
-                   })
-}
-listMongoCollections()
-*/
 
 cron.schedule('30 */2 * * *', async () => await generateCurrentMembershipPayments()); // '0 * * * *' every hour, 0 */2 * * * every 2 hours
 cron.schedule('0 */2 * * *', async () => await generateCurrentEventPayments()); // '0 * * * *' every hour, 0 */2 * * * every 2 hours
@@ -165,6 +137,8 @@ app.put('/articles/:id', validateJwt, (req, res) => articlesController.updateDoc
 app.delete('/articles/:id', validateJwt, (req, res) => articlesController.deleteDocument(req, res))
 //paypal
 app.get('/paypal/transactions', (req, res) => paypalController.getTransactions(req, res))
+//email
+app.post('/email/active_members', (req, res) => sendEmailToActiveMembers(req, res))
 
 app.use(function (req, res) {
   res.status(404).send({'success': false, 'message': 'not found'})
@@ -180,5 +154,39 @@ app.use(function (err, req, res) {
 
 http.createServer(app).listen(httpPort)
 https.createServer(ssl, app).listen(httpsPort)
+
 console.log('NodeJS Express server for orcaireland.com')
 console.log('Listening on port '+httpPort+' for HTTP and '+httpsPort+' for HTTPS')
+
+/*// linux droplet
+const ssl = {key: fs.readFileSync('/etc/letsencrypt/live/orcaireland.com/privkey.pem', 'utf8'), 
+             cert: fs.readFileSync('/etc/letsencrypt/live/orcaireland.com/fullchain.pem', 'utf8')}
+const corsOpts = {
+  origin: 'https://orcaireland.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Bearer']
+}
+app.use(express.urlencoded({extended: true})) 
+app.use(express.json())   
+app.use(cors(corsOpts))
+app.get('/cors', (req, res) => {
+  res.set('Access-Control-Allow-Origin', 'https://orcaireland.com');
+  res.send({ "msg": "This has CORS enabled" })
+})
+*/
+
+/*
+import mongoClient from './mongo-client' 
+async function listMongoCollections() {
+  await mongoClient.db(process.env.MONGO_DB_NAME)
+                   .listCollections()
+                   .toArray() 
+                   .then(collections => { 
+                     console.log('MongoDB Collections:')
+                     for (var collection of collections) {
+                       console.log(collection.name)
+                     }
+                   })
+}
+listMongoCollections()
+*/

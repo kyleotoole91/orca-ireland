@@ -51,6 +51,9 @@ export const MemberCard = ({user, index, canEdit, canActivateMember, currentMemb
         window.alert('No active membership found');
         return;
       }
+      if (!window.confirm(`Are you sure you want to ${active ? 'activate' : 'deactivate'} this user's membership?`)) {
+        return;
+      }
       setLoading(true);
       const membershipModel = new MembershipModel(apiToken);
       const responseData = await membershipModel.putActiveUser(currentMembership._id, user._id, active);

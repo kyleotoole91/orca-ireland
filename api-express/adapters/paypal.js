@@ -3,6 +3,7 @@ import { UserModel } from '../models/UserModel';
 import { EventModel } from '../models/EventModel';
 import { PaymentModel } from '../models/PaymentModel';
 import { MembershipModel } from '../models/MembershipModel';
+import { sendEmail, membershipPaymentConfirmationTemplate, eventPaymentConfirmationTemplate } from './email.js';
 
 const DEFAULT_DAYS = 14;
 
@@ -173,7 +174,7 @@ export const generateCurrentEventPayments = async () => {
             user_email: eventEntry.user.email,
             name: eventEntry.payment_tx.name,
             amount: eventEntry.payment_tx.amount,
-            currency: "EUR",
+            currency: eventEntry.payment_tx.currency,
             date: eventEntry.payment_tx.date,
             status: eventEntry.payment_tx.status,
             available_balance: eventEntry.payment_tx.available_balance
@@ -202,6 +203,11 @@ export const generateCurrentEventPayments = async () => {
         if (!event.paid_user_ids.includes(payment.user_id)) {
           event.paid_user_ids.push(payment.user_id);
           await eventDb.updateDocument(event._id, event);
+          await sendEmail(
+            payment.email, 
+            'Event payment confirmation', 
+            eventPaymentConfirmationTemplate(event, payment)
+          );
         }
       }
     } catch (error) {
@@ -224,6 +230,11 @@ export const generateCurrentMembershipPayments = async () => {
   if (!currentMembership.user_ids) {
     currentMembership.user_ids = [];
   }
+
+  const getLocaleDate = (date) => new Date(date).toLocaleDateString(
+    'en-IE', 
+    { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+  );
 
   const startDate = new Date();
   const eventDate = new Date();
@@ -261,6 +272,11 @@ export const generateCurrentMembershipPayments = async () => {
         if (!userIds.includes(paymentUserId)) {
           currentMembership.user_ids.push(payment.user_id);
           await membershipDb.updateDocument(currentMembership._id, currentMembership);
+          await sendEmail(
+            payment.email, 
+            'Membership payment confirmation', 
+            membershipPaymentConfirmationTemplate(currentMembership, payment)
+          );
         }
       } catch (error) {
         console.error(error);

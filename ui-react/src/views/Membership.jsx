@@ -19,6 +19,7 @@ import Spinner from 'react-bootstrap/Spinner'
 import { PlusButton } from '../components/PlusButton'
 import { PaypalTxSearchTable } from '../components/PaypalTxSearchTable'
 import { MemberCard } from '../components/MemberCard'
+import { EmailActiveMembersForm } from '../components/EmailActiveMembersForm'
 
 const userModel = new UserModel() 
 const membershipModel = new MembershipModel() 
@@ -88,6 +89,7 @@ function Membership() {
   const [ecPhone, setEcPhone] = useState('')
   const [dobChanged, setDobChanged] = useState(false)
   const [allowViewMembers, setAllowViewMembers] = useState(false)
+  const [allowEmailActiveMembers, setAllowEmailActiveMembers] = useState(false)
 
   useEffect(() => {
     async function loadData () {
@@ -103,7 +105,8 @@ function Membership() {
           setAllowActivateMembers(permissions.check(apiToken, 'post', 'activate_users'))
           setAllowViewMembers(permissions.check(apiToken, 'get', 'users'))
           setAllowEditUsers(permissions.check(apiToken, 'put', 'users'))
-          
+          setAllowEmailActiveMembers(permissions.check(apiToken, 'post', 'email'))
+
           await userModel.get(user.sub)
           await memberTypesModel.get()
           if (memberTypesModel.success && memberTypesModel.responseData.length > 0) {
@@ -478,7 +481,6 @@ function Membership() {
       return (
         memberTypes.map((memberType) => {
           if (allowedDOB(memberType) && dobHasChanged) {
-            console.log('Changing selected member type to: ' + memberType.name)
             setMemberTypeName(memberType.name)
             setMemberTypeID(memberType._id)  
             setDobChanged(false) //delayed so using dobHasChanged
@@ -668,9 +670,18 @@ function Membership() {
 
   const paypalSearchAccordian = () => (
     <Accordion.Item eventKey="4">
-      <StyledAccordionHeader onClick={allMembersShipsClick}>Paypal Transactions</StyledAccordionHeader>
+      <StyledAccordionHeader>Paypal Transactions</StyledAccordionHeader>
       <Accordion.Body>
       {paypalSearchForm()} 
+      </Accordion.Body>
+    </Accordion.Item>
+  )
+
+  const emailActiveMembersAccordian = () => (
+    <Accordion.Item eventKey="5">
+      <StyledAccordionHeader>Email Active Members</StyledAccordionHeader>
+      <Accordion.Body>
+        <EmailActiveMembersForm />
       </Accordion.Body>
     </Accordion.Item>
   )
@@ -680,7 +691,7 @@ function Membership() {
   } else {
     return (
       <>
-        <Header props={{header:'Admin'}} />
+        <Header props={{header:'Membership'}} />
         {allowAddMemberships && 
             <div onClick={addMembershipClick} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
               <PlusButton />
@@ -697,6 +708,7 @@ function Membership() {
           {allowViewMembers && allUsersAccordian()}
           {allowAddMemberships && allMembershipsAccordian()}
           {allowPaypalAccess && paypalSearchAccordian()} 
+          {allowEmailActiveMembers && emailActiveMembersAccordian()}
         </Accordion>
       </>
     )
