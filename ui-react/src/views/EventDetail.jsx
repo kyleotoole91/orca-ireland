@@ -350,6 +350,15 @@ function EventDetail() {
     return ''
   }
 
+  function getUserByCarId(carId) {
+    for (var car of allCars) {
+      if (car._id === carId) {
+        return car.user
+      }
+    }
+    return
+  }
+
   function handleCarChange(e) {
     const option = e.target.childNodes[e.target.selectedIndex]
     const id = option.getAttribute('id')
@@ -413,6 +422,9 @@ function EventDetail() {
   }
 
   function editEntryModal() {
+    const user = getUserByCarId(carId);
+    const paymentExempt = user && !!user.paymentExempt;
+    console.log('paymentExempt', paymentExempt)
     return (
       <Modal show={showChangeCarForm} onHide={hideUserCarModal} >
         <Modal.Header closeButton>
@@ -422,9 +434,10 @@ function EventDetail() {
         { allowEditPaidUsers &&
           <Form.Check
             type={'checkbox'}
-            label={`Payment Confirmed`}
+            label={paymentExempt ? `Payment Exempt` : `Payment Confirmed`}
             id={`cb-mark-as-paid`}
             checked={entryPaid}
+            disabled={paymentExempt}
             onChange={(e) => setEntryPaid(e.target.checked)}
           />
         }

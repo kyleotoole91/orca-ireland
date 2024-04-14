@@ -255,11 +255,10 @@ function Events() {
       if (car_ids && car_ids.length > 0) {
         if (eventModel.response.paymentRequired) {
           const discountedRate = parseFloat(selectedEvent.fee) / 2;
-          let alertMsg = `Thank you for your registration.\n\n` +
-            `Please pay now using Paypal and "friends and family" to secure your place.\n\n` +
-            `Single entry: \u20AC${parseFloat(selectedEvent.fee).toFixed(2)}\n\n` +
-            `Additional car/family: \u20AC${discountedRate.toFixed(2)}`;
-            `Single entry: \u20AC${parseFloat(selectedEvent.fee).toFixed(2)}\n\n`;
+          let alertMsg = `Thank you for your registration. You will now be redirected to Paypal.\n\n` +
+            `Please using the "friends and family" option. It may take a couple of hours to verify your payment.\n\n` +
+            `Single entry: \u20AC${parseFloat(selectedEvent.fee).toFixed(2)}\n` +
+            `Additional car/family: \u20AC${discountedRate.toFixed(2)}`
           if (!!selectedEvent.keyword) {
             alertMsg = alertMsg + `\n\nPayment reference: ${selectedEvent.keyword}`;
           }
