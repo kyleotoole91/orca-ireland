@@ -252,7 +252,6 @@ function Events() {
   async function enterEvent() {  
     await eventModel.enterEvent(selectedEventId, car_ids)
     if (eventModel.success) {
-      handleCloseRegistration();
       if (car_ids && car_ids.length > 0 && eventModel.response.paymentRequired) {
         const discountedRate = parseFloat(selectedEvent.fee) / 2;
         let alertMsg = `Thank you for your registration.\n\n` +
@@ -264,10 +263,17 @@ function Events() {
         }
         window.alert(alertMsg);
         window.location.href = process.env.REACT_APP_PAYPAL_PAYMENT_LINK;
+      } else if (!car_ids || car_ids.length === 0) {
+        window.alert(
+          eventModel.response.paymentRequired
+            ? 'You entry has been removed from this event.\n\nIf you have paid for this event, please request a refund through Paypal.'
+            : 'You entry has been removed from this event.'
+        );
       }
     } else {
       window.alert(eventModel.message)  
     }
+    handleCloseRegistration();
   }
 
   function eventDateChange(stringDate) {
