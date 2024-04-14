@@ -258,7 +258,9 @@ function Events() {
           'Club rounds: \u20AC10 \n'+
           'National rounds: \u20AC20 \n'+
           'Additional car/family: \u20AC5 \n\n'+
-          'Please pay now to secure your place.'
+          'Please pay now via Paypal to secure your place.\n\n'+
+          'Important: The Paypal account email address and your orcaireland email address must match '+
+          'and the "friends and family" option must be used in order for your payment to be recognised.'
         );
         window.location.href = process.env.REACT_APP_PAYPAL_PAYMENT_LINK;
       }

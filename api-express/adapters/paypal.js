@@ -3,7 +3,11 @@ import { UserModel } from '../models/UserModel';
 import { EventModel } from '../models/EventModel';
 import { PaymentModel } from '../models/PaymentModel';
 import { MembershipModel } from '../models/MembershipModel';
-import { sendEmail, membershipPaymentConfirmationTemplate, eventPaymentConfirmationTemplate } from './email.js';
+import { sendEmail } from './email.js';
+import {
+  eventPaymentConfirmationTemplate, 
+  membershipPaymentConfirmationTemplate
+} from '../email/email-templates.js';
 
 const DEFAULT_DAYS = 14;
 

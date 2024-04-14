@@ -283,4 +283,27 @@ export class EventModel extends BaseModel {
     } 
   }
 
+  async markEventAsNotified(id) {
+    try {
+      const objId = new ObjectId(id)
+      const result = await this.db.findOneAndUpdate({'_id': objId}, {$set: { "notified": true }})
+      if(!result || !result.hasOwnProperty('ok') || result.ok !== 1) {
+        return {
+          success: false,
+          message: 'Error updating: ' + id
+        }
+      } else {
+        return {
+          success: true,
+          message: 'Updated'
+        }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message
+      }
+    }
+  }
+
 }

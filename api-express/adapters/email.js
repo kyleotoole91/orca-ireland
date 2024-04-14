@@ -1,10 +1,16 @@
 require('dotenv').config()
 import { MembershipModel } from '../models/MembershipModel'
 import { Permissions } from '../utils/permissions.js'
+import {
+  emailFooterHtml
+} from '../email/email-templates.js'
+import { EventModel } from '../models/EventModel'
 const nodeMailer = require('nodemailer')
 
-const testMode = process.env.TEST_MODE === '1'
-const testRecipient = process.env.TEST_EMAIL_ADDR 
+const testMode = process.env.TEST_MODE === '1';
+const testRecipient = process.env.TEST_EMAIL_ADDR;
+const registrationDays = 7;
+const orcaPaypalUrl = 'https://www.paypal.com/paypalme/orcairelandpp';
 
 export const getHtmlMessage = (message) => `<span>${message}</span><br>`
 
@@ -28,7 +34,7 @@ export const sendEmail = async (recipient, subject, html) => {
       to: testMode ? testRecipient : recipient,
       from: process.env.CLUB_EMAIL_ADDR,
       subject: subject,
-      html,
+      html: html + emailFooterHtml,
     }
 
     const response = await emailer.sendMail(mailOptions);
@@ -49,12 +55,7 @@ export const sendEmail = async (recipient, subject, html) => {
   }
 }
 
-const getLocaleDate = (date) => new Date(date).toLocaleDateString(
-  'en-IE', 
-  { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
-);
-
-export const sendEmailToActiveMembers = async (req, res) => {
+export const sendEmailToActiveMembersReq = async (req, res) => {
   try {
     const permissions = new Permissions()
 
@@ -76,38 +77,19 @@ export const sendEmailToActiveMembers = async (req, res) => {
       });
     }
 
-    const membershipDb = new MembershipModel();
-    const currentMembershipData = await membershipDb.getCurrentMembershipWithFullUser();
-    const currentMembership = currentMembershipData[0];
-    const userEmails = currentMembership.users.map(user => user.email);
-    const commaSeparatedEmails = userEmails.join(',');
+    const result = await sendEmailToActiveMembers(subject, message, html);
 
-    if (!currentMembership || !currentMembership.users || currentMembership.users.length === 0) {
-      return res.status(404).send({
+    if (!result.success) {
+      return res.status(result.httpCode || 400).send({
         success: false,
-        message: 'No active members found'
+        message: res.message
       })
     }
 
-    const htmlContent = html ? html : getHtmlMessage(message);
-
-    const response = testMode 
-      ? await sendEmail(testRecipient, subject, htmlContent)
-      : await sendEmail(commaSeparatedEmails, subject, htmlContent);
-
-    if (!response.success) {
-      return res.status(500).send({
-        success: false,
-        message: 'error sending email(s): ' + JSON.stringify(response) 
-      }) 
-    }
-
     return res.status(200).send({
-      success: true,
-      message: response.allAccepted 
-        ? `Successfully sent to ${response.accepted.length} active members`
-        : `Successfully sent to ${response.accepted.length} and ${response.rejected.length} failed to send to the following recipients: ${response.rejected.join(', ')}`
-    });
+      success: false,
+      message: result.message
+    })
 
   } catch (error) {
     return res.status(500).send({
@@ -117,24 +99,90 @@ export const sendEmailToActiveMembers = async (req, res) => {
   }
 
 }
- 
-export const eventPaymentConfirmationTemplate = (event, payment) =>
-  `<p>We have received your payment of ${payment.amount} ${payment.currency} and confirmed your place for the following event:</p>
-  <p>
-    Event: <a href='https://orcaireland.com/events/${event_id.toString()}'>${event.name}</a><br>
-    Date: ${getLocaleDate(event.date)}<br>
-  </p> 
-  <p>We look forward to seeing you!</p>
-  <p>Best of luck!</p>
-  <p><a href='https://orcaireland.com'>On Road Cicruit Association</a></p>`;
 
-export const membershipPaymentConfirmationTemplate = (membership, payment) => 
-  `<p>We have received your payment of ${payment.amount} ${payment.currency} and have activated your membership!</p>
-  <p>
-    Membership: <a href='https://orcaireland.com/membership'>${membership.name}</a><br>
-    Start Date: ${getLocaleDate(membership.startDate)}<br>
-    End Date: ${getLocaleDate(membership.endDate)}<br>
-  </p> 
-  <p>You can now register for <a href='https://orcaireland.com/events'>events</a></p>
-  <p>We look forward to seeing you!</p>
-  <p><a href='https://orcaireland.com'>On Road Cicruit Association</a></p>`;
+export const sendEmailToActiveMembers = async (subject, message, html) => {
+  try {
+    const membershipDb = new MembershipModel();
+    const currentMembershipData = await membershipDb.getCurrentMembershipWithFullUser();
+    const currentMembership = currentMembershipData[0];
+    const userEmails = currentMembership.users.map(user => user.email);
+    const commaSeparatedEmails = userEmails.join(',');
+
+    if (!currentMembership || !currentMembership.users || currentMembership.users.length === 0) {
+      return {
+        success: false,
+        httpCode: 404,
+        message: 'No active members found'
+      }
+    }
+
+    const htmlContent = html 
+      ? html 
+      : getHtmlMessage(message);
+
+    const response = testMode 
+      ? await sendEmail(testRecipient, subject, htmlContent)
+      : await sendEmail(commaSeparatedEmails, subject, htmlContent);
+
+    if (!response.success) {
+      const errorMsg = response.error 
+        ? response.error 
+        : JSON.stringify(response) || 'unknown error';
+
+      return {
+        success: false,
+        httpCode: 400,
+        message: 'error sending email(s): ' + errorMsg
+      }
+    }
+
+    return {
+      success: true,
+      message: response.allAccepted 
+        ? `Successfully sent to ${response.accepted.length} active members`
+        : `Successfully sent to ${response.accepted.length} and ${response.rejected.length} failed to send to the following recipients: ${response.rejected.join(', ')}`
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      httpCode: 500,
+      message: 'internal server error: '+error.message
+    }
+  }
+}
+
+const daysBeforeDate = (date, days) => new Date(new Date(date).getTime() - days * 24 * 60 * 60 * 1000);
+
+export const notifyEventRegistrationOpen = async () => {
+  const eventModel = new EventModel();
+  const upcomingEvents = await eventModel.getUpcomingEvents(true);
+
+  const notifableEvents = upcomingEvents.filter(event => {
+    const alreadyNotified = event.notified === true;
+    return !alreadyNotified && daysBeforeDate(event.date, registrationDays) < new Date();
+  });
+
+  if (notifableEvents && notifableEvents.length > 0) {
+    const subject = 'Event Registration Now Open!';
+    
+    let html = `<h2>Please <a href='https://orcaireland.com/events'>register</a> and <a href='${orcaPaypalUrl}'>pay</a> the entry fee to secure your place.</h2>`;
+    html = html + notifableEvents.map(event => `
+      <p>
+        Event: ${event.name}<br>
+        Date: ${new Date(event.date).toLocaleDateString('en-IE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(event.date).toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })}<br>
+      </p>`
+    ).join('');
+    html = html + `<p>We look forward to seeing you!</p>`;
+
+    const response = await sendEmailToActiveMembers(subject, '', html);
+
+    if (response.success) {
+      const eventIds = notifableEvents.map(event => event._id.toString()) || [];
+      eventIds.forEach(async eventId => {
+        await eventModel.markEventAsNotified(eventId);
+      });
+    }
+  }
+  
+}
