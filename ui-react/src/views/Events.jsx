@@ -252,18 +252,25 @@ function Events() {
   async function enterEvent() {  
     await eventModel.enterEvent(selectedEventId, car_ids)
     if (eventModel.success) {
-      if (car_ids && car_ids.length > 0 && eventModel.response.paymentRequired) {
-        const discountedRate = parseFloat(selectedEvent.fee) / 2;
-        let alertMsg = `Thank you for your registration.\n\n` +
-          `Please pay now using Paypal and "friends and family" to secure your place.\n\n` +
-          `Single entry: \u20AC${parseFloat(selectedEvent.fee).toFixed(2)}\n` +
-          `Additional car/family: \u20AC${discountedRate.toFixed(2)}`;
-        if (!!selectedEvent.keyword) {
-          alertMsg = alertMsg + `\n\nPayment reference: ${selectedEvent.keyword}`;
+      if (car_ids && car_ids.length > 0) {
+        if (eventModel.response.paymentRequired) {
+          const discountedRate = parseFloat(selectedEvent.fee) / 2;
+          let alertMsg = `Thank you for your registration.\n\n` +
+            `Please pay now using Paypal and "friends and family" to secure your place.\n\n` +
+            `Single entry: \u20AC${parseFloat(selectedEvent.fee).toFixed(2)}\n\n` +
+            `Additional car/family: \u20AC${discountedRate.toFixed(2)}`;
+            `Single entry: \u20AC${parseFloat(selectedEvent.fee).toFixed(2)}\n\n`;
+          if (!!selectedEvent.keyword) {
+            alertMsg = alertMsg + `\n\nPayment reference: ${selectedEvent.keyword}`;
+          }
+          window.alert(alertMsg);
+          window.location.href = process.env.REACT_APP_PAYPAL_PAYMENT_LINK;
+        } else {
+          if (!eventModel.response.paymentRequired) {
+            history.push('/events/'+selectedEventId)
+          }
         }
-        window.alert(alertMsg);
-        window.location.href = process.env.REACT_APP_PAYPAL_PAYMENT_LINK;
-      } else if (!car_ids || car_ids.length === 0) {
+      } else {
         window.alert(
           eventModel.response.paymentRequired
             ? 'You entry has been removed from this event.\n\nIf you have paid for this event, please request a refund through Paypal.'
