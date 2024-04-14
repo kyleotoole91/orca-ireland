@@ -171,7 +171,8 @@ export const notifyEventRegistrationOpen = async () => {
       <p>
         Event: ${event.name}<br>
         Date: ${new Date(event.date).toLocaleDateString('en-IE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(event.date).toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })}<br>
-      </p>`
+        Fee: ${parseFloat(event.fee).toFixed(2)} EUR
+        </p>`
     ).join('');
     html = html + `<p>We look forward to seeing you!</p>`;
 
