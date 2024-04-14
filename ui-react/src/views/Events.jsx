@@ -240,7 +240,7 @@ function Events() {
 
   async function putEvent() {
     let date = eventDate
-    await eventModel.put(selectedEventId, {name, location, date, fee, 'eventType_id': eventTypeId})
+    await eventModel.put(selectedEventId, {name, location, date, fee, keyword: paymentRef, 'eventType_id': eventTypeId})
     if (eventModel.success) {
       setRefresh(!refresh)
       handleClose()
@@ -252,23 +252,18 @@ function Events() {
   async function enterEvent() {  
     await eventModel.enterEvent(selectedEventId, car_ids)
     if (eventModel.success) {
+      handleCloseRegistration();
       if (car_ids && car_ids.length > 0 && eventModel.response.paymentRequired) {
-        window.alert(
-          'Thank you for your registration.\n\n'+
-          'Club rounds: \u20AC10 \n'+
-          'National rounds: \u20AC20 \n'+
-          'Additional car/family: \u20AC5 \n\n'+
-          'Please pay now via Paypal to secure your place.\n\n'+
-          'Important: The Paypal account email address and your orcaireland email address must match '+
-          'and the "friends and family" option must be used in order for your payment to be recognised.'
-        );
+        const discountedRate = parseFloat(selectedEvent.fee) / 2;
+        let alertMsg = `Thank you for your registration.\n\n` +
+          `Please pay now using Paypal and "friends and family" to secure your place.\n\n` +
+          `Single entry: \u20AC${parseFloat(selectedEvent.fee).toFixed(2)}\n` +
+          `Additional car/family: \u20AC${discountedRate.toFixed(2)}`;
+        if (!!selectedEvent.keyword) {
+          alertMsg = alertMsg + `\n\nPayment reference: ${selectedEvent.keyword}`;
+        }
+        window.alert(alertMsg);
         window.location.href = process.env.REACT_APP_PAYPAL_PAYMENT_LINK;
-      }
-      if (car_ids && car_ids.length > 0) {
-        history.push('/events/'+selectedEventId)   
-      } else {
-        setRefresh(!refresh)
-        handleCloseRegistration() 
       }
     } else {
       window.alert(eventModel.message)  
