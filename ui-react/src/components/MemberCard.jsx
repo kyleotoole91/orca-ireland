@@ -6,6 +6,8 @@ import Loading from './Loading'
 import { useAuth0 } from "@auth0/auth0-react"
 import { UserModel } from '../models/UserModel'
 import { MembershipModel } from '../models/MembershipModel'
+import { Tooltip } from 'react-bootstrap'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 
 const dateUtils = new DateUtils()
 
@@ -25,7 +27,7 @@ export const MemberCard = ({user, index, canEdit, canActivateMember, currentMemb
       }
     }  
     retrieveToken();
-  }, []);
+  }, [apiToken, getAccessTokenSilently]);
 
   const handleSetPaymentExempt = async () => {
     try {
@@ -51,9 +53,9 @@ export const MemberCard = ({user, index, canEdit, canActivateMember, currentMemb
         window.alert('No active membership found');
         return;
       }
-      if (!window.confirm(`Are you sure you want to ${active ? 'activate' : 'deactivate'} this user's membership?`)) {
-        return;
-      }
+      // if (!window.confirm(`Are you sure you want to ${active ? 'activate' : 'deactivate'} this user's membership?`)) {
+      //   return;
+      // }
       setLoading(true);
       const membershipModel = new MembershipModel(apiToken);
       const responseData = await membershipModel.putActiveUser(currentMembership._id, user._id, active);
@@ -73,6 +75,12 @@ export const MemberCard = ({user, index, canEdit, canActivateMember, currentMemb
     }
   }
 
+  const renderCashTooltip = (props) => (
+    <Tooltip id="cash-tooltip" {...props}>
+      {user.firstName} is currently {paymentExempt ? 'not' : ''} required to pay online for events
+    </Tooltip>
+  );
+
   return ( 
     <Card key={user.extId+'-card'+index} style={{minWidth: '300px', maxWidth: '300px', margin: '3px', zIndex: 0}}>
       <Card.Header key={user.extId+'-header'+index}>{user.firstName+' '+user.lastName}</Card.Header>
@@ -84,14 +92,21 @@ export const MemberCard = ({user, index, canEdit, canActivateMember, currentMemb
         {user.hasOwnProperty('ecName') && <Card.Text key={user.extId+'-ecName'+index}>Emergency Name: {user.ecName}</Card.Text>}
         {user.hasOwnProperty('ecPhone') && <Card.Text key={user.extId+'-ecPhone'+index}>Emergency Phone: {user.ecPhone}</Card.Text>}
         {canEdit && 
-          <Form.Check
-            type={'checkbox'}
-            label={`Payment Exempt`}
-            id={`cb-mark-as-paid`}
-            readOnly={!canEdit}
-            checked={paymentExempt}
-            onChange={(e) => handleSetPaymentExempt(e.target.checked)}
-          />}
+          <OverlayTrigger
+            placement="top"
+            delay={{ show: 250, hide: 400 }}
+            overlay={renderCashTooltip}
+          >
+            <Form.Check
+              type={'checkbox'}
+              label={`Cash payments`}
+              id={`cb-mark-as-paid`}
+              readOnly={!canEdit}
+              checked={paymentExempt}
+              onChange={(e) => handleSetPaymentExempt(e.target.checked)}
+            />
+          </OverlayTrigger>
+        }
         {canEdit && 
           <Form.Check
             type={'checkbox'}

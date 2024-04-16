@@ -583,7 +583,7 @@ function Membership() {
     if (userData && userData.length > 0) {
       return ( 
         <div style={{display: 'flex', flexFlow: 'wrap'}}>
-          {userData.map((user, index) =>
+          {userData.map((user, index) => user && user.email &&
             <MemberCard
               key={user.extId+'-UserCard'+index} 
               user={user} 

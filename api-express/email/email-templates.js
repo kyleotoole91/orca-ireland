@@ -38,5 +38,6 @@ export const membershipPaymentConfirmationTemplate = (membership, payment) => `
     End Date: ${getLocaleDate(membership.endDate)}<br>
   </p> 
   <p>You can now register for <a href='https://orcaireland.com/events'>events</a></p>
+  <p>If you haven't already, please review the <a href='https://orcaireland.com/about'>club rules </a>before registering.</p>
   <p>We look forward to seeing you!</p>
 `;
