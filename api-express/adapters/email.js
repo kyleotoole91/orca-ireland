@@ -2,7 +2,9 @@ require('dotenv').config()
 import { MembershipModel } from '../models/MembershipModel'
 import { Permissions } from '../utils/permissions.js'
 import {
-  emailFooterHtml
+  emailFooterHtml,
+  registrationOpenTemplate,
+  registrationClosesSoonTemplate
 } from '../email/email-templates.js'
 import { EventModel } from '../models/EventModel'
 const nodeMailer = require('nodemailer')
@@ -76,7 +78,7 @@ export const sendEmailToActiveMembersReq = async (req, res) => {
     if (!subject || (!hasMessage && !hasHtml)) {
       return res.status(400).send({
         success: false,
-        message: 'please provide a subject and message or html content'
+        message: 'Please provide a subject and message or html content'
       });
     }
 
@@ -84,8 +86,7 @@ export const sendEmailToActiveMembersReq = async (req, res) => {
       ? await sendEmailToActiveMembers(subject, message, html)
       : await sendEmail(overrideRecipients, subject, !!html 
           ? html 
-          : getHtmlMessage(message)
-        );
+          : getHtmlMessage(message));
 
     if (!result.success) {
       return res.status(result.httpCode || 400).send({
@@ -159,19 +160,9 @@ export const notifyEventRegistrationOpen = async () => {
 
   if (!notifableEvents || notifableEvents.length === 0) return;
 
-  const subject = 'Event Registration Now Open!'; 
+  const subject = 'Event Registration Now Open!';
   
-  let html = `<h2>Please <a href='https://orcaireland.com/events'>register</a> and <a href='${orcaPaypalUrl}'>pay</a> the entry fee to secure your place.</h2>`;
-  html = html + notifableEvents.map(event => `
-    <p>
-      <strong>Event:</strong> ${event.name}<br>
-      <strong>Date:</strong> ${new Date(event.date).toLocaleDateString('en-IE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(event.date).toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })}<br>
-      <strong>Register by:</strong> ${new Date(event.closeDate).toLocaleDateString('en-IE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(event.date).toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })}<br>
-      <strong>Fee:</strong> ${parseFloat(event.fee).toFixed(2)} EUR<br>
-      <strong>Additional car/family:</strong> ${parseFloat(parseFloat(event.fee) / 2).toFixed(2)} EUR<br>
-      </p>`
-  ).join('');
-  html = html + `<p>We look forward to seeing you!</p>`;
+  const html = registrationOpenTemplate(orcaPaypalUrl, notifableEvents);
 
   const response = await sendEmailToActiveMembers(subject, '', html);
 
@@ -201,17 +192,8 @@ const sendEventPaymentReminders = async (event) => {
   if (!unpaidRegisteredEmails || unpaidRegisteredEmails.length === 0) return; 
 
   const subject = 'Event Payment Reminder';
-  
-  let html = `<h2>Registration closes soon!<h2>`;
-  html = html + `<h3>Please <a href='${orcaPaypalUrl}'>pay</a> the entry fee as soon as possible to secure your place.</h3>`;
-  html = html + `
-    <p>
-      <strong>Event:</strong> ${event.name}<br>
-      <strong>Date:</strong> ${new Date(event.date).toLocaleDateString('en-IE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(event.date).toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })}<br>
-      <strong>Fee:</strong> ${parseFloat(event.fee).toFixed(2)} EUR<br>
-      <strong>Additional car/family:</strong> ${parseFloat(parseFloat(event.fee) / 2).toFixed(2)} EUR<br>
-      </p>`;
-  html = html + `<p>We look forward to seeing you!</p>`;
+
+  const html = registrationClosesSoonTemplate(orcaPaypalUrl, event);
 
   unpaidRegisteredEmails.forEach(async recipient => {
     await sendEmail(recipient, subject, html);
@@ -230,6 +212,5 @@ export const notifyUpcomingEventsPaymentReminder = async () => {
   upcomingEvents.forEach(async event => {
     await sendEventPaymentReminders(event);
   });
-
 }
 
