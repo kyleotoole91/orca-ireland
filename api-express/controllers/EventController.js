@@ -4,8 +4,6 @@ import { EventModel } from '../models/EventModel'
 import { ObjectId } from 'bson'
 import { MembershipController } from './MembershipController.js'
 
-const cRegistrationHours = 40
-
 export class EventController extends BaseController { 
 
   constructor () {
@@ -99,12 +97,14 @@ export class EventController extends BaseController {
       }
       this.db.loadDetail = true
       let event = await this.db.getDocument(req.params.id) 
+
       if (!event) {
         return res.status(404).send({
           success: false,
           message: this.db.message
         })
       }
+
       if (userEnteringEvent) {
         let hasMembership = await this.membershipController.extIdActiveMember(user.extId)
         if (!hasMembership) {
@@ -113,14 +113,17 @@ export class EventController extends BaseController {
             message: 'You must have an active membership to use this feature'
           })    
         }
-        if (((event.date - new Date()) / 36e5) < cRegistrationHours) {
+
+        if (event.closeDate < new Date()) {
           return res.status(403).send({
             success: false,
             message: 'Registration is closed'
           })    
         }
+
         let classIds = []
         let car //check the car(s) belongs to the user
+
         for (var carId of req.body.car_ids) {
           car = await this.carDb.getUserDocument(user._id.toString(), carId.toString())
           if (!car){
@@ -157,6 +160,7 @@ export class EventController extends BaseController {
       } else {
         event = await this.db.updateDocument(req.params.id, req.body)   
       }
+      
       if (!event) {
         return res.status(500).send({
           success: false,
@@ -166,7 +170,7 @@ export class EventController extends BaseController {
         return res.status(200).send({
           success: true,
           message: 'event application successfull',
-          paymentRequired: user.paymentExempt ? false : true
+          paymentRequired: !!event.fee && (user.paymentExempt ? false : true)
         })
       }
     } catch(e) {

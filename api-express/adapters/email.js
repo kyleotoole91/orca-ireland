@@ -152,38 +152,92 @@ export const sendEmailToActiveMembers = async (subject, message, html) => {
   }
 }
 
-const daysBeforeDate = (date, days) => new Date(new Date(date).getTime() - days * 24 * 60 * 60 * 1000);
+const subtractDaysFromDate = (date, days) => new Date(new Date(date).getTime() - days * 24 * 60 * 60 * 1000);
 
 export const notifyEventRegistrationOpen = async () => {
   const eventModel = new EventModel();
   const upcomingEvents = await eventModel.getUpcomingEvents(true);
 
+  if (!upcomingEvents || upcomingEvents.length === 0) return;
+
   const notifableEvents = upcomingEvents.filter(event => {
     const alreadyNotified = event.notified === true;
-    return !alreadyNotified && daysBeforeDate(event.date, registrationDays) < new Date();
+    return !alreadyNotified && subtractDaysFromDate(event.date, registrationDays) < new Date();
   });
 
-  if (notifableEvents && notifableEvents.length > 0) {
-    const subject = 'Event Registration Now Open!';
-    
-    let html = `<h2>Please <a href='https://orcaireland.com/events'>register</a> and <a href='${orcaPaypalUrl}'>pay</a> the entry fee to secure your place.</h2>`;
-    html = html + notifableEvents.map(event => `
-      <p>
-        Event: ${event.name}<br>
-        Date: ${new Date(event.date).toLocaleDateString('en-IE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(event.date).toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })}<br>
-        Fee: ${parseFloat(event.fee).toFixed(2)} EUR
-        </p>`
-    ).join('');
-    html = html + `<p>We look forward to seeing you!</p>`;
+  if (!notifableEvents || notifableEvents.length === 0) return;
 
-    const response = await sendEmailToActiveMembers(subject, '', html);
-
-    if (response.success) {
-      const eventIds = notifableEvents.map(event => event._id.toString()) || [];
-      eventIds.forEach(async eventId => {
-        await eventModel.markEventAsNotified(eventId);
-      });
-    }
-  }
+  const subject = 'Event Registration Now Open!'; 
   
+  let html = `<h2>Please <a href='https://orcaireland.com/events'>register</a> and <a href='${orcaPaypalUrl}'>pay</a> the entry fee to secure your place.</h2>`;
+  html = html + notifableEvents.map(event => `
+    <p>
+      <strong>Event:</strong> ${event.name}<br>
+      <strong>Date:</strong> ${new Date(event.date).toLocaleDateString('en-IE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(event.date).toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })}<br>
+      <strong>Register by:</strong> ${new Date(event.closeDate).toLocaleDateString('en-IE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(event.date).toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })}<br>
+      <strong>Fee:</strong> ${parseFloat(event.fee).toFixed(2)} EUR<br>
+      <strong>Additional car/family:</strong> ${parseFloat(parseFloat(event.fee) / 2).toFixed(2)} EUR<br>
+      </p>`
+  ).join('');
+  html = html + `<p>We look forward to seeing you!</p>`;
+
+  const response = await sendEmailToActiveMembers(subject, '', html);
+
+  if (response.success) {
+    const eventIds = notifableEvents.map(event => event._id.toString()) || [];
+    eventIds.forEach(async eventId => {
+      await eventModel.markEventAsNotified(eventId);
+    });
+  }
 }
+
+const sendEventPaymentReminders = async (event) => {
+  const notifyableEvent = event && !!event.fee && !(event.reminded === true) && new subtractDaysFromDate(event.date, 1) < new Date();
+
+  if (!notifyableEvent) return;
+
+  const paidUserIds = event.paid_user_ids 
+    ? event.paid_user_ids.map(paid_user_id => paid_user_id.toString())
+    : [];
+
+  const unpaidRegisteredEmails = event.cars.filter(car => {
+      const paymentExempt = car.user.paymentExempt === true; 
+      return !paymentExempt && !paidUserIds.includes(car.user._id.toString());
+    })
+  .map(car => car.user.email);
+
+  if (!unpaidRegisteredEmails || unpaidRegisteredEmails.length === 0) return; 
+
+  const subject = 'Event Payment Reminder';
+  
+  let html = `<h2>Registration closes soon!<h2>`;
+  html = html + `<h3>Please <a href='${orcaPaypalUrl}'>pay</a> the entry fee as soon as possible to secure your place.</h3>`;
+  html = html + `
+    <p>
+      <strong>Event:</strong> ${event.name}<br>
+      <strong>Date:</strong> ${new Date(event.date).toLocaleDateString('en-IE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(event.date).toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })}<br>
+      <strong>Fee:</strong> ${parseFloat(event.fee).toFixed(2)} EUR<br>
+      <strong>Additional car/family:</strong> ${parseFloat(parseFloat(event.fee) / 2).toFixed(2)} EUR<br>
+      </p>`;
+  html = html + `<p>We look forward to seeing you!</p>`;
+
+  unpaidRegisteredEmails.forEach(async recipient => {
+    await sendEmail(recipient, subject, html);
+  });
+
+  const eventModel = new EventModel();
+  await eventModel.markEventAsReminded(event._id.toString());
+};
+
+export const notifyUpcomingEventsPaymentReminder = async () => {
+  const eventModel = new EventModel();
+  const upcomingEvents = await eventModel.getUpcomingEvents(true);
+
+  if (!upcomingEvents || upcomingEvents.length === 0) return;   
+
+  upcomingEvents.forEach(async event => {
+    await sendEventPaymentReminders(event);
+  });
+
+}
+

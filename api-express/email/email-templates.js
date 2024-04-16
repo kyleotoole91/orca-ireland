@@ -20,10 +20,10 @@ export const eventPaymentConfirmationTemplate = (event, payment) => `
   <p>Dear ${payment.name},<p>
   <p>We have received your payment of ${payment.amount} ${payment.currency} and confirmed your place for the following event:</p>
   <p>
-    Event: <a href='https://orcaireland.com/events/${event_id.toString()}'>${event.name}</a><br>
+    Event: <a href='https://orcaireland.com/events/${event._id.toString()}'>${event.name}</a><br>
     Date: ${getLocaleDate(event.date)} at ${extractTimeFromDateTime(event.date)}<br>
   </p> 
-  <p>Please arrive early to assist with track setup, we plan to begin racing at ${extractTimeFromDateTime(event.date)}</p>
+  <p>Please arrive early to assist with track setup, we aim to begin racing at ${extractTimeFromDateTime(event.date)}</p>
   <p>We look forward to seeing you!</p>
   <p>Best of luck!</p>
 `;

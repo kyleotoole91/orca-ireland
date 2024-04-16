@@ -37,6 +37,12 @@ const columns = [
     sortable: false,
   },
   {
+    name: 'New Balance',
+    width: '8rem',
+    selector: row => row.available_balance,
+    sortable: true,
+  },
+  {
     name: 'Note',
     selector: row => row.note,
     sortable: true,

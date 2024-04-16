@@ -21,8 +21,6 @@ import { PlusButton } from '../components/PlusButton'
 import { GearButton } from '../components/GearButton'
 import { ClassModel } from '../models/ClassModel'
 
-const REGISTRATION_LEAD_DAYS = 7;
-
 const eventModel = new EventModel()
 const dateUtils = new DateUtils()
 const eventStartTimeHours = 10
@@ -255,7 +253,8 @@ function Events() {
       if (car_ids && car_ids.length > 0) {
         if (eventModel.response.paymentRequired) {
           const discountedRate = parseFloat(selectedEvent.fee) / 2;
-          let alertMsg = `Thank you for your registration. You will now be redirected to Paypal.\n\n` +
+          let alertMsg = 
+            `Thank you for your registration. You will now be redirected to Paypal.\n\n` +
             `Please using the "friends and family" option. It may take a couple of hours to verify your payment.\n\n` +
             `Single entry: \u20AC${parseFloat(selectedEvent.fee).toFixed(2)}\n` +
             `Additional car/family: \u20AC${discountedRate.toFixed(2)}`
@@ -265,15 +264,13 @@ function Events() {
           window.alert(alertMsg);
           window.location.href = process.env.REACT_APP_PAYPAL_PAYMENT_LINK;
         } else {
-          if (!eventModel.response.paymentRequired) {
-            history.push('/events/'+selectedEventId)
-          }
+          history.push('/events/'+selectedEventId)
         }
       } else {
         window.alert(
           eventModel.response.paymentRequired
-            ? 'You entry has been removed from this event.\n\nIf you have paid for this event, please request a refund through Paypal.'
-            : 'You entry has been removed from this event.'
+            ? 'Your entry has been removed from this event.\n\nIf you have paid for this event, please request a refund through Paypal.'
+            : 'Your entry has been removed from this event.'
         );
       }
     } else {
@@ -380,13 +377,7 @@ function Events() {
     }
   }
 
-  const getRegistrationState = (date) => {
-    if (!currentEvent) return;
-    const now = new Date();
-    const eventDate = new Date(date);
-    const paymentDueFromDate = new Date(eventDate.getTime() - REGISTRATION_LEAD_DAYS * 24 * 60 * 60 * 1000);
-    return eventDate > now && paymentDueFromDate > now;
-  }
+  const getRegistrationState = (event) => event && new Date(event.closeDate) < new Date();
 
   function addCards(events, currentEvent) {
     let detailBtnMrg = '10px'
@@ -404,15 +395,17 @@ function Events() {
           </Card.Header>
           <Card.Body>
             <Card.Title>{event.location}</Card.Title>
-            <Card.Text>Entry fee &euro;{event.fee}</Card.Text>
-              <Card.Text>{dateUtils.stringToWordDateTime(event.date)}</Card.Text>
+            {!!event.fee 
+              ? <Card.Text>Entry fee &euro;{event.fee}</Card.Text>
+              : <Card.Text>Free entry</Card.Text>}
+            <Card.Text>{dateUtils.stringToWordDateTime(event.date)}</Card.Text>
             {currentEvent && 
               <Button 
                 onClick={handleShowRegistration} 
                 id={event._id}
                 style={{width: "100%"}} 
-                disabled={getRegistrationState(event.date)} 
-                variant={(getRegistrationState(event.date) && "outline-secondary") || "outline-primary"} 
+                disabled={getRegistrationState(event)} 
+                variant={(getRegistrationState(event) && "outline-secondary") || "outline-primary"} 
               >
                 Registration
               </Button>} 
@@ -460,27 +453,27 @@ function Events() {
         </Modal.Header>
           <Modal.Body style={{ display: 'grid' }} >
           <Form>
-            <Form.Group className="mb-3" controlId="formTitle">
+            <Form.Group className="mb-3" id="formTitle">
               <Form.Label>Name</Form.Label>
               <Form.Control value={name} type="text" id="eventName" name="event-name" onChange={(e) => setName(e.target.value)}/>
             </Form.Group> 
-            <Form.Group className="mb-3" controlId="formEndDate">
+            <Form.Group className="mb-3" id="formEndDate">
               <Form.Label>Location</Form.Label>
               <Form.Control value={location} type="text" id="eventLocation" name="event-location" onChange={(e) => setLocation(e.target.value)} />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formEndDate">
+            <Form.Group className="mb-3" id="formEndDate">
               <Form.Label>Date</Form.Label>
               <Form.Control type="date" value={date} onChange={(e) => eventDateChange(e.target.value)} id="eventDate" name="event-date" min={defaultEventDateCtrl}  />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formMaxPoints">
+            <Form.Group className="mb-3" id="formMaxPoints">
               <Form.Label>Fee </Form.Label>
-              <Form.Control value={fee} type="number" name="event-fee" onChange={(e) => setFee(e.target.value)} />
+              <Form.Control value={fee || ''} type="number" name="event-fee" onChange={(e) => setFee(e.target.value)} />
             </Form.Group> 
-            <Form.Group className="mb-3" controlId="eventFormPaymentRef">
+            <Form.Group className="mb-3" id="eventFormPaymentRef">
               <Form.Label>Payment Ref</Form.Label>
               <Form.Control value={paymentRef} type="text" id="paymentRef" name="event-payment-ref" onChange={(e) => setPaymentRef(e.target.value)} />
             </Form.Group>
-            <Form.Group className="mb-3" controlId="formEventType">
+            <Form.Group className="mb-3" id="formEventType">
               <Form.Label>Event Type</Form.Label>
               <Form.Select onChange={(e) => handleEventTypeChange(e)} value={getEventTypeName(eventTypeId)}>
                 {eventTypes && eventTypes.map((eventType, index) => 

@@ -7,7 +7,7 @@ import { PollController } from './controllers/PollController'
 import { ArticleModel } from './models/ArticleModel'
 import { PayPalController } from './controllers/PayPalController'
 import validateJwt from './utils/validate-jwt'
-import { sendEmailToActiveMembersReq, notifyEventRegistrationOpen } from './adapters/email'
+import { sendEmailToActiveMembersReq, notifyEventRegistrationOpen, notifyUpcomingEventsPaymentReminder } from './adapters/email'
 import { generateCurrentEventPayments, generateCurrentMembershipPayments } from './adapters/paypal'
 const cron = require('node-cron')
 require('dotenv').config()
@@ -37,9 +37,10 @@ app.get('/cors', (req, res) => {
   res.send({ "msg": "CORS enabled" })
 })
 
-cron.schedule('30 */2 * * *', async () => await generateCurrentMembershipPayments()); //  every 2 hours on the half hour
-cron.schedule('0 */2 * * *', async () => await generateCurrentEventPayments()); //  every 2 hours on the hour
-cron.schedule('30 12 * * *', async () => await notifyEventRegistrationOpen()); // every day at 12:30
+cron.schedule('0 10-22 * * *', async () => await generateCurrentEventPayments());
+cron.schedule('30 10-22 * * *', async () => await generateCurrentMembershipPayments());
+cron.schedule('00 12 * * *', async () => await notifyUpcomingEventsPaymentReminder());
+cron.schedule('30 12 * * *', async () => await notifyEventRegistrationOpen());
 
 const eventsController = new EventController()
 const membershipsController = new MembershipController()

@@ -1,7 +1,9 @@
-import { BaseModel } from './BaseModel'
+import { BaseModel } from './BaseModel';
 
-const ObjectId = require('mongodb').ObjectId
-const cUpcomingEventDays = 30
+export const cRegistrationHours = 36;
+
+const ObjectId = require('mongodb').ObjectId;
+const cUpcomingEventDays = 30;
 export class EventModel extends BaseModel {
   
   constructor(includeEmail) {
@@ -46,6 +48,17 @@ export class EventModel extends BaseModel {
     }
   }
 
+  addRegistrationCloseDate(event) {
+    const eventDate = new Date(event.date);
+    event.closeDate = event.closeDate
+      ? new Date(event.closeDate)
+      : new Date(eventDate.setHours(eventDate.getHours() - cRegistrationHours));
+  }
+
+  addRegistrationCloseDates(events) {
+    events && events.forEach(event => this.addRegistrationCloseDate(event));
+  }
+
   async getCurrentEvent() {
     try {
       let joins = [{$lookup:{from: "cars", // join many cars onto events using event.car_ids
@@ -57,16 +70,19 @@ export class EventModel extends BaseModel {
       const sort = {"date": 1}
       const where = {"date" : {"$gte": new Date()}, "deleted": {"$in": [null, false]}}
       this.result = await this.db.aggregate(joins).match(where).sort(sort).limit(1).toArray()
+
       if(!this.result) { 
         this.message = 'Not found: ' + id 
       } else {
         this.message = this.collectionName
       }
+
     } catch (error) {
       this.result = null
       this.message = error.message
       console.log(error)
     } finally {
+      this.addRegistrationCloseDates(this.result);
       return this.result  
     }
   }  
@@ -94,6 +110,7 @@ export class EventModel extends BaseModel {
       this.message = error.message
       console.log(error)
     } finally {
+      this.addRegistrationCloseDates(this.result);
       return this.result  
     }
   }  
@@ -128,6 +145,7 @@ export class EventModel extends BaseModel {
       this.message = error.message
       console.log(error)
     } finally {
+      this.addRegistrationCloseDates(this.result);
       return this.result  
     }
   }  
@@ -287,6 +305,29 @@ export class EventModel extends BaseModel {
     try {
       const objId = new ObjectId(id)
       const result = await this.db.findOneAndUpdate({'_id': objId}, {$set: { "notified": true }})
+      if(!result || !result.hasOwnProperty('ok') || result.ok !== 1) {
+        return {
+          success: false,
+          message: 'Error updating: ' + id
+        }
+      } else {
+        return {
+          success: true,
+          message: 'Updated'
+        }
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message
+      }
+    }
+  }
+
+  async markEventAsReminded(id) {
+    try {
+      const objId = new ObjectId(id)
+      const result = await this.db.findOneAndUpdate({'_id': objId}, {$set: { "reminded": true }})
       if(!result || !result.hasOwnProperty('ok') || result.ok !== 1) {
         return {
           success: false,

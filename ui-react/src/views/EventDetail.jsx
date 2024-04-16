@@ -68,14 +68,16 @@ function EventDetail() {
           setAllowEditPaidUsers(permissions.check(apiToken, 'put', 'paid_users'))
           setAllowAddRaces(permissions.check(apiToken, 'post', 'races'))
           setAllowDelRaces(permissions.check(apiToken, 'delete', 'races'))
+         
           await eventModel.get(id)
           if (eventModel.success) {
+            const paidEvent = !!eventModel.responseData.fee;
             const hasPaidUserIds = !!eventModel.responseData.paid_user_ids;
             setAllCars(eventModel.responseData.cars)
             const carsAwaitingPayment = eventModel.responseData.cars
-              .filter(car => !car.user.paymentExempt && !(hasPaidUserIds && eventModel.responseData.paid_user_ids.includes(car.user._id)))
+              .filter(car => paidEvent && !car.user.paymentExempt && !(hasPaidUserIds && eventModel.responseData.paid_user_ids.includes(car.user._id)))
             const carsPaid = eventModel.responseData.cars
-              .filter(car => !!car.user.paymentExempt || (hasPaidUserIds && eventModel.responseData.paid_user_ids.includes(car.user._id)));
+              .filter(car => (!paidEvent || !!car.user.paymentExempt) || (hasPaidUserIds && eventModel.responseData.paid_user_ids.includes(car.user._id)));
             eventModel.responseData.cars = carsPaid
             setCarsAwaitingPayment(carsAwaitingPayment || [])
             setEvent(eventModel.responseData)
@@ -424,7 +426,7 @@ function EventDetail() {
   function editEntryModal() {
     const user = getUserByCarId(carId);
     const paymentExempt = user && !!user.paymentExempt;
-    console.log('paymentExempt', paymentExempt)
+
     return (
       <Modal show={showChangeCarForm} onHide={hideUserCarModal} >
         <Modal.Header closeButton>
