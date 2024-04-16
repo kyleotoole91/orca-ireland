@@ -27,11 +27,11 @@ export const emailTransporter = () => nodeMailer.createTransport({
   logger: true
 });
 
-export const sendEmail = async (recipient, subject, html) => {
+export const sendEmail = async (recipients, subject, html) => {
   try {
     const emailer = emailTransporter()
     const mailOptions = {
-      to: testMode ? testRecipient : recipient,
+      to: testMode ? testRecipient : recipients,
       from: process.env.CLUB_EMAIL_ADDR,
       subject: subject,
       html: html + emailFooterHtml,
@@ -48,7 +48,10 @@ export const sendEmail = async (recipient, subject, html) => {
       response,
       allAccepted,
       rejected,
-      accepted
+      accepted,
+      message: allAccepted 
+        ? `Successfully sent to ${accepted.length} active members`
+        : `Successfully sent to ${accepted.length} and ${rejected.length} failed to send to the following recipients: ${rejected.join(', ')}`
     }
   } catch (error) {
     return { success: false, error: error } 
@@ -77,7 +80,12 @@ export const sendEmailToActiveMembersReq = async (req, res) => {
       });
     }
 
-    const result = await sendEmailToActiveMembers(subject, message, html);
+    const result = !overrideRecipients
+      ? await sendEmailToActiveMembers(subject, message, html)
+      : await sendEmail(overrideRecipients, subject, !!html 
+          ? html 
+          : getHtmlMessage(message)
+        );
 
     if (!result.success) {
       return res.status(result.httpCode || 400).send({
@@ -124,25 +132,9 @@ export const sendEmailToActiveMembers = async (subject, message, html) => {
       ? await sendEmail(testRecipient, subject, htmlContent)
       : await sendEmail(commaSeparatedEmails, subject, htmlContent);
 
-    if (!response.success) {
-      const errorMsg = response.error 
-        ? response.error 
-        : JSON.stringify(response) || 'unknown error';
+    response.httpCode = response.success ? 200 : 400;
 
-      return {
-        success: false,
-        httpCode: 400,
-        message: 'error sending email(s): ' + errorMsg
-      }
-    }
-
-    return {
-      success: true,
-      message: response.allAccepted 
-        ? `Successfully sent to ${response.accepted.length} active members`
-        : `Successfully sent to ${response.accepted.length} and ${response.rejected.length} failed to send to the following recipients: ${response.rejected.join(', ')}`
-    };
-
+    return response;
   } catch (error) {
     return {
       success: false,

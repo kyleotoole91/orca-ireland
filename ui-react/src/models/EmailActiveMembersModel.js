@@ -7,7 +7,7 @@ export class EmailActiveMembersModel extends BaseModel {
     this.setEndpoint(process.env.REACT_APP_API_EMAIL_ACTIVE_MEMBERS)
   }
 
-  async post(subject, content) {
+  async post(subject, content, overrideRecipients) {
     if (!content || content === '') {
       this.setErrorMessage('Please provide email body content')
       return null
@@ -17,7 +17,7 @@ export class EmailActiveMembersModel extends BaseModel {
     const html = contentIsHtml ? content : undefined
     const message = contentIsHtml ? undefined : content
     
-    return await super.post({ subject, html, message })
+    return await super.post({ subject, html, message, overrideRecipients })
   }
 
 }
