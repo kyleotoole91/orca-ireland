@@ -66,7 +66,7 @@ export const sendEmailToActiveMembersReq = async (req, res) => {
       });
     }
 
-    const { subject, message, html } = req.body;
+    const { subject, message, html, overrideRecipients } = req.body;
     const hasHtml = !!html 
     const hasMessage = !!message 
 
