@@ -11,7 +11,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 
 const dateUtils = new DateUtils()
 
-export const MemberCard = ({user, index, canEdit, canActivateMember, currentMembership, setCurrMembership }) => {
+export const MemberCard = ({user, index, canEditUser, canActivateMember, canTogglePaymentRequired, currentMembership, setCurrMembership }) => {
   const [paymentExempt, setPaymentExempt] = useState(user.paymentExempt || false);
   const activeUserIds = currentMembership && currentMembership.user_ids ? currentMembership.user_ids : [];
   const [activeMember, setActiveMember] = useState(activeUserIds.includes(user._id));
@@ -91,7 +91,7 @@ export const MemberCard = ({user, index, canEdit, canActivateMember, currentMemb
         {user.hasOwnProperty('dateOfBirth') && <Card.Text key={user.extId+'-dob'+index}>DOB: {dateUtils.formatDate(new Date(user.dateOfBirth), 'dd/mm/yyyy')}</Card.Text>}
         {user.hasOwnProperty('ecName') && <Card.Text key={user.extId+'-ecName'+index}>Emergency Name: {user.ecName}</Card.Text>}
         {user.hasOwnProperty('ecPhone') && <Card.Text key={user.extId+'-ecPhone'+index}>Emergency Phone: {user.ecPhone}</Card.Text>}
-        {canEdit && 
+        {(canEditUser || canTogglePaymentRequired) && 
           <OverlayTrigger
             placement="top"
             delay={{ show: 250, hide: 400 }}
@@ -101,19 +101,19 @@ export const MemberCard = ({user, index, canEdit, canActivateMember, currentMemb
               type={'checkbox'}
               label={`Cash payments`}
               id={`cb-mark-as-paid`}
-              readOnly={!canEdit}
+              readOnly={canEditUser || canTogglePaymentRequired ? false : true}
               checked={paymentExempt}
               onChange={(e) => handleSetPaymentExempt(e.target.checked)}
             />
           </OverlayTrigger>
         }
-        {canEdit && 
+        {(canEditUser || canActivateMember) &&
           <Form.Check
             type={'checkbox'}
             label={`Active Member`}
             id={`cb-mark-as-active`}
             checked={activeMember}
-            readOnly={!canActivateMember}
+            readOnly={canEditUser || canActivateMember ? false : true}
             onChange={(e) => handleSetActiveMember(e.target.checked)}
           />}
         {loading && <Loading />}

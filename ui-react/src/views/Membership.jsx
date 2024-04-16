@@ -90,6 +90,7 @@ function Membership() {
   const [dobChanged, setDobChanged] = useState(false)
   const [allowViewMembers, setAllowViewMembers] = useState(false)
   const [allowEmailActiveMembers, setAllowEmailActiveMembers] = useState(false)
+  const [allowTogglePaymentRequired, setAllowTogglePaymentRequired] = useState(false)
 
   useEffect(() => {
     async function loadData () {
@@ -100,12 +101,13 @@ function Membership() {
           const membershipModel = new MembershipModel(apiToken) 
           const memberTypesModel = new MemberTypes(apiToken) 
           const permissions = new Permissions()
-          setAllowPaypalAccess(permissions.check(apiToken, 'post', 'paypal'))
+          setAllowPaypalAccess(permissions.check(apiToken, 'get', 'paypal'))
           setAllowAddMemberships(permissions.check(apiToken, 'post', 'memberships'))
           setAllowActivateMembers(permissions.check(apiToken, 'post', 'activate_users'))
           setAllowViewMembers(permissions.check(apiToken, 'get', 'users'))
           setAllowEditUsers(permissions.check(apiToken, 'put', 'users'))
           setAllowEmailActiveMembers(permissions.check(apiToken, 'post', 'email'))
+          setAllowTogglePaymentRequired(permissions.check(apiToken, 'post', 'payment_required'))
 
           await userModel.get(user.sub)
           await memberTypesModel.get()
@@ -559,8 +561,9 @@ function Membership() {
                 key={user.extId+'-MemberCard'+index} 
                 user={user} 
                 index={index} 
-                canEdit={allowEditUsers && allowAddMemberships}
+                canEditUser={allowEditUsers}
                 canActivateMember={allowActivateMembers}
+                canTogglePaymentRequired={allowTogglePaymentRequired}
                 currentMembership={currMembership}
                 setCurrMembership={setCurrMembership}
               />
@@ -588,8 +591,9 @@ function Membership() {
               key={user.extId+'-UserCard'+index} 
               user={user} 
               index={index} 
-              canEdit={allowEditUsers && allowAddMemberships}
+              canEditUser={allowEditUsers}
               canActivateMember={allowActivateMembers}
+              canTogglePaymentRequired={allowTogglePaymentRequired}
               currentMembership={currMembership}
               setCurrMembership={setCurrMembership}
             />

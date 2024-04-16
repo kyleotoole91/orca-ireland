@@ -68,7 +68,7 @@ export const PaypalTxSearchTable = () => {
       }
     }  
     retrieveToken();
-  }, []);
+  }, [apiToken, getAccessTokenSilently]);
 
   const dateRangeLimitExceeded = () => {
     const startDateObj = dateUtils.stringToDate(startDate);
