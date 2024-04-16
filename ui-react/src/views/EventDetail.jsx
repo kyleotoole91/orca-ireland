@@ -54,6 +54,7 @@ function EventDetail() {
   const [entryPaid, setEntryPaid] = useState(false)
   const [allowEditEvents, setAllowEditEvents] = useState(false)
   const [allowEditPaidUsers, setAllowEditPaidUsers] = useState(false)
+  const [allowViewUnPaidUsers, setAllowViewUnPaidUsers] = useState(false)
 
   useEffect(() => {
     async function loadData () {
@@ -66,6 +67,7 @@ function EventDetail() {
           const permissions = new Permissions()
           setAllowEditEvents(permissions.check(apiToken, 'put', 'events'))
           setAllowEditPaidUsers(permissions.check(apiToken, 'put', 'paid_users'))
+          setAllowViewUnPaidUsers(permissions.check(apiToken, 'view', 'unpaid_users'))
           setAllowAddRaces(permissions.check(apiToken, 'post', 'races'))
           setAllowDelRaces(permissions.check(apiToken, 'delete', 'races'))
          
@@ -551,6 +553,11 @@ function EventDetail() {
   }
   
   const showCarsAwaitingPayment = () => {
+    const visibleUnpaidCars = carsAwaitingPayment.filter(car => 
+      allowViewUnPaidUsers || car.user.extId === user.sub
+    );
+    const hasVisibleUnpaidCars = visibleUnpaidCars && visibleUnpaidCars.length > 0;
+
     const addTableRow = (car, index) => {
       return (
         <tr style={{color: 'red'}} key={index+'-pending-row'}>
@@ -563,7 +570,8 @@ function EventDetail() {
         </tr>
       )
     }
-    return (
+
+    return ( hasVisibleUnpaidCars &&
       <>
         <div style={{overflow: 'auto'}} key={'pending-div'}>
         <h4 style={{color: 'red', fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={'pending-header-label'}>Pending Payment</h4> 
@@ -579,7 +587,7 @@ function EventDetail() {
             </tr>
           </thead>
           <tbody>
-          { carsAwaitingPayment.map((car, index) => addTableRow(car, index)) }
+          { visibleUnpaidCars.map((car, index) => addTableRow(car, index)) }
           </tbody>
         </Table>
         <div style={{height: '25px'}}></div>
