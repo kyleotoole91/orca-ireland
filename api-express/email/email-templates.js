@@ -1,3 +1,5 @@
+require('dotenv').config()
+const unsubscribeUrl = process.env.UNSUBSCRIBE_URL;
 
 export const extractTimeFromDateTime = (dateTime) => {
   const date = new Date(dateTime)
@@ -19,7 +21,7 @@ const getLocaleDateTime = (date) => `${getLocaleDate(date)} at ${getLocaleTime(d
 export const registrationOpenTemplate = (orcaPaypalUrl, events) => {
   let html = `
     <p>Dear member,<p>
-    <p>Registration is now open for the following events:<p>
+    <p>Registration is now open for the following ${events.length > 1 ? 'events:' : 'event:'}<p>
   `;
   html = html + events.map(event => registrationOpenEventTemplate(event)).join('');
   html = html + `<p>Please <a href='https://orcaireland.com/events'><strong>register</strong></a> and pay the fee via Paypal to <a href='${orcaPaypalUrl}'><strong>orcairelandpp</strong></a> to secure your place.</p>`;
@@ -76,14 +78,15 @@ export const membershipPaymentConfirmationTemplate = (membership, payment) => `
   <p>We look forward to seeing you!</p>
 `;
 
-export const emailFooterHtml = `
+export const emailFooterHtml = (emailAddr, includeUnsubscribeLink) => `
   <p>Best regards,<br><a href='https://orcaireland.com'>On Road Cicruit Association</a></p>
   <a href='https://orcaireland.com'>
     <img style='border-radius: 10px' src='https://orcaireland.com/static/media/orca-logo.0a8eb6f0.png' alt='ORCA Logo' width='175' height='175'>
   </a>
+  ${includeUnsubscribeLink ? unsubscribeLink(emailAddr) : ''}
 `;
 
-export const unsubscribeLink = (unsubscribeUrl, emailAddr) => `<br><br>
+export const unsubscribeLink = (emailAddr) => `<br><br>
   <div style='text-align: center; font-size: 10px'>
     <a href="${unsubscribeUrl}?email=${emailAddr}">Unsubscribe</a>
   </div>

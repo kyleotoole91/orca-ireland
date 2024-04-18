@@ -458,7 +458,7 @@ function Membership() {
           <Card.Body>
             <Card.Title>{currMembership.name}</Card.Title>
             <Card.Text><b>Valid until: </b> { dateUtils.stringToWordDate(currMembership.endDate) }</Card.Text>
-            <Card.Text><b>Price:</b> &euro;{currMembership.fee}</Card.Text>
+            <Card.Text><b>Fee:</b> &euro;{currMembership.fee}</Card.Text>
             <Card.Text><b>Status:</b> {membershipState}</Card.Text>
             {!activeMember && activationForm()}
           </Card.Body>
@@ -616,7 +616,7 @@ function Membership() {
           <Card.Body>
             <Card.Text>Start Date: {dateUtils.stringToWordDate(membership.startDate)}</Card.Text>
             <Card.Text>End Date: {dateUtils.stringToWordDate(membership.endDate)}</Card.Text>
-            <Card.Text>Price: &euro;{membership.fee}</Card.Text>
+            <Card.Text>Fee: &euro;{membership.fee}</Card.Text>
             <Card.Text>Member count: {memberCount}</Card.Text>
           </Card.Body>
         </Card>

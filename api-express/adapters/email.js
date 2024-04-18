@@ -14,7 +14,6 @@ const testMode = process.env.TEST_MODE === '1';
 const testRecipient = process.env.TEST_EMAIL_ADDR;
 const registrationDays = 7;
 const orcaPaypalUrl = 'https://www.paypal.com/paypalme/orcairelandpp';
-const unsubscribeUrl = process.env.UNSUBSCRIBE_URL;
 
 const subtractDaysFromDate = (date, days) => new Date(new Date(date).getTime() - days * 24 * 60 * 60 * 1000);
 
@@ -47,9 +46,7 @@ export const sendEmail = async (recipients, subject, html, includeUnsubscribeLin
         to: recipient,
         from: process.env.CLUB_EMAIL_ADDR,
         subject: subject,
-        html: includeUnsubscribeLink
-          ? html + emailFooterHtml + unsubscribeLink(unsubscribeUrl, recipient)
-          : html + emailFooterHtml
+        html: html + emailFooterHtml(recipient, includeUnsubscribeLink)
       }
       const emailer = emailTransporter();
       promises.push(emailer.sendMail(mailOptions));

@@ -1,15 +1,9 @@
 import { BaseModel } from './BaseModel';
 
-export const cRegistrationHours = 36;
+export const cRegistrationHours = 38;
 
 const ObjectId = require('mongodb').ObjectId;
 const cUpcomingEventDays = 30;
-
-
-// $lookup:{from: "eventTypes", // join the user document onto the car (from the result of the root lookup)
-//                               localField: "eventType_id",
-//                               foreignField: "_id",
-//                               as: "eventType"}, 
 
 export class EventModel extends BaseModel {
   
@@ -140,14 +134,16 @@ export class EventModel extends BaseModel {
         var eDate = new Date(eDateStr[0], eDateStr[1]-1, eDateStr[2]) 
         eDate.setDate(eDate.getDate() + 1)
       }
-      const joins = [{$lookup:{from: "races", // join many cars onto events using event.car_ids
-                      localField: "_id",
-                      foreignField: "event_id",
-                      as: "races",
-                      pipeline: [{"$match": { //"join" condition
-                                  "deleted": {"$in": [null, false]}
-                                }}]
-                    }}] 
+      const joins = [{
+        $lookup:{from: "races", // join many cars onto events using event.car_ids
+        localField: "_id",
+        foreignField: "event_id",
+        as: "races",
+        pipeline: [{
+          "$match": { //"join" condition
+          "deleted": {"$in": [null, false]}
+        }}]
+      }}] 
       const sort = {"date": 1}
       const where = {"date" : {"$gte": sDate, "$lt": eDate}, "deleted": {"$in": [null, false]}}
       this.result = await this.db.aggregate(joins).match(where).sort(sort).toArray()
@@ -174,17 +170,17 @@ export class EventModel extends BaseModel {
       let showDetail = query && query.hasOwnProperty('detail') && (query.detail == 1)
       if (showDetail || this.loadDetail) {
         joins = [{$lookup:{from: "cars", // join many cars onto events using event.car_ids
-                            localField: "car_ids",
-                            foreignField: "_id",
-                            as: "cars",
-                            pipeline: this.mongoPipeline}
-                  },
-                  {$lookup:{from: "races", // join many races
-                            localField: "_id",
-                            foreignField: "event_id",
-                            as: "races"}
-                  }
-                ]
+            localField: "car_ids",
+            foreignField: "_id",
+            as: "cars",
+            pipeline: this.mongoPipeline}
+          },
+          {$lookup:{from: "races", // join many races
+            localField: "_id",
+            foreignField: "event_id",
+            as: "races"}
+          }
+        ]
       }
       this.result = await this.db.aggregate(joins).match(where).toArray()
       if(!this.result || this.result.length === 0) { 
