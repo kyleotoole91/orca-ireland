@@ -19,9 +19,10 @@ const getLocaleDateTime = (date) => `${getLocaleDate(date)} at ${getLocaleTime(d
 export const registrationOpenTemplate = (orcaPaypalUrl, events) => {
   let html = `
     <p>Dear member,<p>
-    <h2>Please <a href='https://orcaireland.com/events'>register</a> and <a href='${orcaPaypalUrl}'>pay</a> the entry fee to secure your place.</h2>
+    <p>Registration is now open for the following events:<p>
   `;
   html = html + events.map(event => registrationOpenEventTemplate(event)).join('');
+  html = html + `<p>Please <a href='https://orcaireland.com/events'><strong>register</strong></a> and pay the fee via Paypal to <a href='${orcaPaypalUrl}'><strong>orcairelandpp</strong></a> to secure your place.</p>`;
   html = html + `<p>We look forward to seeing you!</p>`;
   return html;
 }
@@ -38,14 +39,14 @@ export const registrationOpenEventTemplate = (event) => `
 
 export const registrationClosesSoonTemplate = (orcaPaypalUrl, event) => `
   <p>Dear member,<p>
-  <h2>Registration closes soon!<h2>
-  <h3>Please <a href='${orcaPaypalUrl}'>pay</a> the entry fee as soon as possible to secure your place.</h3>
+  <p>Registration closes soon!<p>
   <p>
     <strong>Event: </strong>${event.name}<br>
     <strong>Date: </strong>${getLocaleDateTime(event.date)}<br>
     <strong>Fee: </strong>${parseFloat(event.fee).toFixed(2)} EUR<br>
     <strong>Additional car/family: </strong>${parseFloat(parseFloat(event.fee) / 2).toFixed(2)} EUR<br>
   </p>
+  <p>Please <a href='https://orcaireland.com/events'><strong>register</strong></a> and pay the fee via Paypal to <a href='${orcaPaypalUrl}'><strong>orcairelandpp</strong></a> to secure your place.</p>
   <p>We look forward to seeing you!</p>
 `;
 
@@ -70,8 +71,8 @@ export const membershipPaymentConfirmationTemplate = (membership, payment) => `
     <strong>Start Date:</strong> ${getLocaleDate(membership.startDate)}<br>
     <strong>End Date:</strong> ${getLocaleDate(membership.endDate)}<br>
   </p> 
-  <p>You can now register for <a href='https://orcaireland.com/events'>events</a></p>
-  <p>If you haven't already, please review the <a href='https://orcaireland.com/about'>club rules </a>before registering.</p>
+  <p>You can now register for <a href='https://orcaireland.com/events'>events.</a></p>
+  <p>If you haven't already, please review the <a href='https://orcaireland.com/about'>club rules</a>.</p>
   <p>We look forward to seeing you!</p>
 `;
 
