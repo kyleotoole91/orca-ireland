@@ -11,23 +11,44 @@ export class EventController extends BaseController {
     this.setCollectionName('events')
     this.db = new EventModel() 
     this.membershipController = new MembershipController()
-    this.carDb = new BaseModel('cars') 
+    this.carDb = new BaseModel('cars')
+    this.eventTypesDb = new BaseModel('eventTypes')
+  }
+
+  async eventTypeRequiresMembership(eventType_id) {
+    const eventType = await this.eventTypesDb.getDocument(eventType_id)
+    return eventType.membershipExempt === undefined ? true : !eventType.membershipExempt
   }
 
   async getDocument(req, res) {
     try {
       let user = await this.getUser(req, res, false)
+      const event = await this.db.getDocument(req.params.id, req.query) 
+      
+      if (!event) {
+        return res.status(404).send({
+          success: false,
+          message: 'not found'
+        })
+      }
+
+      const membershipRequired = await this.eventTypeRequiresMembership(event.eventType_id)
+      
       let hasMembership = false
-      if (user && user.hasOwnProperty('extId')) {
+      if (membershipRequired && user && user.hasOwnProperty('extId')) {
         hasMembership = await this.membershipController.extIdActiveMember(user.extId)
       }
-      if (!hasMembership) {
+      
+      if (membershipRequired && !hasMembership) {
         return res.status(403).send({
           success: false,
           message: 'You must have an active membership to use this feature'
         })    
       } else {
-        super.getDocument(req, res)
+        return res.status(200).send({
+          success: true,
+          data: event
+        })
       }
     } catch(e) {
       console.log(e)
@@ -106,12 +127,15 @@ export class EventController extends BaseController {
       }
 
       if (userEnteringEvent) {
-        let hasMembership = await this.membershipController.extIdActiveMember(user.extId)
-        if (!hasMembership) {
-          return res.status(403).send({
-            success: false,
-            message: 'You must have an active membership to use this feature'
-          })    
+        const membershipRequired = await this.eventTypeRequiresMembership(event.eventType_id)
+        if (membershipRequired) {
+          const hasMembership = await this.membershipController.extIdActiveMember(user.extId)
+          if (!hasMembership) {
+            return res.status(403).send({
+              success: false,
+              message: 'You must have an active membership to use this feature'
+            })    
+          }
         }
 
         if (event.closeDate < new Date()) {

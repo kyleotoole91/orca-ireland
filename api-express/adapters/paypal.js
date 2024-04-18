@@ -189,7 +189,7 @@ export const generateCurrentEventPayments = async () => {
       const eventWithPaidFlags = await addPaypalTxToEventDetails(event);
 
       for (const eventEntry of eventWithPaidFlags.cars || []) { 
-        const userAlreadyPaid = eventPayments.some(ep => ep.user_id === eventEntry.user._id);
+        const userAlreadyPaid = eventPayments.some(ep => ep.user_id.toString() === eventEntry.user._id.toString());
         
         if (!userAlreadyPaid && eventEntry.payment_tx) {
           
