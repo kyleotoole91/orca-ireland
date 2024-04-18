@@ -9,7 +9,7 @@ export const getLocaleDate = (date) => new Date(date).toLocaleDateString(
   { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
 );
 
-export const getLocaleTime = (date) => new Date(date).toLocaleDateString(
+export const getLocaleTime = (date) => new Date(date).toLocaleTimeString(
   'en-IE', 
   { hour: '2-digit', minute: '2-digit' }
 );
@@ -17,22 +17,27 @@ export const getLocaleTime = (date) => new Date(date).toLocaleDateString(
 const getLocaleDateTime = (date) => `${getLocaleDate(date)} at ${getLocaleTime(date)}`;
 
 export const registrationOpenTemplate = (orcaPaypalUrl, events) => {
-  let html = `<h2>Please <a href='https://orcaireland.com/events'>register</a> and <a href='${orcaPaypalUrl}'>pay</a> the entry fee to secure your place.</h2>`;
+  let html = `
+    <p>Dear member,<p>
+    <h2>Please <a href='https://orcaireland.com/events'>register</a> and <a href='${orcaPaypalUrl}'>pay</a> the entry fee to secure your place.</h2>
+  `;
   html = html + events.map(event => registrationOpenEventTemplate(event)).join('');
   html = html + `<p>We look forward to seeing you!</p>`;
   return html;
 }
 
-export const registrationOpenEventTemplate = (event) => 
-  `<p>
+export const registrationOpenEventTemplate = (event) => `
+  <p>
     <strong>Event: </strong>${event.name}<br>
     <strong>Date: </strong>${getLocaleDateTime(event.date)}<br>
     <strong>Register by: </strong>${getLocaleDateTime(event.closeDate)}<br>
     <strong>Fee: </strong>${parseFloat(event.fee).toFixed(2)} EUR<br>
     <strong>Additional car/family: </strong>${parseFloat(parseFloat(event.fee) / 2).toFixed(2)} EUR<br>
-  </p>`;
+  </p>
+`;
 
 export const registrationClosesSoonTemplate = (orcaPaypalUrl, event) => `
+  <p>Dear member,<p>
   <h2>Registration closes soon!<h2>
   <h3>Please <a href='${orcaPaypalUrl}'>pay</a> the entry fee as soon as possible to secure your place.</h3>
   <p>
@@ -41,7 +46,8 @@ export const registrationClosesSoonTemplate = (orcaPaypalUrl, event) => `
     <strong>Fee: </strong>${parseFloat(event.fee).toFixed(2)} EUR<br>
     <strong>Additional car/family: </strong>${parseFloat(parseFloat(event.fee) / 2).toFixed(2)} EUR<br>
   </p>
-  <p>We look forward to seeing you!</p>`;
+  <p>We look forward to seeing you!</p>
+`;
 
 export const eventPaymentConfirmationTemplate = (event, payment) => `
   <p>Dear ${payment.name},<p>
@@ -70,7 +76,7 @@ export const membershipPaymentConfirmationTemplate = (membership, payment) => `
 `;
 
 export const emailFooterHtml = `
-  <p><a href='https://orcaireland.com'>On Road Cicruit Association</a></p>
+  <p>Best regards,<br><a href='https://orcaireland.com'>On Road Cicruit Association</a></p>
   <a href='https://orcaireland.com'>
     <img style='border-radius: 10px' src='https://orcaireland.com/static/media/orca-logo.0a8eb6f0.png' alt='ORCA Logo' width='175' height='175'>
   </a>
@@ -79,5 +85,6 @@ export const emailFooterHtml = `
 export const unsubscribeLink = (unsubscribeUrl, emailAddr) => `<br><br>
   <div style='text-align: center; font-size: 10px'>
     <a href="${unsubscribeUrl}?email=${emailAddr}">Unsubscribe</a>
-  </div>`;
+  </div>
+`;
 
