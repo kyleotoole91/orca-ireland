@@ -37,7 +37,7 @@ app.get('/cors', (req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:3001');
   res.send({ "msg": "CORS enabled" })
 })
-notifyEventRegistrationOpen()
+
 cron.schedule('0 10-22 * * *', async () => await generateCurrentEventPayments());
 cron.schedule('30 10-22 * * *', async () => await generateCurrentMembershipPayments());
 cron.schedule('00 12 * * *', async () => await notifyUpcomingEventsPaymentReminder());
