@@ -15,6 +15,7 @@ import SeasonDetail from './views/SeasonDetail'
 import SeasonReport from './views/SeasonReport'
 import Garage from './views/Garage'
 import Membership from './views/Membership'
+import UnsubscribeView from './views/Unsubscribe'
 import Gallery from './views/Gallery'
 import Polls from './views/Polls'
 import About from './views/About'
@@ -61,6 +62,7 @@ function App() {
                 <Route path="/polls" component={Polls} /> 
                 <Route path="/membership" component={Membership} />
                 <Route path="/about" component={About} />
+                <Route path="/unsubscribe" component={UnsubscribeView} />
               </Switch>   
             </AppContainer>
           </ThemeProvider>

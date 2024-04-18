@@ -45,7 +45,7 @@ export const EmailActiveMembersForm = () => {
 
   return ( 
     <Card style={{margin: '3px', width: '100%'}}>
-      <Card.Header>Email Content</Card.Header>
+      <Card.Header>Email</Card.Header>
       <Card.Body>
         <Form>
           <Form.Group className="mb-3" >

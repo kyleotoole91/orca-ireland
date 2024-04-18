@@ -75,3 +75,9 @@ export const emailFooterHtml = `
     <img style='border-radius: 10px' src='https://orcaireland.com/static/media/orca-logo.0a8eb6f0.png' alt='ORCA Logo' width='175' height='175'>
   </a>
 `;
+
+export const unsubscribeLink = (unsubscribeUrl, emailAddr) => `<br><br>
+  <div style='text-align: center; font-size: 10px'>
+    <a href="${unsubscribeUrl}?email=${emailAddr}">Unsubscribe</a>
+  </div>`;
+

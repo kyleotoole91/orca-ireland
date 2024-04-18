@@ -4,6 +4,7 @@ import { EventController } from './controllers/EventController'
 import { CarController } from './controllers/CarController' 
 import { SeasonController } from './controllers/SeasonController' 
 import { PollController } from './controllers/PollController' 
+import { UserController } from './controllers/UserController'
 import { ArticleModel } from './models/ArticleModel'
 import { PayPalController } from './controllers/PayPalController'
 import validateJwt from './utils/validate-jwt'
@@ -36,7 +37,7 @@ app.get('/cors', (req, res) => {
   res.set('Access-Control-Allow-Origin', 'http://localhost:3001');
   res.send({ "msg": "CORS enabled" })
 })
-
+notifyEventRegistrationOpen()
 cron.schedule('0 10-22 * * *', async () => await generateCurrentEventPayments());
 cron.schedule('30 10-22 * * *', async () => await generateCurrentMembershipPayments());
 cron.schedule('00 12 * * *', async () => await notifyUpcomingEventsPaymentReminder());
@@ -56,6 +57,7 @@ const memberTypesController = new BaseController('memberTypes')
 const eventTypesController = new BaseController('eventTypes')
 const articlesController = new BaseController('articles')
 const paypalController = new PayPalController('paypal')
+const userController = new UserController()
 articlesController.db = new ArticleModel();
 
 //races
@@ -141,6 +143,8 @@ app.delete('/articles/:id', validateJwt, (req, res) => articlesController.delete
 app.get('/paypal/transactions', (req, res) => paypalController.getTransactions(req, res))
 //email
 app.post('/email/active_members', (req, res) => sendEmailToActiveMembersReq(req, res))
+//unsubscribe
+app.post('/unsubscribe', (req, res) => userController.subscribeUserByEmail(req, res, !!req.body.subscribe))
 
 app.use(function (req, res) {
   res.status(404).send({'success': false, 'message': 'not found'})

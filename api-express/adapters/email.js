@@ -3,6 +3,7 @@ import { MembershipModel } from '../models/MembershipModel'
 import { Permissions } from '../utils/permissions.js'
 import {
   emailFooterHtml,
+  unsubscribeLink,
   registrationOpenTemplate,
   registrationClosesSoonTemplate
 } from '../email/email-templates.js'
@@ -13,6 +14,9 @@ const testMode = process.env.TEST_MODE === '1';
 const testRecipient = process.env.TEST_EMAIL_ADDR;
 const registrationDays = 7;
 const orcaPaypalUrl = 'https://www.paypal.com/paypalme/orcairelandpp';
+const unsubscribeUrl = process.env.UNSUBSCRIBE_URL;
+
+const subtractDaysFromDate = (date, days) => new Date(new Date(date).getTime() - days * 24 * 60 * 60 * 1000);
 
 export const getHtmlMessage = (message) => `<span>${message}</span><br>`
 
@@ -29,30 +33,43 @@ export const emailTransporter = () => nodeMailer.createTransport({
   logger: true
 });
 
-export const sendEmail = async (recipients, subject, html) => {
+export const sendEmail = async (recipients, subject, html, includeUnsubscribeLink = false) => {
   try {
-    const emailer = emailTransporter()
-    const mailOptions = {
-      to: testMode ? testRecipient : recipients,
-      from: process.env.CLUB_EMAIL_ADDR,
-      subject: subject,
-      html: html + emailFooterHtml,
+    if (testMode) {
+      recipients = testRecipient; 
     }
 
-    const response = await emailer.sendMail(mailOptions);
-    const rejected = response.rejected || [];
-    const accepted = response.accepted || [];
+    const promises = [];
+    const recipientsArray = recipients.split(',');
+
+    recipientsArray.forEach(recipient => {
+      const mailOptions = {
+        to: recipient,
+        from: process.env.CLUB_EMAIL_ADDR,
+        subject: subject,
+        html: includeUnsubscribeLink
+          ? html + emailFooterHtml + unsubscribeLink(unsubscribeUrl, recipient)
+          : html + emailFooterHtml
+      }
+      const emailer = emailTransporter();
+      promises.push(emailer.sendMail(mailOptions));
+    });
+
+    const responses = await Promise.all(promises);
+
+    const rejected = responses.map(response => response.rejected).flat();
+    const accepted = responses.map(response => response.accepted).flat();
     const allAccepted = rejected.length === 0;
     const success = accepted.length > 0;
 
-    return { 
-      success, 
-      response,
+    return {
+      success,
+      responses,
       allAccepted,
       rejected,
       accepted,
       message: allAccepted 
-        ? `Successfully sent to ${accepted.length} active members`
+        ? `Successfully sent to ${accepted.length} recipients`
         : `Successfully sent to ${accepted.length} and ${rejected.length} failed to send to the following recipients: ${rejected.join(', ')}`
     }
   } catch (error) {
@@ -109,12 +126,15 @@ export const sendEmailToActiveMembersReq = async (req, res) => {
 
 }
 
-export const sendEmailToActiveMembers = async (subject, message, html) => {
+export const sendEmailToActiveMembers = async (subject, message, html, checkUnsubscribed = false) => {
   try {
     const membershipDb = new MembershipModel();
     const currentMembershipData = await membershipDb.getCurrentMembershipWithFullUser();
     const currentMembership = currentMembershipData[0];
-    const userEmails = currentMembership.users.map(user => user.email);
+    const subscribedUsers = checkUnsubscribed 
+      ? currentMembership.users.filter(user => !user.unsubscribed)
+      : currentMembership.users;
+    const userEmails = subscribedUsers.map(user => user.email);
     const commaSeparatedEmails = userEmails.join(',');
 
     if (!currentMembership || !currentMembership.users || currentMembership.users.length === 0) {
@@ -130,8 +150,8 @@ export const sendEmailToActiveMembers = async (subject, message, html) => {
       : getHtmlMessage(message);
 
     const response = testMode 
-      ? await sendEmail(testRecipient, subject, htmlContent)
-      : await sendEmail(commaSeparatedEmails, subject, htmlContent);
+      ? await sendEmail(testRecipient, subject, htmlContent, checkUnsubscribed)
+      : await sendEmail(commaSeparatedEmails, subject, htmlContent, checkUnsubscribed);
 
     response.httpCode = response.success ? 200 : 400;
 
@@ -144,8 +164,6 @@ export const sendEmailToActiveMembers = async (subject, message, html) => {
     }
   }
 }
-
-const subtractDaysFromDate = (date, days) => new Date(new Date(date).getTime() - days * 24 * 60 * 60 * 1000);
 
 export const notifyEventRegistrationOpen = async () => {
   const eventModel = new EventModel();
@@ -164,7 +182,7 @@ export const notifyEventRegistrationOpen = async () => {
   
   const html = registrationOpenTemplate(orcaPaypalUrl, notifableEvents);
 
-  const response = await sendEmailToActiveMembers(subject, '', html);
+  const response = await sendEmailToActiveMembers(subject, '', html, true);
 
   if (response.success) {
     const eventIds = notifableEvents.map(event => event._id.toString()) || [];
