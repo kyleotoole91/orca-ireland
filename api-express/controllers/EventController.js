@@ -128,6 +128,7 @@ export class EventController extends BaseController {
 
       if (userEnteringEvent) {
         const membershipRequired = await this.eventTypeRequiresMembership(event.eventType_id)
+        
         if (membershipRequired) {
           const hasMembership = await this.membershipController.extIdActiveMember(user.extId)
           if (!hasMembership) {
@@ -136,6 +137,13 @@ export class EventController extends BaseController {
               message: 'You must have an active membership to use this feature'
             })    
           }
+        }
+        
+        if (!user.firstName || !user.lastName || !user.email || !user.phone || !user.ecPhone) {
+          return res.status(403).send({
+            success: false,
+            message: 'You must fill in and save the member details form on the membership page in order to register for events'
+          })    
         }
 
         if (event.closeDate < new Date()) {
