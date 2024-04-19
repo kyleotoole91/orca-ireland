@@ -8,6 +8,7 @@ import { UserModel } from '../models/UserModel'
 import { MembershipModel } from '../models/MembershipModel'
 import { Tooltip } from 'react-bootstrap'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import { UnsubscribeModel } from '../models/UnsubscribeModel'
 
 const dateUtils = new DateUtils()
 
@@ -17,6 +18,7 @@ export const MemberCard = ({user, index, canEditUser, canActivateMember, canTogg
   const [activeMember, setActiveMember] = useState(activeUserIds.includes(user._id));
   const [apiToken, setApiToken] = useState('');
   const [loading, setLoading] = useState(false);
+  const [subscribed, setSubscribed] = useState(!user.unsubscribed);
   const { getAccessTokenSilently } = useAuth0()
 
   useEffect(() => {
@@ -30,49 +32,51 @@ export const MemberCard = ({user, index, canEditUser, canActivateMember, canTogg
   }, [apiToken, getAccessTokenSilently]);
 
   const handleSetPaymentExempt = async () => {
-    try {
-      setLoading(true);
-      const userModel = new UserModel(apiToken, false);
-      const updatedUser = {...user, paymentExempt: !paymentExempt};
-      await userModel.putConfig(user._id, updatedUser);
-      if (!userModel.success) {
-        window.alert(userModel.message);
-        return;
-      }
-      setPaymentExempt(!paymentExempt);
-    } catch (err) {
-      console.error(err.message);
-    } finally {
-      setLoading(false);
+    setLoading(true);
+    const userModel = new UserModel(apiToken, false);
+    const updatedUser = {...user, paymentExempt: !paymentExempt};
+    await userModel.putConfig(user._id, updatedUser);
+    setLoading(false);
+    if (!userModel.success) {
+      window.alert(userModel.message);
+      return;
     }
+    setPaymentExempt(!paymentExempt);
   }
 
   const handleSetActiveMember = async (active) => {
-    try {
-      if (!currentMembership) {
-        window.alert('No active membership found');
-        return;
-      }
-      // if (!window.confirm(`Are you sure you want to ${active ? 'activate' : 'deactivate'} this user's membership?`)) {
-      //   return;
-      // }
-      setLoading(true);
-      const membershipModel = new MembershipModel(apiToken);
-      const responseData = await membershipModel.putActiveUser(currentMembership._id, user._id, active);
-      if (!membershipModel.success) {
-        window.alert(membershipModel.message);
-        return;
-      }
-      const shouldSetCurrMembership = setCurrMembership && responseData && responseData.length > 0;
-      if (shouldSetCurrMembership) {
-        setCurrMembership(responseData[0]);
-      }
-      setActiveMember(!activeMember);
-    } catch (err) {
-      console.error(err.message);
-    } finally {
-      setLoading(false);
+    if (!currentMembership) {
+      window.alert('No active membership found');
+      return;
     }
+    if (!window.confirm(`Are you sure you want to ${active ? 'activate' : 'deactivate'} this user's membership?`)) {
+      return;
+    }
+    setLoading(true);
+    const membershipModel = new MembershipModel(apiToken);
+    const responseData = await membershipModel.putActiveUser(currentMembership._id, user._id, active);
+    if (!membershipModel.success) {
+      setLoading(false);
+      window.alert(membershipModel.message);
+      return;
+    }
+    const shouldSetCurrMembership = setCurrMembership && responseData && responseData.length > 0;
+    if (shouldSetCurrMembership) {
+      setCurrMembership(responseData[0]);
+    }
+    setActiveMember(!activeMember);
+  }
+
+  const handleUnsubscribe = async (subscribe) => {
+    // if (!window.confirm(`Are you sure you want to ${subscribe ? 'subscribe' : 'unsubscribe'} this user to marketing emails?`)) {
+    //   return;
+    // }
+    setLoading(true);
+    const unsubscribeModel = new UnsubscribeModel(apiToken);
+    await unsubscribeModel.unsubscribe(user.email, subscribe);
+    setLoading(false);
+    unsubscribeModel.success && setSubscribed(subscribe);
+    window.alert(unsubscribeModel.message);
   }
 
   const renderCashTooltip = (props) => (
@@ -91,22 +95,6 @@ export const MemberCard = ({user, index, canEditUser, canActivateMember, canTogg
         {user.hasOwnProperty('dateOfBirth') && <Card.Text key={user.extId+'-dob'+index}>DOB: {dateUtils.formatDate(new Date(user.dateOfBirth), 'dd/mm/yyyy')}</Card.Text>}
         {user.hasOwnProperty('ecName') && <Card.Text key={user.extId+'-ecName'+index}>Emergency Name: {user.ecName}</Card.Text>}
         {user.hasOwnProperty('ecPhone') && <Card.Text key={user.extId+'-ecPhone'+index}>Emergency Phone: {user.ecPhone}</Card.Text>}
-        {(canEditUser || canTogglePaymentRequired) && 
-          <OverlayTrigger
-            placement="top"
-            delay={{ show: 250, hide: 400 }}
-            overlay={renderCashTooltip}
-          >
-            <Form.Check
-              type={'checkbox'}
-              label={`Cash payments`}
-              id={`cb-mark-as-paid`}
-              readOnly={canEditUser || canTogglePaymentRequired ? false : true}
-              checked={paymentExempt}
-              onChange={(e) => handleSetPaymentExempt(e.target.checked)}
-            />
-          </OverlayTrigger>
-        }
         {(canEditUser || canActivateMember) &&
           <Form.Check
             type={'checkbox'}
@@ -116,6 +104,32 @@ export const MemberCard = ({user, index, canEditUser, canActivateMember, canTogg
             readOnly={canEditUser || canActivateMember ? false : true}
             onChange={(e) => handleSetActiveMember(e.target.checked)}
           />}
+        {(canEditUser || canTogglePaymentRequired) && 
+          <OverlayTrigger
+            placement="top"
+            delay={{ show: 250, hide: 400 }}
+            overlay={renderCashTooltip}
+          >
+            <Form.Check
+              type={'checkbox'}
+              label={`Online payment required`}
+              id={`cb-mark-as-paid`}
+              readOnly={canEditUser || canTogglePaymentRequired ? false : true}
+              checked={!paymentExempt}
+              onChange={(e) => handleSetPaymentExempt(e.target.checked)}
+            />
+          </OverlayTrigger>
+        }
+        {(canEditUser) && 
+          <Form.Check
+            type={'checkbox'}
+            label={`Subcribe to marketing emails`}
+            id={`cb-mark-as-subscribed`}
+            readOnly={canEditUser ? false : true}
+            checked={subscribed}
+            onChange={(e) => handleUnsubscribe(e.target.checked)}
+          />
+        }
         {loading && <Loading />}
       </Card.Body>
     </Card> 

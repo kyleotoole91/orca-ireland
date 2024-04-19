@@ -6,5 +6,9 @@ export class UnsubscribeModel extends BaseModel{
     super(token)
     this.setEndpoint(process.env.REACT_APP_API_UNSUBSCRIBE)
   }
+
+  async unsubscribe(email, resubscribe = false) {
+    return await super.post({ email, subscribe: resubscribe })
+  }
   
 }

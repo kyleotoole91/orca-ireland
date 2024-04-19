@@ -312,27 +312,27 @@ function Events() {
   function getCurrentEventCard(){
     if (loading) {
       return <div className="text-center">
-               <Spinner animation="border" variant="primary"/>
-             </div>
-    } else if (currentEvent && currentEvent.length > 0) {
+        <Spinner animation="border" variant="primary"/>
+      </div>
+    } 
+    if (currentEvent && currentEvent.length > 0) {
       return <div style={{display: 'flex', flexFlow: 'wrap'}}>
-              {addCards(currentEvent, true)}
-            </div>  
-    } else {
-      return <h4>No upcoming event</h4> 
-    }
+        {addCards(currentEvent, true)}
+      </div>  
+    } 
+    return <h4>No upcoming event</h4> 
   }
 
   function getAllEventCards(){
     if (loadingAllEvents) {
       return <div className="text-center">
-               <Spinner animation="border" variant="primary"/>
-             </div>
+        <Spinner animation="border" variant="primary"/>
+      </div>
     } 
     if (data && data.length > 0) {
       return <div style={{display: 'flex', flexFlow: 'wrap'}}>
-               {addCards(data)}
-             </div>    
+        {addCards(data)}
+      </div>    
     }
     return <h4>No events</h4> 
   }
