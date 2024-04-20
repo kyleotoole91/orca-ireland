@@ -27,8 +27,8 @@ export const emailTransporter = () => nodeMailer.createTransport({
   service:'yahoo',
   secure: false,
   auth: {
-      user: process.env.CLUB_EMAIL_ADDR,
-      pass: process.env.CLUB_EMAIL_APP_PWD,
+    user: process.env.CLUB_EMAIL_ADDR,
+    pass: process.env.CLUB_EMAIL_APP_PWD,
   },
   debug: false,
   logger: true
@@ -220,7 +220,7 @@ const sendEventPaymentReminders = async (event) => {
 
 export const notifyUpcomingEventsPaymentReminder = async () => {
   const eventModel = new EventModel();
-  
+
   const upcomingEvents = await eventModel.getUpcomingEvents(true);
 
   if (!upcomingEvents || upcomingEvents.length === 0) return;
