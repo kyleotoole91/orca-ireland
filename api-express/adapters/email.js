@@ -17,6 +17,8 @@ const orcaPaypalUrl = 'https://www.paypal.com/paypalme/orcairelandpp';
 
 const subtractDaysFromDate = (date, days) => new Date(new Date(date).getTime() - days * 24 * 60 * 60 * 1000);
 
+const eventReminderDue = (event) => event && !!event.fee && !(event.reminded === true) && new subtractDaysFromDate(event.date, 1) < new Date();
+
 export const getHtmlMessage = (message) => `<span>${message}</span><br>`
 
 export const emailTransporter = () => nodeMailer.createTransport({
@@ -190,9 +192,7 @@ export const notifyEventRegistrationOpen = async () => {
 }
 
 const sendEventPaymentReminders = async (event) => {
-  const notifyableEvent = event && !!event.fee && !(event.reminded === true) && new subtractDaysFromDate(event.date, 1) < new Date();
-
-  if (!notifyableEvent) return;
+  if (!eventReminderDue(event)) return;
 
   const paidUserIds = event.paid_user_ids 
     ? event.paid_user_ids.map(paid_user_id => paid_user_id.toString())
@@ -220,12 +220,18 @@ const sendEventPaymentReminders = async (event) => {
 
 export const notifyUpcomingEventsPaymentReminder = async () => {
   const eventModel = new EventModel();
+  
   const upcomingEvents = await eventModel.getUpcomingEvents(true);
 
-  if (!upcomingEvents || upcomingEvents.length === 0) return;   
+  if (!upcomingEvents || upcomingEvents.length === 0) return;
 
-  upcomingEvents.forEach(async event => {
+  const eventsReminderDue = upcomingEvents.filter(event => eventReminderDue(event)); 
+
+  eventsReminderDue.forEach(async event => {
     await sendEventPaymentReminders(event);
   });
+
+  
+
 }
 

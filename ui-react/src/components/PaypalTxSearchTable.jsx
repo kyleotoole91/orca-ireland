@@ -34,7 +34,7 @@ const columns = [
     name: 'Date',
     width: '12rem',
     selector: row => row.displayDate,
-    sortable: false,
+    sortable: true,
   },
   {
     name: 'New Balance',

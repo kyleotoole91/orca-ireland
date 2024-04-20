@@ -18,16 +18,16 @@ export const getLocaleTime = (date) => new Date(date).toLocaleTimeString(
 
 const getLocaleDateTime = (date) => `${getLocaleDate(date)} at ${getLocaleTime(date)}`;
 
-export const registrationOpenTemplate = (orcaPaypalUrl, events) => {
-  let html = `
-    <p>Dear member,<p>
-    <p>Registration is now open for the following ${events.length > 1 ? 'events:' : 'event:'}<p>
-  `;
-  html = html + events.map(event => registrationOpenEventTemplate(event)).join('');
-  html = html + `<p>Please <a href='https://orcaireland.com/events'><strong>register</strong></a> and pay the fee via Paypal to <a href='${orcaPaypalUrl}'><strong>orcairelandpp</strong></a> to secure your place.</p>`;
-  html = html + `<p>We look forward to seeing you!</p>`;
-  return html;
-}
+export const registrationOpenTemplate = (orcaPaypalUrl, events) => `
+  <p>Dear member,<p>
+  <p>Registration is now open for the following ${events.length > 1 ? 'events:' : 'event:'}<p>` + 
+  events.map(event => registrationOpenEventTemplate(event)).join('') + `
+  <p>
+    Please <a href='https://orcaireland.com/events'><strong>register</strong></a> and pay the fee via Paypal to <a href='${orcaPaypalUrl}'><strong>orcairelandpp</strong></a> to secure your place.
+    Please use the <strong>friends and family</strong> option when paying or else your payment will not be recognised. 
+  </p>
+  <p>We look forward to seeing you!</p>
+`;
 
 export const registrationOpenEventTemplate = (event) => `
   <p>
@@ -48,7 +48,10 @@ export const registrationClosesSoonTemplate = (orcaPaypalUrl, event) => `
     <strong>Fee: </strong>${parseFloat(event.fee).toFixed(2)} EUR<br>
     <strong>Additional car/family: </strong>${parseFloat(parseFloat(event.fee) / 2).toFixed(2)} EUR<br>
   </p>
-  <p>Please <a href='https://orcaireland.com/events'><strong>register</strong></a> and pay the fee via Paypal to <a href='${orcaPaypalUrl}'><strong>orcairelandpp</strong></a> to secure your place.</p>
+  <p>
+    Please <a href='https://orcaireland.com/events'><strong>register</strong></a> and pay the fee via Paypal to <a href='${orcaPaypalUrl}'><strong>orcairelandpp</strong></a> to secure your place.
+    Please use the <strong>friends and family</strong> option when paying or else your payment will not be recognised.
+  </p>
   <p>We look forward to seeing you!</p>
 `;
 
