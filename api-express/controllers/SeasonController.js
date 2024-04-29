@@ -54,7 +54,7 @@ export class SeasonController extends BaseController {
     }
   }
 
-  async calcDriverStandings(eventTypeId) {
+  async calcDriverStandings() {
     let classId = ''
     let map
     let classResults = []
@@ -169,7 +169,7 @@ export class SeasonController extends BaseController {
           }
           const events = await this.eventDB.getByDateRange(dbStartDate, dbEndDate)
           this.season.events = events
-          this.season = await this.calcDriverStandings(this.eventTypeId)
+          this.season = await this.calcDriverStandings()
           return res.status(200).send({
             success: true,
             message: 'Season results',

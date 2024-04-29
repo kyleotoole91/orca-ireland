@@ -7,7 +7,7 @@ export const theme = {
   primaryHover: '#343078',
   hoverMenuItem: '#7FB4E1',
   menuItemsMax: '975px',
-  mobileL: '975px',
+  mobileL: '900px',
   mobile: '767px',
   mobileS: '319px',
   mobileXS: '250px',

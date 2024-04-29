@@ -12,6 +12,32 @@ process.env.OPERATING_SYSTEM === 'windows'
   ? cEndOfFileString = 'bbkRC 2011-1� 2000, 2011 bbk Software Ltd' 
   : cEndOfFileString = 'bbkRC 2011-1ï¿½ 2000, 2011 bbk Software Ltd' //linux 
 
+function calcKph(lapTimeSecs, lapCount) {
+  if (!lapTimeSecs || lapTimeSecs <= 0) {
+    return
+  }
+  if (!lapCount) {
+    lapCount = 1
+  }
+  const distM = lapCount * process.env.TRACK_LENGTH
+  const ms = distM / lapTimeSecs  
+  return parseFloat(ms * 3.6).toFixed(3)
+}
+
+function convertToSecs(csvLine) {
+  let mins = 1
+  let secs = 0.0
+  if (csvLine.indexOf('m') > 0) {
+    mins = parseInt(csvLine.substring(1, csvLine.indexOf('m') - 1))
+    secs = parseFloat(csvLine.substring(csvLine.indexOf('m') + 1, csvLine.length - 1).trim())
+    secs = secs + (mins * 60)
+  } else if (csvLine.indexOf('(') > -1) {
+    secs = parseFloat(csvLine.substring(0, csvLine.indexOf('(')).trim())
+  } else {
+    secs = parseFloat(csvLine.substring(0, csvLine.length - 1).trim())  
+  }
+  return secs
+}
 export class BbkParser extends BbkBase {
 
   constructor() {
@@ -19,26 +45,43 @@ export class BbkParser extends BbkBase {
     this.activeClass = ''
     this.distinctEvents = []
     this.disctinctClasses = []
-    this.newLayout = false
+    this.newLayout = true
     this.oldRaceParams = { tableStartIdx: 17, gap: 2, footerLineCount: 0, startIdxOffset: 0 } 
     this.raceParams = { tableStartIdx: 19, gap: 2, footerLineCount: 0, startIdxOffset: 1 } 
     this.oldLapTimeParams = { tableStartIdx: 14, gap: 1, footerLineCount: 1, startIdxOffset: 0 }
     this.lapTimeParams = { tableStartIdx: 15, gap: 1, footerLineCount: 1, startIdxOffset: 0 }
+    this.resultDataLayouts = [
+      {
+        headerString: 'Pos\r\nCar\r\nName\r\nResult\r\nBest Lap\r\nSpeed Mph\r\nScale Speed Mph\r\nClub #\r\nCar Make\r\nModel',
+        csvParams: { tableStartIdx: 18, gap: 2, footerLineCount: 0, startIdxOffset: 0 },
+        transformer: this.transform2024ResultsLayout
+      }
+    ];
+  }
+
+  getResultDataLayoutParams(response) {
+    this.newLayout = true
+    const resultDataLayout = this.resultDataLayouts.find((layout) => response.text.includes(layout.headerString))
+    if (!resultDataLayout) {
+      this.newLayout = response.text.includes(speedHeaderKph) || response.text.includes(speedHeaderMph);
+      return { 
+        csvParams: this.newLayout ? this.raceParams : this.oldRaceParams, 
+        transformer: this.newLayout ? this.transformNewLayout : this.transformOldLayout
+      }
+    }
+    return { csvParams: resultDataLayout.csvParams, transformer: resultDataLayout.transformer }
   }
 
   addResultData(response) {
-    this.newLayout = response.text.includes(speedHeaderKph) || response.text.includes(speedHeaderMph);
-    this.newLayout
-      ? this.data = this.toJsonCsv(response, this.raceParams)
-      : this.data = this.toJsonCsv(response, this.oldRaceParams)
-    this.data = this.transformResults(this.data)
+    const layoutParams = this.getResultDataLayoutParams(response);
+    this.data = this.toJsonCsv(response, layoutParams.csvParams);
+    this.data = layoutParams.transformer(this.data);
   }
 
   addLapData(response) {
-    let json
-    this.newLayout
-      ? json = this.toJsonCsv(response, this.lapTimeParams)
-      : json= this.toJsonCsv(response, this.oldLapTimeParams)
+    const json = this.newLayout
+      ?  this.toJsonCsv(response, this.lapTimeParams)
+      :  this.toJsonCsv(response, this.oldLapTimeParams)
     this.data.laps = this.transformLapDataResults(json)
   }
 
@@ -105,9 +148,9 @@ export class BbkParser extends BbkBase {
 
         for (var m = season.bbkMtgStart; m <= season.bbkMtgEnd; m++) {
           loop1:
-          for (var g = 1; g <= process.env.MAX_RACES; g++) { 
+          for (var g = 1; g <= process.env.MAX_GROUPS; g++) { 
             loop2:
-            for (var r = 1; r <= process.env.MAX_GROUPS; r++){
+            for (var r = 1; r <= process.env.MAX_RACES; r++){
               url = `${process.env.FRONT_END_HOST}${process.env.BBK_ROOT_DIR}/${season.bbkSeasonDir}/mtg${m}/${typePrefix}${g}r${r}.htm`
               race = await this.getBbkData(url, 1)
               if (race && !race.hasOwnProperty('error')) {
@@ -174,10 +217,16 @@ export class BbkParser extends BbkBase {
     if (!laps || !laps.results) {
       return res
     }
-    for (var i = 1; i < laps.results.length; i++) {
+    const eofIndex = laps.results.findIndex((element) => {
+      const tmp = element.join(',');
+      return tmp.includes('Position/Lap') || tmp.includes('Licensed to O.R.C.A.');
+    });
+    const endIndex = eofIndex > 0 ? eofIndex : laps.results.length;
+
+    for (var i = 1; i < endIndex; i++) {
       carItem = {}
-      try {
-        for (var a = 1; a < laps.results[i].length; a++) {
+      for (var a = 1; a < laps.results[i].length; a++) {
+        try {
           carNo = laps.results[0][a]
           carItem = carItems.get(carNo)
           if (!carItem) {
@@ -193,9 +242,9 @@ export class BbkParser extends BbkBase {
               mins = parseInt(laps.results[i][a].substring(1, laps.results[i][a].indexOf('m')))
               secs = mins * 60
               const lastChar = laps.results[i][a].substring(laps.results[i][a].length - 2, laps.results[i][a].length-1) 
-               if (!parseFloat(lastChar)) { 
+                if (!parseFloat(lastChar)) { 
                 secs = parseFloat(secs + parseFloat(laps.results[i][a].substring(laps.results[i][a].indexOf('m') + 1, laps.results[i][a].length - 2)))
-               } else {
+                } else {
                 secs = parseFloat(secs + parseFloat(laps.results[i][a].substring(laps.results[i][a].indexOf('m') + 1, laps.results[i][a].length - 1)))
               }
               carItem.secs.push(secs)
@@ -204,9 +253,9 @@ export class BbkParser extends BbkBase {
             }
           }
           carItems.set(carNo, carItem)
+        } catch (e) {
+          console.log(e)
         }
-      } catch (e) {
-        console.log(e)
       }
     }
     let resItem
@@ -241,27 +290,6 @@ export class BbkParser extends BbkBase {
     items.pop()
     res = items.join('/') + '/' + end
     return res
-  }
-
-  convertToSecs(csvLine) {
-    let mins = 1
-    let secs = 0.0
-    if (csvLine.indexOf('m') > 0) {
-      mins = parseInt(csvLine.substring(1, csvLine.indexOf('m') - 1))
-      secs = parseFloat(csvLine.substring(csvLine.indexOf('m') + 1, csvLine.length - 1).trim())
-      secs = secs + (mins * 60)
-    } else if (csvLine.indexOf('(') > -1) {
-      secs = parseFloat(csvLine.substring(0, csvLine.indexOf('(')).trim())
-    } else {
-      secs = parseFloat(csvLine.substring(0, csvLine.length - 1).trim())  
-    }
-    return secs
-  }
-
-  transformResults(data) {
-    return this.newLayout 
-      ? this.transformNewLayout(data) 
-      : this.transformOldLayout(data)
   }
 
   transformOldLayout(data) {
@@ -304,9 +332,9 @@ export class BbkParser extends BbkBase {
           }
           const bestLapLine = csvLine[bestLapIdx].trim()
           const avrgLapLine = csvLine[avrgLapIdx].trim() 
-          row.avrgLap = this.convertToSecs(avrgLapLine)
-          row.bestLap = this.convertToSecs(bestLapLine)
-          row.bestLapKph = parseFloat(this.calcKph(row.bestLap, 1))
+          row.avrgLap = convertToSecs(avrgLapLine)
+          row.bestLap = convertToSecs(bestLapLine)
+          row.bestLapKph = parseFloat(calcKph(row.bestLap, 1))
           row.bestLapNo = parseInt(bestLapLine.substring(bestLapLine.indexOf('(') + 1, bestLapLine.indexOf(')')).trim())
           const result = csvLine[resultIdx]
           row.lapCount = parseInt(result.substring(0, result.indexOf('/')).trim())
@@ -318,7 +346,73 @@ export class BbkParser extends BbkBase {
           } else {
             row.totalSecs = row.mins * 60 + parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim()) 
           }
-          row.avrgLapKph = parseFloat(this.calcKph(row.totalSecs, row.lapCount))  
+          row.avrgLapKph = parseFloat(calcKph(row.totalSecs, row.lapCount))  
+        }
+        if (row.clubNo && row.clubNo > 0) {
+          rows.push(row)
+        }
+      } 
+    }
+    data.results = rows
+    return data
+  }
+
+  transform2024ResultsLayout(data) {
+    const posIdx = 0
+    const carNoIdx = 1
+    const nameIdx = 2
+    const resultIdx = 3
+    const bestLapIdx = 4
+    //const avrgLapIdx = 5
+    const clubNoIdx = 6
+    const carMakeIdx = 7
+    //specific for heats 
+    const roofColorIdx = 7 
+    const carMakeIdx2 = 8  
+    const carModelIdx = 9 
+    let row
+    let rows = []
+    let csvLine = ''
+    for (var i=1; i < data.results.length; i++) {
+      csvLine = data.results[i]
+      if (csvLine && csvLine !== '') {
+        row = {}
+        row.pos = parseInt(csvLine[posIdx].trim())
+        row.carNo = parseInt(csvLine[carNoIdx].trim())
+        row.name = csvLine[nameIdx].trim()
+        row.result = csvLine[resultIdx].trim()
+        row.clubNo = parseInt(csvLine[clubNoIdx].trim()) 
+        row.avrgLap = 0
+        row.bestLap = 0
+        row.bestLapKph = 0
+        row.bestLapNo = 0
+        row.lapCount = 0
+        if (row.result !== '' && row.result.trim() !== 'DNS' && !row.result.includes(cManualLapChar)) {
+          if (csvLine.length > 8) {
+            row.roofColor = csvLine[roofColorIdx].trim()
+            row.carMake = csvLine[carMakeIdx2].trim()
+            row.model = csvLine[carModelIdx].trim()
+          } else {
+            row.carMake = csvLine[carMakeIdx].trim()
+          }
+          const bestLapLine = csvLine[bestLapIdx].trim()
+          //const avrgLapLine = csvLine[avrgLapIdx].trim() 
+          //row.avrgLap = convertToSecs(avrgLapLine)
+          row.bestLap = convertToSecs(bestLapLine)
+          row.bestLapKph = parseFloat(calcKph(row.bestLap, 1))
+          row.bestLapNo = parseInt(bestLapLine.substring(bestLapLine.indexOf('(') + 1, bestLapLine.indexOf(')')).trim())
+          const result = csvLine[resultIdx]
+          row.lapCount = parseInt(result.substring(0, result.indexOf('/')).trim())
+          row.mins = parseInt(result.substring(result.indexOf('/') + 1, result.indexOf('m')).trim())
+          row.secs = parseInt(result.substring(result.indexOf('m') + 1, result.indexOf('.')).trim())
+          row.ms = parseInt(result.substring(result.indexOf('.') + 1, result.length - 1).trim())
+          if (row.mins === 0) {
+            row.totalSecs = parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim())
+          } else {
+            row.totalSecs = row.mins * 60 + parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim()) 
+          }
+          row.avrgLap = parseFloat(parseFloat(row.totalSecs / row.lapCount).toFixed(2))
+          row.avrgLapKph = parseFloat(calcKph(row.totalSecs, row.lapCount))  
         }
         if (row.clubNo && row.clubNo > 0) {
           rows.push(row)
@@ -361,9 +455,9 @@ export class BbkParser extends BbkBase {
           //row.roofColor = csvLine[roofColorIdx].trim()
           const bestLapLine = csvLine[bestLapIdx].trim()
           const avrgLapLine = csvLine[avrgLapIdx].trim() 
-          row.avrgLap = this.convertToSecs(avrgLapLine)
-          row.bestLap = this.convertToSecs(bestLapLine)
-          row.bestLapKph = parseFloat(this.calcKph(row.bestLap, 1))
+          row.avrgLap = convertToSecs(avrgLapLine)
+          row.bestLap = convertToSecs(bestLapLine)
+          row.bestLapKph = parseFloat(calcKph(row.bestLap, 1))
           row.bestLapNo = parseInt(bestLapLine.substring(bestLapLine.indexOf('(') + 1, bestLapLine.indexOf(')')).trim())
           const result = csvLine[resultIdx]
           row.lapCount = parseInt(result.substring(0, result.indexOf('/')).trim())
@@ -375,7 +469,7 @@ export class BbkParser extends BbkBase {
           } else {
             row.totalSecs = row.mins * 60 + parseFloat(row.secs.toString().trim() + '.' + row.ms.toString().trim()) 
           }
-          row.avrgLapKph = parseFloat(this.calcKph(row.totalSecs, row.lapCount))  
+          row.avrgLapKph = parseFloat(calcKph(row.totalSecs, row.lapCount))  
         }
         if (row.clubNo && row.clubNo > 0) {
           rows.push(row)
@@ -503,14 +597,14 @@ export class BbkParser extends BbkBase {
               raceItem.racerName = nameItem.name
               if (parseFloat(result.bestLap) < nameItem.bestLap || nameItem.bestLap === 0) {
                 nameItem.bestLap = parseFloat(result.bestLap)
-                nameItem.bestLapKph = parseFloat(this.calcKph(result.bestLap))
+                nameItem.bestLapKph = parseFloat(calcKph(result.bestLap))
               }
               raceItem.clubNo = parseInt(result.clubNo)
               raceItem.carNo = parseInt(result.carNo)
               raceItem.avrgLap = parseFloat(result.avrgLap)
               raceItem.bestLap = parseFloat(result.bestLap)
-              raceItem.avrgLapKph = parseFloat(this.calcKph(raceItem.avrgLap))
-              raceItem.bestLapKph = parseFloat(this.calcKph(raceItem.bestLap))
+              raceItem.avrgLapKph = parseFloat(calcKph(raceItem.avrgLap))
+              raceItem.bestLapKph = parseFloat(calcKph(raceItem.bestLap))
               raceItem.lapCount = parseInt(result.lapCount)
               raceItem.laps = this.getLapsByCarNo(race, result.carNo)
               
@@ -653,7 +747,7 @@ export class BbkParser extends BbkBase {
                 raceItem.race = race.race
                 raceItem.name = result.name
                 raceItem.lapCount = result.lapCount 
-                raceItem.bestLapKph = parseFloat(this.calcKph(result.bestLap))
+                raceItem.bestLapKph = parseFloat(calcKph(result.bestLap))
                 raceItem.bestLap = parseFloat(result.bestLap)
                 if (!raceItem.bestLapKph) {
                   raceItem.bestLapKph = 0  
@@ -696,7 +790,7 @@ export class BbkParser extends BbkBase {
                 raceItem.name = result.name
                 raceItem.lapCount = result.lapCount
                 raceItem.avrgLap = parseFloat(result.avrgLap)
-                raceItem.avrgLapKph = parseFloat(this.calcKph(raceItem.avrgLap))
+                raceItem.avrgLapKph = parseFloat(calcKph(raceItem.avrgLap))
                 if (!raceItem.avrgLap) {
                   raceItem.avrgLap = 0
                 }
@@ -720,9 +814,10 @@ export class BbkParser extends BbkBase {
   getMostConsistent(racesByRacer) {
     let res = {}
     racesByRacer = racesByRacer.sort(this.compareByConsistency)
-    if (racesByRacer[0].hasOwnProperty('consistPct') && parseFloat(racesByRacer[0].consistPct) > 0) {
-      res.name = racesByRacer[0].name
-      res.consistPct = parseFloat(racesByRacer[0].consistPct)
+    const race = racesByRacer[0]; 
+    if (race && race.hasOwnProperty('consistPct') && parseFloat(race.consistPct) > 0) {
+      res.name = race.name
+      res.consistPct = parseFloat(race.consistPct)
       return res
     }
     return res
@@ -731,9 +826,10 @@ export class BbkParser extends BbkBase {
   getMostImproved(racesByRacer) {
     let res = {}
     racesByRacer = racesByRacer.sort(this.compareByImprovSec)
-    if (racesByRacer[0].hasOwnProperty('improvSec') && parseFloat(racesByRacer[0].consistPct)) {
-      res.name = racesByRacer[0].name
-      res.improvSec = parseFloat(racesByRacer[0].improvSec)
+    const race = racesByRacer[0]; 
+    if (race && race.hasOwnProperty('improvSec') && parseFloat(race.consistPct)) {
+      res.name = race.name
+      res.improvSec = parseFloat(race.improvSec)
       return res
     }
     return res
