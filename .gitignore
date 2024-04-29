@@ -40,3 +40,4 @@ ui-react/public/videos/gt-race.mp4
 node_version.txt
 *.mp4
 tools
+ui-react/.eslintcache

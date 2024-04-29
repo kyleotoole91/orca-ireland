@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from 'react'
+import { React, useState, useEffect, useMemo } from 'react'
 import { useAuth0 } from "@auth0/auth0-react"
 import Loading from '../components/Loading'
 import Header from '../components/Header'
@@ -72,20 +72,15 @@ function SeasonDetail() {
     ))) 
   }
 
-  function removeEmptyClasses() {
+  const classesWithResults = useMemo(() => {
     if (season && season.hasOwnProperty('classResults')) {
-      for (let i = 0; i < season.classResults.length; i++) {
-        if (!season.classResults[i].hasOwnProperty('standings') || season.classResults[i].standings.length === 0) {
-          season.classResults.splice(i, 1)
-        }
-      }
+      return season.classResults.filter((classResult) => classResult.standings.length > 0)
     }
-  }
+  }, [season]);
 
   function showDriverStandings() {
-    removeEmptyClasses()
     return (
-      season.classResults.map((classResult, index) => (
+      classesWithResults.map((classResult, index) => (
           <div style={{ alignSelf: 'center'}} key={index+'-div'}>
             <h2 style={{fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={index+'-header-label'}>{classResult.className}</h2> 
             <Table striped bordered hover size="sm" key={index+'-roster'}>
