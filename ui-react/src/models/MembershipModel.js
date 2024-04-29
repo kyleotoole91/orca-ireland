@@ -38,7 +38,7 @@ export class MembershipModel extends BaseModel {
     try {
       this.itemId = membershipId
       const body = { user_id: userId, active }
-      await fetch(this.baseURL + this.endpoint + `/${this.itemId}` + '/active_user', {
+      await fetch(this.baseURL + this.endpoint + `/${this.itemId}/active_user`, {
           method: 'PUT', 
           headers: {Authorization: `Bearer ${this.apiToken}`, "Content-Type": "application/json"},
           body: JSON.stringify(body)})
