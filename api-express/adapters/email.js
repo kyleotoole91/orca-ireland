@@ -231,7 +231,5 @@ export const notifyUpcomingEventsPaymentReminder = async () => {
     await sendEventPaymentReminders(event);
   });
 
-  
-
 }
 

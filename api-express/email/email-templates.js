@@ -24,7 +24,7 @@ export const registrationOpenTemplate = (orcaPaypalUrl, events) => `
   events.map(event => registrationOpenEventTemplate(event)).join('') + `
   <p>
     Please <a href='https://orcaireland.com/events'><strong>register</strong></a> and pay the fee via Paypal to <a href='${orcaPaypalUrl}'><strong>orcairelandpp</strong></a> to secure your place.
-    Please use the <strong>friends and family</strong> option when paying or else your payment will not be recognised. 
+    Please use the <strong>friends and family</strong> option when paying or else your payment will not be recognised. The Paypal acount email address must match your ORCA account email address, or contact the administrator for a manual payment check. 
   </p>
   <p>We look forward to seeing you!</p>
 `;
@@ -50,7 +50,7 @@ export const registrationClosesSoonTemplate = (orcaPaypalUrl, event) => `
   </p>
   <p>
     Please <a href='https://orcaireland.com/events'><strong>register</strong></a> and pay the fee via Paypal to <a href='${orcaPaypalUrl}'><strong>orcairelandpp</strong></a> to secure your place.
-    Please use the <strong>friends and family</strong> option when paying or else your payment will not be recognised.
+    Please use the <strong>friends and family</strong> option when paying or else your payment will not be recognised. Please use the <strong>friends and family</strong> option when paying or else your payment will not be recognised. The Paypal acount email address must match your ORCA account email address, or contact the administrator for a manual payment check. 
   </p>
   <p>We look forward to seeing you!</p>
 `;

@@ -56,7 +56,6 @@ export const MemberCard = ({user, index, canEditUser, canActivateMember, canTogg
     const membershipModel = new MembershipModel(apiToken);
     const responseData = await membershipModel.putActiveUser(currentMembership._id, user._id, active);
     if (!membershipModel.success) {
-      setLoading(false);
       window.alert(membershipModel.message);
       return;
     }
@@ -65,6 +64,7 @@ export const MemberCard = ({user, index, canEditUser, canActivateMember, canTogg
       setCurrMembership(responseData[0]);
     }
     setActiveMember(!activeMember);
+    setLoading(false);
   }
 
   const handleUnsubscribe = async (subscribe) => {

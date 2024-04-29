@@ -151,15 +151,15 @@ export const PaypalTxSearchTable = () => {
             </Form.Group>
             <Form.Group className="mb-3" controlId="ppFrmKeyword" >
               <Form.Label>Keyword</Form.Label>
-              <Form.Control type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+              <Form.Control placeholder='(optional)' type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
             </Form.Group>
             <Form.Group className="mb-3" controlId="ppFrmName" >
               <Form.Label>Payer Name</Form.Label>
-              <Form.Control type="text" value={payerName} onChange={(e) => setPayerName(e.target.value)} />
+              <Form.Control placeholder='(optional)' type="text" value={payerName} onChange={(e) => setPayerName(e.target.value)} />
             </Form.Group>
             <Form.Group className="mb-3" controlId="ppFrmAmount">
               <Form.Label>Amount </Form.Label>
-              <Form.Control value={amount} type="number" name="event-fee" onChange={(e) => setAmount(e.target.value)} />
+              <Form.Control placeholder='(optional)' value={amount} type="number" name="event-fee" onChange={(e) => setAmount(e.target.value)} />
             </Form.Group> 
           </Form>
           { loading && <Loading /> } 

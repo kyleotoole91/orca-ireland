@@ -7,6 +7,7 @@ import { PollController } from './controllers/PollController'
 import { UserController } from './controllers/UserController'
 import { ArticleModel } from './models/ArticleModel'
 import { PayPalController } from './controllers/PayPalController'
+import { PaymentsController } from './controllers/PaymentsController'
 import validateJwt from './utils/validate-jwt'
 import { sendEmailToActiveMembersReq, notifyEventRegistrationOpen, notifyUpcomingEventsPaymentReminder } from './adapters/email'
 import { generateCurrentEventPayments, generateCurrentMembershipPayments } from './adapters/paypal'
@@ -57,6 +58,7 @@ const memberTypesController = new BaseController('memberTypes')
 const eventTypesController = new BaseController('eventTypes')
 const articlesController = new BaseController('articles')
 const paypalController = new PayPalController('paypal')
+const paymentsController = new PaymentsController('payments')
 const userController = new UserController()
 articlesController.db = new ArticleModel();
 
@@ -77,6 +79,7 @@ app.delete('/seasons/:id', validateJwt, (req, res) => seasonsController.deleteDo
 //events 
 app.get('/events', (req, res) => eventsController.getAllDocuments(req, res))
 app.get('/events/:id', validateJwt, (req, res) => eventsController.getDocument(req, res))
+app.get('/events/:id/payments', validateJwt, (req, res) => paymentsController.getPaymentsByEventId(req, res))
 app.post('/events', validateJwt, (req, res) => eventsController.addDocument(req, res))
 app.put('/events/:id', validateJwt, (req, res) => eventsController.updateEvent(req, res))
 app.post('/events/:id/paid_user', validateJwt, (req, res) => eventsController.addPaidUser(req, res))

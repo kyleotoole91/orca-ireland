@@ -55,6 +55,7 @@ function EventDetail() {
   const [allowEditEvents, setAllowEditEvents] = useState(false)
   const [allowEditPaidUsers, setAllowEditPaidUsers] = useState(false)
   const [allowViewUnPaidUsers, setAllowViewUnPaidUsers] = useState(false)
+  const [allowViewPayments, setAllowViewPayments] = useState(false)
 
   useEffect(() => {
     async function loadData () {
@@ -70,9 +71,19 @@ function EventDetail() {
           setAllowViewUnPaidUsers(permissions.check(apiToken, 'view', 'unpaid_users'))
           setAllowAddRaces(permissions.check(apiToken, 'post', 'races'))
           setAllowDelRaces(permissions.check(apiToken, 'delete', 'races'))
+          setAllowViewPayments(permissions.check(apiToken, 'get', 'payments'))
          
           await eventModel.get(id)
           if (eventModel.success) {
+            if (permissions.check(apiToken, 'get', 'payments')) {
+              const paymentsModel = new EventModel(apiToken)
+              await paymentsModel.getEventPayments(id)
+              if (paymentsModel.success) {
+                eventModel.responseData.payments = paymentsModel.responseData
+              } else {
+                window.alert(paymentsModel.message)
+              }
+            }
             const paidEvent = !!eventModel.responseData.fee;
             const hasPaidUserIds = !!eventModel.responseData.paid_user_ids;
             setAllCars(eventModel.responseData.cars)
@@ -558,18 +569,16 @@ function EventDetail() {
     );
     const hasVisibleUnpaidCars = visibleUnpaidCars && visibleUnpaidCars.length > 0;
 
-    const addTableRow = (car, index) => {
-      return (
-        <tr style={{color: 'red'}} key={index+'-pending-row'}>
-          <td>{car.user.firstName+' '+car.user.lastName}</td>
-          <td>{getClassName(car.class_id)}</td>
-          <td>{car.manufacturer}</td>
-          <td>{car.model}</td>
-          <td>{car.color}</td>
-          {allowAddRaces && <td><PencilSquare key={car._id+'-change-car'} id={car._id} handleClick={() => changeCar(car._id)} /></td>}
-        </tr>
-      )
-    }
+    const addTableRow = (car, index) => (
+      <tr style={{color: 'red'}} key={index+'-pending-row'}>
+        <td>{car.user.firstName+' '+car.user.lastName}</td>
+        <td>{getClassName(car.class_id)}</td>
+        <td>{car.manufacturer}</td>
+        <td>{car.model}</td>
+        <td>{car.color}</td>
+        {allowAddRaces && <td><PencilSquare key={car._id+'-change-car'} id={car._id} handleClick={() => changeCar(car._id)} /></td>}
+      </tr>
+    )
 
     return ( hasVisibleUnpaidCars &&
       <>
@@ -595,6 +604,40 @@ function EventDetail() {
     </>
   )}
 
+  const showEventPayments = () => {
+    const hasPayments = event.payments && event.payments.length > 0
+
+    const addTableRow = (payment, index) => (
+      <tr key={index+'-payment-row'}>
+        <td>{payment.name}</td>
+        <td>{dayjs(payment.date).format('DD/MM/YYYY')}</td>
+        <td>{payment.amount} {payment.currency}</td>
+        <td>{payment.transaction_id}</td>
+      </tr>
+    )
+
+    return ( allowViewPayments && hasPayments &&
+      <>
+        <div style={{overflow: 'auto'}} key={'payments-div'}>
+        <h4 style={{fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={'payments-header-label'}>Payments</h4> 
+        <Table striped bordered hover size="sm" key={'payments-roster'}>
+          <thead key={'payments-roster-head'}>
+            <tr key={'payments-roster-row'}>
+              <th>Name</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Transaction ID</th>
+            </tr>
+          </thead>
+          <tbody>
+          { event.payments.map((payment, index) => addTableRow(payment, index)) }
+          </tbody>
+        </Table>
+        <div style={{height: '25px'}}></div>
+      </div>
+    </>
+  )}
+
   if (loading) {
     return <Loading /> 
   } else if (event) {
@@ -602,6 +645,7 @@ function EventDetail() {
       <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
       <div style={{display: 'grid', justifyContent: 'center'}}>
         { carsAwaitingPayment.length > 0 && showCarsAwaitingPayment()}
+        { event && event.payments && event.payments.length > 0 && showEventPayments()}
         { showRoster() }  
         { allowAddRaces && raceForm() }
         { allowEditEvents && editEntryModal() }

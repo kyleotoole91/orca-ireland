@@ -13,7 +13,7 @@ export const useApiToken = () => {
       }
     }
     retrieveToken();
-  }, []);
+  }, [apiToken, getAccessTokenSilently]);
 
   return apiToken;
 } 

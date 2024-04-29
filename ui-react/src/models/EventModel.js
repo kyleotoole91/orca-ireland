@@ -27,6 +27,12 @@ export class EventModel extends BaseModel{
     }
   }
 
+  async getEventPayments(eventId) {
+    this.itemId = eventId
+    this.endpoint2 = '/payments'
+    return await super.get(eventId)
+  }
+
   async put(eventId, event) {
     if (event.name === 'Round ' || event.name === 'Round') {
       this.setErrorMessage('Please specify a round name or number')  
