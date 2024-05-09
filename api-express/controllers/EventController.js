@@ -146,6 +146,13 @@ export class EventController extends BaseController {
           })    
         }
 
+        if (event.openDate > new Date()) {
+          return res.status(403).send({
+            success: false,
+            message: 'Registration is not open yet'
+          })
+        };
+
         if (event.closeDate < new Date()) {
           return res.status(403).send({
             success: false,

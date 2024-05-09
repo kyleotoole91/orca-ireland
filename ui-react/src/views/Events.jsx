@@ -377,7 +377,7 @@ function Events() {
     }
   }
 
-  const getRegistrationState = (event) => event && new Date(event.closeDate) < new Date();
+  const isRegistrationEnabled = (event) => event && new Date(event.closeDate) > new Date() && new Date(event.openDate) < new Date();
 
   function addCards(events, currentEvent) {
     let detailBtnMrg = '10px'
@@ -404,8 +404,8 @@ function Events() {
                 onClick={handleShowRegistration} 
                 id={event._id}
                 style={{width: "100%"}} 
-                disabled={getRegistrationState(event)} 
-                variant={(getRegistrationState(event) && "outline-secondary") || "outline-primary"} 
+                disabled={!isRegistrationEnabled(event)} 
+                variant={(!isRegistrationEnabled(event) && "outline-secondary") || "outline-primary"} 
               >
                 Registration
               </Button>} 

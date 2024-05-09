@@ -4,6 +4,7 @@ export const cRegistrationHours = 38;
 
 const ObjectId = require('mongodb').ObjectId;
 const cUpcomingEventDays = 30;
+const cRegistrationOpenDays = 7; 
 
 export class EventModel extends BaseModel {
   
@@ -53,6 +54,11 @@ export class EventModel extends BaseModel {
     event.closeDate = event.closeDate
       ? new Date(event.closeDate)
       : new Date(eventDate.setHours(eventDate.getHours() - cRegistrationHours));
+    const openDate = new Date(event.date);
+    openDate.setDate(eventDate.getDate() - cRegistrationOpenDays);
+    event.openDate = event.openDate
+      ? new Date(event.openDate)
+      : openDate;
   }
 
   addRegistrationCloseDates(events) {
@@ -195,6 +201,7 @@ export class EventModel extends BaseModel {
       this.message = error.message
       console.log(error)
     } finally {
+      this.addRegistrationCloseDate(this.result);
       return this.result  
     }
   }
