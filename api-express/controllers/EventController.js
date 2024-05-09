@@ -155,7 +155,7 @@ export class EventController extends BaseController {
 
         let classIds = []
         let car //check the car(s) belongs to the user
-        PaymentsController
+
         for (var carId of req.body.car_ids) {
           car = await this.carDb.getUserDocument(user._id.toString(), carId.toString())
           if (!car){
