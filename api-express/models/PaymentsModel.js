@@ -22,7 +22,6 @@ export class PaymentsModel extends BaseModel {
     catch (error) {
       this.result = null
       this.message = error.message
-      console.log(error)
     } finally {
       return this.result  
     }

@@ -16,12 +16,12 @@ export class PaymentsController extends BaseController {
         message: 'You do not have permission to access payments'
       })
     }
-    const result = await this.paymentsDb.getPaymentsByEventId(req.params.id);
-    const success = !result || result.length === 0 ? false : true;
+    const data = await this.paymentsDb.getPaymentsByEventId(req.params.id);
+    const success = !!data;
 
     return res.status(success ? 200 : 404).send({
       success,
-      data: success && result,
+      data,
       message: this.paymentsDb.message
     })
   }
