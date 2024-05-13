@@ -255,7 +255,7 @@ function Events() {
           const discountedRate = parseFloat(selectedEvent.fee) / 2;
           let alertMsg = 
             `Thank you for your registration. You will now be redirected to Paypal.\n\n` +
-            `Please using the "friends and family" option. It may take a couple of hours to verify your payment.\n\n` +
+            `Please use the "friends and family" option. It may take a couple of hours to verify your payment.\n\n` +
             `Single entry: \u20AC${parseFloat(selectedEvent.fee).toFixed(2)}\n` +
             `Additional car/family: \u20AC${discountedRate.toFixed(2)}`
           if (!!selectedEvent.keyword) {
