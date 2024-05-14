@@ -39,10 +39,10 @@ app.get('/cors', (req, res) => {
   res.send({ "msg": "CORS enabled" })
 })
 
-cron.schedule('0 10-22 * * *', async () => await generateCurrentEventPayments());
-cron.schedule('30 10-22 * * *', async () => await generateCurrentMembershipPayments());
-cron.schedule('00 12 * * *', async () => await notifyUpcomingEventsPaymentReminder());
-cron.schedule('30 12 * * *', async () => await notifyEventRegistrationOpen());
+cron.schedule('0 8-23 * * *', async () => await generateCurrentEventPayments());
+cron.schedule('5 8-23 * * *', async () => await generateCurrentMembershipPayments());
+cron.schedule('10 19 * * *', async () => await notifyEventRegistrationOpen());
+cron.schedule('15 19 * * *', async () => await notifyUpcomingEventsPaymentReminder());
 
 const eventsController = new EventController()
 const membershipsController = new MembershipController()

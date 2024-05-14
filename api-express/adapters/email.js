@@ -136,11 +136,11 @@ export const sendEmailToActiveMembers = async (subject, message, html, checkUnsu
     const userEmails = subscribedUsers.map(user => user.email);
     const commaSeparatedEmails = userEmails.join(',');
 
-    if (!currentMembership || !currentMembership.users || currentMembership.users.length === 0) {
+    if (!currentMembership || !currentMembership.users || currentMembership.users.length === 0 || userEmails.length === 0) {
       return {
         success: false,
         httpCode: 404,
-        message: 'No active members found'
+        message: 'No subscribed active users found in the database'
       }
     }
 
@@ -148,9 +148,7 @@ export const sendEmailToActiveMembers = async (subject, message, html, checkUnsu
       ? html 
       : getHtmlMessage(message);
 
-    const response = testMode 
-      ? await sendEmail(testRecipient, subject, htmlContent, checkUnsubscribed)
-      : await sendEmail(commaSeparatedEmails, subject, htmlContent, checkUnsubscribed);
+    const response = await sendEmail(commaSeparatedEmails, subject, htmlContent, checkUnsubscribed);
 
     response.httpCode = response.success ? 200 : 400;
 
@@ -159,7 +157,7 @@ export const sendEmailToActiveMembers = async (subject, message, html, checkUnsu
     return {
       success: false,
       httpCode: 500,
-      message: 'internal server error: '+error.message
+      message: 'internal server error: ' + error.message
     }
   }
 }
