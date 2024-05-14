@@ -154,6 +154,10 @@ function Events() {
     if (!isAuthenticated) {
       loginWithRedirect({ appState: { targetUrl: window.location.pathname } })
     } else {
+      if (!carData || carData.length === 0) {
+        window.alert('You must have at least one car on your profile before you can enter events.')
+        return
+      }
       let event = await selectEvent(e.target.id.toString())
       if (event) {
         setSelectedEventId(e.target.id.toString())  

@@ -264,7 +264,7 @@ function Garage() {
     return ( 
       <div>
         {modalForm()}
-        <Header props={{header:'Garage'}} /> 
+        <Header props={{header:'My Cars'}} /> 
         <div onClick={addCar} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
           <PlusButton /> 
         </div>
@@ -273,7 +273,7 @@ function Garage() {
   } else {
     return (
       <div>
-        <Header props={{header:'Garage'}} /> 
+        <Header props={{header:'My Cars'}} /> 
         <div onClick={addCar} style={{marginBottom: '18px', height: '15px', maxWidth: '15px'}} >
           <PlusButton /> 
         </div>
