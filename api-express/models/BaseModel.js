@@ -5,6 +5,7 @@ const ObjectId = require('mongodb').ObjectId
 export class BaseModel {
 
   constructor(collectionName) {
+    this.success = false
     this.result = null
     this.db = null
     this.loadDetail = false
@@ -180,6 +181,7 @@ export class BaseModel {
     try {
       this.applyDataTypes(document)
       this.result = await this.db.insertOne( document )
+      this.success = this.addedOk(this.result)
       if(!this.addedOk(this.result)) {
         this.result = null
         this.message = 'Not added' 
@@ -188,6 +190,7 @@ export class BaseModel {
       }
     } catch (error) {
       this.result = null
+      this.success = false
       this.message = error.message
       console.log(error)
     } finally {

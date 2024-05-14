@@ -223,18 +223,21 @@ export const generateCurrentEventPayments = async () => {
       if (event) {
         await paymentDb.addDocument(payment);
 
-        if (!event.paid_user_ids) {
-          event.paid_user_ids = [];
-        }
-        
-        if (!event.paid_user_ids.includes(payment.user_id)) {
-          event.paid_user_ids.push(payment.user_id);
-          await eventDb.updateDocument(event._id, event);
-          await sendEmail(
-            payment.email, 
-            'Event payment confirmation', 
-            eventPaymentConfirmationTemplate(event, payment)
-          );
+        if (paymentDb.success) {
+          
+          if (!event.paid_user_ids) {
+            event.paid_user_ids = [];
+          }
+          
+          if (!event.paid_user_ids.includes(payment.user_id)) {
+            event.paid_user_ids.push(payment.user_id);
+            await eventDb.updateDocument(event._id, event);
+            await sendEmail(
+              payment.email, 
+              'Event payment confirmation', 
+              eventPaymentConfirmationTemplate(event, payment)
+            );
+          }
         }
       }
     } catch (error) {

@@ -36,16 +36,24 @@ export const emailTransporter = () => nodeMailer.createTransport({
 
 export const sendEmail = async (recipients, subject, html, includeUnsubscribeLink = false) => {
   try {
+
     if (testMode) {
       recipients = testRecipient; 
     }
 
+    const emailSeperately = process.env.EMAIL_SEPERATELY === '1';
+    
+    const recipientsArray = emailSeperately
+      ? recipients.split(',')
+      : [recipients];
+
     const promises = [];
-    const recipientsArray = recipients.split(',');
 
     recipientsArray.forEach(recipient => {
+      const multipleRecipients = recipient.split(',').length > 1;
       const mailOptions = {
-        to: recipient,
+        to: !multipleRecipients && recipient,
+        bcc: multipleRecipients && recipient,
         from: process.env.CLUB_EMAIL_ADDR,
         subject: subject,
         html: html + emailFooterHtml(recipient, includeUnsubscribeLink)
@@ -60,6 +68,10 @@ export const sendEmail = async (recipients, subject, html, includeUnsubscribeLin
     const accepted = responses.map(response => response.accepted).flat();
     const allAccepted = rejected.length === 0;
     const success = accepted.length > 0;
+
+    if (rejected.length > 0) {
+      console.error('Rejected emails: ', rejected);
+    }
 
     return {
       success,
@@ -101,8 +113,8 @@ export const sendEmailToActiveMembersReq = async (req, res) => {
     const result = !overrideRecipients
       ? await sendEmailToActiveMembers(subject, message, html)
       : await sendEmail(overrideRecipients, subject, !!html 
-          ? html 
-          : getHtmlMessage(message));
+        ? html 
+        : getHtmlMessage(message));
 
     if (!result.success) {
       return res.status(result.httpCode || 400).send({
@@ -149,7 +161,7 @@ export const sendEmailToActiveMembers = async (subject, message, html, checkUnsu
       : getHtmlMessage(message);
 
     const response = await sendEmail(commaSeparatedEmails, subject, htmlContent, checkUnsubscribed);
-
+    
     response.httpCode = response.success ? 200 : 400;
 
     return response;
@@ -163,14 +175,16 @@ export const sendEmailToActiveMembers = async (subject, message, html, checkUnsu
 }
 
 export const notifyEventRegistrationOpen = async () => {
-  const eventModel = new EventModel();
-  const upcomingEvents = await eventModel.getUpcomingEvents(true);
+  const eventModel = new EventModel(true);
+  const upcomingEvents = await eventModel.getUpcomingEvents();
 
   if (!upcomingEvents || upcomingEvents.length === 0) return;
 
   const notifableEvents = upcomingEvents.filter(event => {
-    const alreadyNotified = event.notified === true;
-    return !alreadyNotified && subtractDaysFromDate(event.date, registrationDays) < new Date();
+    const openDate = !!event.openDate 
+      ? event.openDate
+      : subtractDaysFromDate(event.date, registrationDays);
+    return event.notified !== true && openDate <= new Date();
   });
 
   if (!notifableEvents || notifableEvents.length === 0) return;
