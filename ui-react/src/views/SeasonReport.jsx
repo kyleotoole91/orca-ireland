@@ -106,14 +106,14 @@ function SeasonReport() {
   const expColumns = [
     {
       name: 'Event',
-      width: '16rem',
+      width: '18rem',
       selector: row => row.event,
       sortable: true,
     },
     {
       name: 'Race',
       selector: row => row.name,
-      width: '16rem',
+      width: '18rem',
       sortable: true,
     },
     {
