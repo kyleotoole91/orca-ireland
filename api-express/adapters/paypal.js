@@ -9,7 +9,7 @@ import {
   membershipPaymentConfirmationTemplate
 } from '../email/email-templates.js';
 
-const DEFAULT_DAYS = 14;
+const DEFAULT_DAYS = 7;
 const NUM_EVENT_EXTRAS_ALLOWED = 3;
 
 let paypalToken = {
@@ -192,7 +192,7 @@ export const generateCurrentEventPayments = async () => {
   for (const event of events) {
     const eventPayments = await paymentDb.getPaymentsByEventId(event._id);
 
-    const alreadyFullyPaid = eventPayments && eventPayments.length === event.cars.length;
+    const alreadyFullyPaid = false //eventPayments && eventPayments.length === event.cars.length;
     
     if (!alreadyFullyPaid) {
       const eventWithPaidFlags = await addPaypalTxToEventDetails(event);
