@@ -39,6 +39,7 @@ const lastNamePH = 'Last Name'
 const usernamePH = 'Enter username'
 const phonePH = 'Enter phone'
 const emailPH = 'Enter email'
+const paypalEmailPH = '(optional)'
 const defaultDOB = new Date()
 const cJuniorYears = 16
 defaultDOB.setFullYear(defaultDOB.getFullYear()-18)
@@ -54,6 +55,7 @@ function Membership() {
   const [phone, setPhone] = useState('')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
+  const [paypalEmail, setPaypalEmail] = useState('')
   const [memberDOB, setMemberDOB] = useState(defaultDOB)
   const [memberDOBCtrl, setMemberDOBCtrl] = useState(defaultDOBCtrl)
   const [currMembership, setCurrMembership] = useState()
@@ -162,6 +164,10 @@ function Membership() {
             if (userModel.responseData.hasOwnProperty('ecPhone')) {
               setEcPhone(userModel.responseData.ecPhone)
             } 
+            if (userModel.responseData.hasOwnProperty('paypalEmail')) {
+              setPaypalEmail(userModel.responseData.paypalEmail) 
+            } 
+            
           } else {
             if (user.hasOwnProperty('given_name')) {
               setFirstName(user.given_name) 
@@ -254,7 +260,7 @@ function Membership() {
   async function updateUserDetails() {
     try {
       const extId = user.sub
-      await userModel.put(user.sub, { firstName, lastName, phone, username, email, ecName, ecPhone, extId,
+      await userModel.put(user.sub, { firstName, lastName, phone, username, email, paypalEmail, ecName, ecPhone, extId, 
                                       'memberType_id': memberTypeID,
                                       'dateOfBirth': memberDOB })  
       if (userModel.success) {
@@ -280,6 +286,7 @@ function Membership() {
     if (fieldPlaceholder === lastNamePH) { setLastName(value) }
     if (fieldPlaceholder === usernamePH) { setUsername(value) }
     if (fieldPlaceholder === emailPH) { setEmail(value) }
+    if (fieldPlaceholder === paypalEmailPH) { setPaypalEmail(value) }
     if (fieldPlaceholder === phonePH) { setPhone(value) }
     if (fieldPlaceholder === ecNamePH) { setEcName(value) }
     if (fieldPlaceholder === ecPhonePH) { setEcPhone(value) }
@@ -528,12 +535,16 @@ function Membership() {
                 <Form.Label>Emergency Contact Phone</Form.Label>
                 <Form.Control type="text" placeholder={ecPhonePH} value={ecPhone} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
               </Form.Group>
+              <Form.Group className="mb-3" controlId="formGroupEmail">
+                <Form.Label>Paypal Email</Form.Label>
+                <Form.Control type="test" placeholder={paypalEmailPH} value={paypalEmail} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+              </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupUsername">
                 <Form.Label>Username</Form.Label>
                 <Form.Control readOnly type="text" placeholder={usernamePH} value={username} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)}/>
               </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupEmail">
-                <Form.Label>Email address</Form.Label>
+                <Form.Label>Primary Email</Form.Label>
                 <Form.Control readOnly type="test" placeholder={emailPH} value={email} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
               </Form.Group>
             </Form> 
