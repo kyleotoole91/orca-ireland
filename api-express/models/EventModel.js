@@ -1,6 +1,6 @@
 import { BaseModel } from './BaseModel';
 
-export const cRegistrationHours = 38;
+export const cRegistrationHours = 39;
 
 const ObjectId = require('mongodb').ObjectId;
 const cUpcomingEventDays = 30;

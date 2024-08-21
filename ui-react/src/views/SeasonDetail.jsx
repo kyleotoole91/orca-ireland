@@ -115,7 +115,7 @@ function SeasonDetail() {
 
   function detailsButton(season) {
     return (
-      <Button id={season._id} onClick={(e) => bbkReportUrl(e.target.id)} style={{marginTop: "6px", width: "100%"}} variant="outline-primary">
+      <Button id={season._id} onClick={(e) => bbkReportUrl(e.target.id)} style={{marginBottom: "6px", marginTop: "6px", marginRight:'3px', width: "100%", maxWidth: "15rem"}} variant="outline-primary">
         Season Overview
       </Button> 
     )
@@ -123,8 +123,8 @@ function SeasonDetail() {
 
   function bbkWebPublishButton(season) {
     return (
-      <Button id='bbkWebPublishBtn' href={bbkUrl(season)} style={{marginTop: "6px", width: "100%"}} variant="outline-primary">
-        BBK Web Publish
+      <Button id='bbkWebPublishBtn' href={bbkUrl(season)} style={{marginBottom: "6px", marginTop: "6px", marginRight:'3px', width: "100%", maxWidth: "15rem"}} variant="outline-primary">
+        BBK Direct Link
       </Button> 
     )
   }
@@ -136,17 +136,20 @@ function SeasonDetail() {
       <Header props={{header: `${season.name}`, 
                       subHeader: dayjs(season.startDate).format('DD/MM/YYYY') +' -> '+
                                  dayjs(season.endDate).format('DD/MM/YYYY'),
-                      subHeader3: `Best ${season.bestOf}/${season.eventCount} rounds`,
+                      //subHeader3: `Best ${season.bestOf}/${season.eventCount} rounds`,
                     }} /> 
       {season.hasOwnProperty('bbkURL') && 
-        <div style={{ alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center', alignItems:'center', height: 'auto'}}>
-          {bbkWebPublishButton(season)}
+        <div style={{display: 'flex', flexFlow: 'wrap', justifyContent: 'center'}}>
           {detailsButton(season)}
+          {bbkWebPublishButton(season)}
         </div> }
       <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
         {season && season.hasOwnProperty('classResults') && showDriverStandings()}
       </div>
-      </>
+      {season && !!season.bbkSeasonDir && 
+        <iframe style={{width: '100%', height: '40rem'}} src={bbkUrl(season)} ></iframe>
+      }
+    </>
   } else return <h2>Not found</h2>
 }
 
