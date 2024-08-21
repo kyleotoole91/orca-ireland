@@ -31,7 +31,7 @@ const calcTotalIncExtras = (stdAmount, extraAmount, multiplier) => multiplier !=
   ? parseFloat(parseFloat(stdAmount) + (extraAmount * multiplier)).toFixed(2).toString()
   : stdAmount;
 
-export const paypalAuth = async () => {  
+const paypalAuth = async () => {  
   if (paypalToken.expiry_date && paypalToken.expiry_date > new Date()) {
     return paypalToken;
   }
@@ -81,11 +81,7 @@ const findTxByKeywordAndAmt = (txs, keyword = '', txAmount = '') => txs
     (txAmount === '' || tx.transaction_info.transaction_amount.value === txAmount))
   : [];
 
-const findTxByName = (txs, name) => txs
-  ? txs.filter(tx => tx.payer_info.payer_name.alternate_full_name.toLowerCase().includes(name.toLowerCase()))
-  : [];
-
-export const paypalTxByDateRange = async (token, startDateIso, endDateIso) => {
+const paypalTxByDateRange = async (token, startDateIso, endDateIso) => {
   let qryStartDate;
   let qryEndDate;
 
@@ -112,6 +108,35 @@ export const paypalTxByDateRange = async (token, startDateIso, endDateIso) => {
   return response || [];
 };
 
+const getPaypalTransactionsByEvent = async (event) => {
+  if (!event || !event.date) {
+    return [];
+  }
+
+  const startDate = new Date(event.date);
+  const eventDate = new Date(event.date);
+  const numDays = event.paypalDays || DEFAULT_DAYS;
+  startDate.setDate(startDate.getDate() - numDays);
+  const startDateIso = startDate.toISOString().substring(0, 10);
+  const endDateIso = eventDate.toISOString().substring(0, 10);
+  const fee = event.fee && parseFloat(event.fee || 0).toFixed(2);
+  const keyword = !!event.keyword ? '' : event.keyword;
+
+  const response = await authAndTransactions(startDateIso, endDateIso, keyword, '', fee, true);
+  
+  return response.transaction_details ? response.transaction_details : response;
+}
+
+const addPaypalTxToEventDetails = async (eventDetail) => {
+  if (!eventDetail.cars) return eventDetail;
+  
+  const response = await getPaypalTransactionsByEvent(eventDetail);
+  eventDetail.cars.forEach((raceEntry) => {
+    raceEntry.payment_tx = response.find(tx => tx.email === raceEntry.user.email);
+  });
+  return eventDetail;
+}
+
 export const authAndTransactions = async (startDateIso, endDateIso, keyword = '', name = '', amount = '', checkForDiscountedExtras = false) => { //2024-03-29
   const { access_token: token } = await paypalAuth();
   const response = await paypalTxByDateRange(token, startDateIso, endDateIso);
@@ -127,7 +152,17 @@ export const authAndTransactions = async (startDateIso, endDateIso, keyword = ''
     };
   };
 
-  const userTxs = name = '' ? [...txDetails] : findTxByName([...txDetails], name);
+  const findTxByName = (txs, name) => txs
+    ? txs.filter(tx => 
+        tx.payer_info.payer_name.alternate_full_name
+          .toLowerCase()
+          .includes(name.toLowerCase()))
+    : [];
+
+  const userTxs = name === '' 
+    ? [...txDetails] 
+    : findTxByName([...txDetails], name);
+
   let filteredTxs = [];
 
   if (checkForDiscountedExtras) { // check for additional cars at the rate of 50%, eg two cars cost 15e instead of 10e, check for that tx, up to 3 extras
@@ -143,35 +178,6 @@ export const authAndTransactions = async (startDateIso, endDateIso, keyword = ''
   }
   
   return transformPaypalTxList(filteredTxs) || [];
-}
-
-export const getPaypalTransactionsByEvent = async (event, email = '') => {
-  if (!event || !event.date) {
-    return [];
-  }
-
-  const startDate = new Date(event.date);
-  const eventDate = new Date(event.date);
-  const numDays = event.paypalDays || DEFAULT_DAYS;
-  startDate.setDate(startDate.getDate() - numDays);
-  const startDateIso = startDate.toISOString().substring(0, 10);
-  const endDateIso = eventDate.toISOString().substring(0, 10);
-  const fee = event.fee && parseFloat(event.fee || 0).toFixed(2);
-  const keyword = !!event.keyword ? '' : event.keyword;
-
-  const response = await authAndTransactions(startDateIso, endDateIso, keyword, email, fee, true);
-  
-  return response.transaction_details ? response.transaction_details : response;
-}
-
-export const addPaypalTxToEventDetails = async (eventDetail, email = '') => {
-  if (!eventDetail.cars) return eventDetail;
-  
-  const response = await getPaypalTransactionsByEvent(eventDetail, email);
-  eventDetail.cars.forEach((raceEntry) => {
-    raceEntry.payment_tx = response.find(tx => tx.email === raceEntry.user.email);
-  });
-  return eventDetail;
 }
 
 export const generateCurrentEventPayments = async () => {
