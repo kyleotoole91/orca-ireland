@@ -286,7 +286,6 @@ function Membership() {
     if (fieldPlaceholder === lastNamePH) { setLastName(value) }
     if (fieldPlaceholder === usernamePH) { setUsername(value) }
     if (fieldPlaceholder === emailPH) { setEmail(value) }
-    if (fieldPlaceholder === paypalEmailPH) { setPaypalEmail(value) }
     if (fieldPlaceholder === phonePH) { setPhone(value) }
     if (fieldPlaceholder === ecNamePH) { setEcName(value) }
     if (fieldPlaceholder === ecPhonePH) { setEcPhone(value) }
@@ -537,7 +536,7 @@ function Membership() {
               </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupEmail">
                 <Form.Label>Paypal Email</Form.Label>
-                <Form.Control type="test" placeholder={paypalEmailPH} value={paypalEmail} onChange={(e) => setMemberDetailProp(e.target.placeholder, e.target.value)} />
+                <Form.Control type="test" placeholder={paypalEmailPH} value={paypalEmail} onChange={(e) => {setSaveButtonState(true); setPaypalEmail(e.target.value)}} />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formGroupUsername">
                 <Form.Label>Username</Form.Label>
