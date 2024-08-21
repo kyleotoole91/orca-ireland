@@ -132,7 +132,10 @@ const addPaypalTxToEventDetails = async (eventDetail) => {
   
   const response = await getPaypalTransactionsByEvent(eventDetail);
   eventDetail.cars.forEach((raceEntry) => {
-    raceEntry.payment_tx = response.find(tx => tx.email === raceEntry.user.email);
+    raceEntry.payment_tx = response.find(tx => tx.email && (
+        tx.email === raceEntry.user.email || 
+        tx.email === raceEntry.user.paypal_email
+      ));
   });
   return eventDetail;
 }
