@@ -128,6 +128,21 @@ function EventDetail() {
     eventModel.setApiToken(apiToken)
   }
 
+  useEffect(() => {
+    addCarsToResults(event);
+  }, [event]);
+
+  const addCarsToResults = (event) => {
+    if (event) {
+      event.races.map((race) => {
+        race.results.map((result) => {
+          const car = event.cars.find((car) => car._id === result.car_id);
+          result.car = { ...car };
+        });
+      })
+    }
+  }
+
   function getClassName(id) {
     let carClass
     if (classes && classes.length !== 0) {
@@ -449,19 +464,6 @@ function EventDetail() {
     )
   }
 
-  function getCar(id) {
-    if (currentCar.hasOwnProperty('_id') && currentCar._id === id){
-      return currentCar
-    } else {
-      for (let i=0; i<event.cars.length; i++) {
-        if (event.cars[i]._id === id) {
-          currentCar = event.cars[i]
-          return event.cars[i]
-        }  
-      }
-    }
-  }
-
   function addRaces(classId) {
     function addRaceResults(race) {
       return (
@@ -485,13 +487,13 @@ function EventDetail() {
               {
                 name: 'Mfr.',
                 width: '7rem',
-                selector: row => getCar(row.car_id)?.manufacturer,
+                selector: row => row.car ? row.car.manufacturer : '',
                 sortable: true,
               },
               {
                 name: 'Model',
                 width: '7rem',
-                selector: row => getCar(row.car_id)?.model,
+                selector: row => row.car ? row.car.model : '',
                 sortable: true,
               }]}
               title={race.name}
@@ -667,7 +669,7 @@ function EventDetail() {
             },
             {
               name: 'Date',
-              width: '10rem',
+              width: '7rem',
               selector: row => dayjs(row.date).format('DD/MM/YYYY'),
               sortable: true,
             },
