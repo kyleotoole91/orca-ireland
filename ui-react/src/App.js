@@ -11,6 +11,7 @@ import Events from './views/Events'
 import Articles from './views/Articles'
 import Seasons from './views/Seasons'
 import EventDetail from './views/EventDetail'
+import EventDetailOld from './views/EventDetailOld'
 import SeasonDetail from './views/SeasonDetail'
 import SeasonReport from './views/SeasonReport'
 import Garage from './views/Garage'
@@ -52,6 +53,7 @@ function App() {
                 <Route exact path="/" component={Homepage} />
                 <Route path="/home" component={Homepage} />
                 <Route path="/events/:id" component={EventDetail} />
+                <Route path="/events-classic/:id" component={EventDetailOld} />
                 <Route path="/events" component={Events} />
                 <Route path="/seasons/:id/reports/bbk" component={SeasonReport} />
                 <Route path="/seasons/:id" component={SeasonDetail} />

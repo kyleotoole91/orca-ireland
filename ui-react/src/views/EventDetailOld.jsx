@@ -7,6 +7,8 @@ import { CarModel } from '../models/CarModel'
 import { ClassModel } from '../models/ClassModel'
 import { RaceModel } from '../models/RaceModel'
 import { useParams } from 'react-router-dom'
+//import Form from 'react-bootstrap/Form'
+import Table  from 'react-bootstrap/Table'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
@@ -16,15 +18,15 @@ import { PlusButton } from '../components/PlusButton'
 import { TrashCan } from '../components/TrashCan'
 import { PencilSquare } from '../components/PencilSquare'
 import { useHistory } from 'react-router-dom'
-import DataTable from 'react-data-table-component';
 
 const raceModel = new RaceModel() 
 const carModel = new CarModel()
 const eventModel = new EventModel()
 carModel.useExtId = false
 const max_per_race = 50
+let currentCar = {}
 
-function EventDetail() {
+function EventDetailOld() {
   let { id } = useParams()
   const history = useHistory()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
@@ -54,8 +56,6 @@ function EventDetail() {
   const [allowEditPaidUsers, setAllowEditPaidUsers] = useState(false)
   const [allowViewUnPaidUsers, setAllowViewUnPaidUsers] = useState(false)
   const [allowViewPayments, setAllowViewPayments] = useState(false)
-
-  const adminUser = allowAddRaces && allowDelRaces && allowViewUnPaidUsers && allowViewPayments;
 
   useEffect(() => {
     async function loadData () {
@@ -125,23 +125,6 @@ function EventDetail() {
     eventModel.setApiToken(apiToken)
   }
 
-  useEffect(() => {
-    addCarsToResults(event);
-  }, [event]);
-
-  const addCarsToResults = (event) => {
-    if (event) {
-      event.races.map((race) => {
-        race.results.map((result) => {
-          const car = event.cars.find((car) => car._id === result.car_id);
-          result.car = { ...car };
-          return result;
-        });
-        return race;
-      })
-    }
-  }
-
   function getClassName(id) {
     let carClass
     if (classes && classes.length !== 0) {
@@ -182,6 +165,30 @@ function EventDetail() {
     } else {
       window.alert(carModel.message)
     }
+  }
+
+  function addRacers(cars, class_id, dontCheckClass) {
+    function addTableRow(car, index){
+      return (
+        <tr key={index+'-racersRow'}>
+          <td>{car.user.firstName+' '+car.user.lastName}</td>
+          <td>{car?.manufacturer}</td>
+          <td>{car.model}</td>
+          <td>{car.color}</td>
+          <td>{car.transponder}</td>
+          {allowAddRaces && 
+            <td>
+              <PencilSquare key={car._id+'-change-car'} id={car._id} handleClick={() => changeCar(car._id)} />
+            </td>}
+        </tr>
+      )
+    }  
+    
+    return cars.map((car, index) => 
+      dontCheckClass || car.class_id === class_id 
+        ? addTableRow(car, index) 
+        : <></>
+    );
   }
 
   function carIdToUserName(carId) {
@@ -343,7 +350,7 @@ function EventDetail() {
     if (userCars) {
       for (var car of userCars) {
         if (car._id === carId) {
-          return car.manufacturer.trim() +' - '+ car.model.trim() +' - '+ getClassName(car.class_id).trim()
+          return car?.manufacturer.trim() +' - '+ car.model.trim() +' - '+ getClassName(car.class_id).trim()
         }
       }
     }
@@ -463,44 +470,51 @@ function EventDetail() {
     )
   }
 
+  function getCar(id) {
+    if (currentCar.hasOwnProperty('_id') && currentCar._id === id){
+      return currentCar
+    } else {
+      for (let i=0; i<event.cars.length; i++) {
+        if (event.cars[i]._id === id) {
+          currentCar = event.cars[i]
+          return event.cars[i]
+        }  
+      }
+    }
+  }
+
   function addRaces(classId) {
+    function addRows(results) {
+      return (
+        results.map((item) => (
+          <tr key={item.car_id+'-race-result-row'}>
+            <td>{item.position}</td>
+            <td>{item.name}</td>
+            <td>{getCar(item.car_id)?.manufacturer}</td>
+            <td>{getCar(item.car_id)?.model}</td>
+          </tr>
+        ))
+      )
+    }
+
     function addRaceResults(race) {
       return (
         <div key={race._id+'-div'}>
           <h5 key={race._id+'-race-name'} style={{float: 'left', marginRight: '6px'}}>{race.name}</h5> 
           {allowDelRaces && <TrashCan key={race._id+'-del-race'} id={race._id} handleClick={() => deleteRace(race._id)} /> }
-          <DataTable
-            columns={[
-              {
-                name: 'Pos',
-                width: '5rem',
-                selector: row => row.position, 
-                sortable: true,
-              },
-              {
-                name: 'Name',
-                width: '10rem',
-                selector: row => row.name,
-                sortable: true,
-              },
-              {
-                name: 'Mfr.',
-                width: '7rem',
-                selector: row => row.car ? row.car.manufacturer : '',
-                sortable: true,
-              },
-              {
-                name: 'Model',
-                width: '7rem',
-                selector: row => row.car ? row.car.model : '',
-                sortable: true,
-              }]}
-              title={race.name}
-              data={race.results}
-              pagination={false}
-              highlightOnHover
-              pointerOnHover
-          />
+          <Table key={race._id+'-race-table'} striped bordered hover size="sm">
+            <thead key={race._id+'-race-head'}>
+              <tr key={race._id+'-race-head-row'}> 
+                <th style={{width: '35px'}}>Pos</th>
+                <th>Name</th>
+                <th>Manufacturer</th>
+                <th>Model</th>
+              </tr>
+            </thead>
+            <tbody>
+              {addRows(race.results)}
+            </tbody>
+          </Table>
         </div>
       )
     } 
@@ -521,52 +535,23 @@ function EventDetail() {
     return (
       filteredClasses.map((carClass, index) => (
           <div style={{overflow: 'auto'}} key={index+'-div'}>
-            <DataTable
-              title={carClass.name}
-              columns={[
-                {
-                  name: 'Name',
-                  width: '10rem',
-                  selector: row => `${row.user.firstName} ${row.user.lastName}`, 
-                  sortable: true,
-                },
-                {
-                  name: 'Mfr.',
-                  width: '7rem',
-                  selector: row => row.manufacturer,
-                  sortable: true,
-                },
-                {
-                  name: 'Model',
-                  width: '7rem',
-                  selector: row => row.model,
-                  sortable: true,
-                },
-                {
-                  name: 'Colour',
-                  width: '10rem',
-                  selector: row => row.color,
-                  sortable: true,
-                },  
-                {
-                  name: 'Tpdr.',
-                  width: '7rem',
-                  selector: row => row.transponder,
-                  sortable: true,
-                },
-                allowAddRaces && {
-                  name: '',
-                  width: '3rem',
-                  cell: row => <PencilSquare key={row._id+'-change-car'} id={row._id} handleClick={() => changeCar(row._id)} />,
-                  sortable: true,
-                },
-              ]}
-              data={event.cars.filter(car => car.class_id === carClass._id)}
-              pagination={false}
-              highlightOnHover
-              pointerOnHover
-            />
-            <div style={{display: 'flex', flexFlow: 'wrap', paddingTop: '2rem'}}>
+            <h4 style={{fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={index+'-header-label'}>{carClass.name}</h4> 
+            <Table striped bordered hover size="sm" key={index+'-roster'}>
+              <thead key={index+'-roster-head'}>
+                <tr key={index+'-roster-row'}>
+                  <th>Name</th>
+                  <th>Mfr.</th>
+                  <th>Model</th>
+                  <th>Colour</th>
+                  <th>Tpdr.</th>
+                  {allowAddRaces && <th style={{width: '18px'}}></th>}
+                </tr>
+              </thead>
+              <tbody>
+                {addRacers(event.cars, carClass._id)}
+              </tbody>
+            </Table>
+            <div style={{display: 'flex', flexFlow: 'wrap'}}>
               <h5 style={{float: 'left'}}>Race Results</h5>
               {event.cars.length && allowAddRaces && <PlusButton id={carClass._id} handleClick={() => addRace(carClass._id)} /> }
             </div>
@@ -584,118 +569,70 @@ function EventDetail() {
     );
     const hasVisibleUnpaidCars = visibleUnpaidCars && visibleUnpaidCars.length > 0;
 
-    const pendingPaymentStyle = {
-      rows: {
-        style: {
-          color: 'red',
-        },
-      },
-      headCells: {
-        style: {
-          color: 'red',
-        },
-      },
-      cells: {
-        style: {
-          color: 'red',
-        },
-      },
-    };
+    const addTableRow = (car, index) => (
+      <tr style={{color: 'red'}} key={index+'-pending-row'}>
+        <td>{car.user.firstName+' '+car.user.lastName}</td>
+        <td>{getClassName(car.class_id)}</td>
+        <td>{car.manufacturer}</td>
+        <td>{car.model}</td>
+        <td>{car.color}</td>
+        {allowAddRaces && <td><PencilSquare key={car._id+'-change-car'} id={car._id} handleClick={() => changeCar(car._id)} /></td>}
+      </tr>
+    )
 
     return ( hasVisibleUnpaidCars &&
-      <DataTable
-        title={'Pending Payment'}
-        customStyles={pendingPaymentStyle}
-        columns={[
-          {
-            name: 'Name',
-            width: '10rem',
-            selector: row => `${row.user.firstName} ${row.user.lastName}`, 
-            sortable: true,
-          },
-          {
-            name: 'Mfr.',
-            width: '7rem',
-            selector: row => row.manufacturer,
-            sortable: true,
-          },
-          {
-            name: 'Model',
-            width: '7rem',
-            selector: row => row.model,
-            sortable: true,
-          },
-          {
-            name: 'Colour',
-            width: '10rem',
-            selector: row => row.color,
-            sortable: true,
-          },  
-          {
-            name: 'Tpdr.',
-            width: '7rem',
-            selector: row => row.transponder,
-            sortable: true,
-          },
-          adminUser && {
-            name: '',
-            width: '3rem',
-            cell: row => <PencilSquare key={row._id+'-change-car'} id={row._id} handleClick={() => changeCar(row._id)} />,
-            sortable: true,
-          },
-        ]}
-        data={visibleUnpaidCars}
-        pagination={false}
-        highlightOnHover
-        pointerOnHover
-      />
+      <>
+        <div style={{overflow: 'auto'}} key={'pending-div'}>
+        <h4 style={{color: 'red', fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={'pending-header-label'}>Pending Payment</h4> 
+        <Table striped bordered hover size="sm" key={'pending-roster'}>
+          <thead key={'pending-roster-head'}>
+            <tr key={'pending-roster-row'}>
+              <th>Name</th>
+              <th>Class</th>
+              <th>Mfr.</th>
+              <th>Model</th>
+              <th>Colour</th>
+              {allowAddRaces && <th style={{width: '18px'}}></th>}
+            </tr>
+          </thead>
+          <tbody>
+          { visibleUnpaidCars.map((car, index) => addTableRow(car, index)) }
+          </tbody>
+        </Table>
+        <div style={{height: '25px'}}></div>
+      </div>
+    </>
   )}
 
   const showEventPayments = () => {
     const hasPayments = event.payments && event.payments.length > 0
-    
+
+    const addTableRow = (payment, index) => (
+      <tr key={index+'-payment-row'}>
+        <td>{payment.name}</td>
+        <td>{dayjs(payment.date).format('DD/MM/YYYY')}</td>
+        <td>{payment.amount} {payment.currency}</td>
+        <td>{payment.transaction_id}</td>
+      </tr>
+    )
+
     return ( allowViewPayments && hasPayments &&
       <>
         <div style={{overflow: 'auto'}} key={'payments-div'}>
-        <DataTable
-          title={'Payments'}
-          columns={[
-            {
-              name: 'Name',
-              width: '10rem',
-              selector: row => row.name,
-              sortable: true,
-            },
-            {
-              name: 'Date',
-              width: '7rem',
-              selector: row => dayjs(row.date).format('DD/MM/YYYY'),
-              sortable: true,
-            },
-            {
-              name: 'Amount',
-              width: '7rem',
-              selector: row => row.amount,
-              sortable: true,
-            },
-            {
-              name: 'Currency',
-              width: '7rem',
-              selector: row => row.currency,
-              sortable: true,
-            },
-            {
-              name: 'Transaction ID',
-              width: '12rem',
-              selector: row => row.transaction_id,
-              sortable: true,
-            }
-          ]}
-          data={event.payments}
-          pagination={false}
-          highlightOnHover
-          pointerOnHover
-        />
+        <h4 style={{fontWeight: 'bold',  marginRight: '12px', float: 'left'}} key={'payments-header-label'}>Payments</h4> 
+        <Table striped bordered hover size="sm" key={'payments-roster'}>
+          <thead key={'payments-roster-head'}>
+            <tr key={'payments-roster-row'}>
+              <th>Name</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Transaction ID</th>
+            </tr>
+          </thead>
+          <tbody>
+          { event.payments.map((payment, index) => addTableRow(payment, index)) }
+          </tbody>
+        </Table>
         <div style={{height: '25px'}}></div>
       </div>
     </>
@@ -712,12 +649,9 @@ function EventDetail() {
         { showRoster() }  
         { allowAddRaces && raceForm() }
         { allowEditEvents && editEntryModal() }
-        <div style={{display: 'grid', justifyContent: 'center'}}>
-          <a style={{fontSize:'9px', justifyContent: 'center'}} href={`../events-classic/${event._id}`}>Classic View</a>
-        </div>
       </div>
     </>
   } else return <h2>Not found</h2>
 }
 
-export default withAuthenticationRequired(EventDetail, { onRedirecting: () => (<Loading />) })
+export default withAuthenticationRequired(EventDetailOld, { onRedirecting: () => (<Loading />) })
