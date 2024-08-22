@@ -178,6 +178,7 @@ function SeasonReport() {
   function GenExpDataTable(headerName, columns, data, expComp) {
     return ( 
       <DataTable
+        dense
         key={headerName}
         title={headerName}
         columns={columns}
@@ -191,6 +192,7 @@ function SeasonReport() {
   function GenDataTable(headerName, columns, data) {
     return ( 
       <DataTable
+        dense
         key={headerName}
         title={headerName}
         columns={columns}
