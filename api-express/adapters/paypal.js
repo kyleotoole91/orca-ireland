@@ -132,10 +132,15 @@ const addPaypalTxToEventDetails = async (eventDetail) => {
   
   const response = await getPaypalTransactionsByEvent(eventDetail);
   eventDetail.cars.forEach((raceEntry) => {
+    const email = raceEntry.user.email ? raceEntry.user.email.toLowerCase() : '';
+    const paypalEmail = raceEntry.user.paypalEmail ? raceEntry.user.paypalEmail.toLowerCase() : '';
+    const emailAddresses = [email];
+    if (!!paypalEmail && !emailAddresses.includes(paypalEmail)) {
+      emailAddresses.push(paypalEmail);
+    }
     raceEntry.payment_tx = response.find(tx => tx.email && (
-        tx.email === raceEntry.user.email || 
-        tx.email === raceEntry.user.paypalEmail
-      ));
+      emailAddresses.includes(tx.email.toLowerCase())
+    ));
   });
   return eventDetail;
 }
@@ -184,7 +189,6 @@ export const authAndTransactions = async (startDateIso, endDateIso, keyword = ''
 }
 
 export const generateCurrentEventPayments = async () => {
-  //console.log('generateCurrentEventPayments at', new Date());
   const paymentDb = new PaymentModel();
   const eventDb = new EventModel(true);
   const events = await eventDb.getUpcomingEvents();
@@ -192,7 +196,7 @@ export const generateCurrentEventPayments = async () => {
   for (const event of events) {
     const eventPayments = await paymentDb.getPaymentsByEventId(event._id);
 
-    const alreadyFullyPaid = false //eventPayments && eventPayments.length === event.cars.length;
+    const alreadyFullyPaid = eventPayments && eventPayments.length === event.cars.length;
     
     if (!alreadyFullyPaid) {
       const eventWithPaidFlags = await addPaypalTxToEventDetails(event);
@@ -257,7 +261,6 @@ export const generateCurrentEventPayments = async () => {
 }
 
 export const generateCurrentMembershipPayments = async () => {
-  //console.log('generateCurrentMembershipPayments at', new Date());
   const membershipDb = new MembershipModel();
   const paymentDb = new PaymentModel();
   const userDb = new UserModel();
