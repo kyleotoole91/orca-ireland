@@ -23,7 +23,6 @@ const carModel = new CarModel()
 const eventModel = new EventModel()
 carModel.useExtId = false
 const max_per_race = 50
-let currentCar = {}
 
 function EventDetail() {
   let { id } = useParams()
@@ -136,7 +135,9 @@ function EventDetail() {
         race.results.map((result) => {
           const car = event.cars.find((car) => car._id === result.car_id);
           result.car = { ...car };
+          return result;
         });
+        return race;
       })
     }
   }
