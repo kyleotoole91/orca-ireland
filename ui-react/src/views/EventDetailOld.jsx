@@ -644,11 +644,14 @@ function EventDetailOld() {
     return <>
       <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
       <div style={{display: 'grid', justifyContent: 'center'}}>
+        <div style={{display: 'grid', justifyContent: 'center'}}>
+          <a style={{fontSize:'9px', justifyContent: 'center'}} href='#' onClick={() => history.push(`../events/${event._id}`)}>Standard View</a>
+        </div>
         { carsAwaitingPayment.length > 0 && showCarsAwaitingPayment()}
-        { event && event.payments && event.payments.length > 0 && showEventPayments()}
         { showRoster() }  
         { allowAddRaces && raceForm() }
         { allowEditEvents && editEntryModal() }
+        { event && event.payments && event.payments.length > 0 && showEventPayments()}
       </div>
     </>
   } else return <h2>Not found</h2>

@@ -106,6 +106,7 @@ function SeasonReport() {
 
   const expColumns = [
     {
+      id: 'Event',
       name: 'Event',
       width: '18rem',
       selector: row => row.event,
@@ -171,15 +172,16 @@ function SeasonReport() {
   const ExpandedDriver = ({ data }) => { 
     return ( 
       <div key={data.class} style={{marginLeft: '18px', marginRight: '18px'}}>
-        {GenExpDataTable('Races', expColumns, data.races, ExpandedLaps)}
+        {GenExpDataTable('Races', expColumns, data.races, ExpandedLaps, 'Event')}
       </div>
     )
   }
 
-  function GenExpDataTable(headerName, columns, data, expComp) {
+  function GenExpDataTable(headerName, columns, data, expComp, defaultSortFieldId) {
     return ( 
       <DataTable
         dense
+        defaultSortFieldId={defaultSortFieldId}
         customStyles={globalDataTableStyle}
         key={headerName}
         title={headerName}

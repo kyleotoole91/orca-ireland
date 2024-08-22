@@ -176,6 +176,7 @@ export const PaypalTxSearchTable = () => {
       
       { data && 
         <DataTable
+          dense
           customStyles={globalDataTableStyle}
           title={getTitle()}
           columns={columns}

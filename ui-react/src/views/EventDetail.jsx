@@ -471,6 +471,7 @@ function EventDetail() {
           <h5 key={race._id+'-race-name'} style={{float: 'left', marginRight: '6px'}}>{race.name}</h5> 
           {allowDelRaces && <TrashCan key={race._id+'-del-race'} id={race._id} handleClick={() => deleteRace(race._id)} /> }
           <DataTable
+            dense
             customStyles={globalDataTableStyle}
             columns={[
               {
@@ -524,6 +525,7 @@ function EventDetail() {
       filteredClasses.map((carClass, index) => (
           <div style={{overflow: 'auto'}} key={index+'-div'}>
             <DataTable
+              dense
               customStyles={globalDataTableStyle}
               title={carClass.name}
               columns={[
@@ -609,6 +611,7 @@ function EventDetail() {
 
     return ( hasVisibleUnpaidCars &&
       <DataTable
+        dense
         title={'Pending Payment'}
         customStyles={pendingPaymentStyle}
         columns={[
@@ -663,6 +666,7 @@ function EventDetail() {
       <>
         <div style={{overflow: 'auto'}} key={'payments-div'}>
         <DataTable
+          dense
           customStyles={globalDataTableStyle}
           title={'Payments'}
           columns={[
@@ -713,14 +717,14 @@ function EventDetail() {
     return <>
       <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
       <div style={{display: 'grid', justifyContent: 'center'}}>
+        <div style={{display: 'grid', justifyContent: 'center'}}>
+          <a style={{fontSize:'9px', justifyContent: 'center'}} href='#' onClick={() => history.push(`../events-classic/${event._id}`)}>Classic View</a>
+        </div>
         { carsAwaitingPayment.length > 0 && showCarsAwaitingPayment()}
-        { event && event.payments && event.payments.length > 0 && showEventPayments()}
         { showRoster() }  
         { allowAddRaces && raceForm() }
         { allowEditEvents && editEntryModal() }
-        <div style={{display: 'grid', justifyContent: 'center'}}>
-          <a style={{fontSize:'9px', justifyContent: 'center'}} href={`../events-classic/${event._id}`}>Classic View</a>
-        </div>
+        { event && event.payments && event.payments.length > 0 && showEventPayments()}
       </div>
     </>
   } else return <h2>Not found</h2>
