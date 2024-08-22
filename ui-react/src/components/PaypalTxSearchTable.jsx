@@ -7,6 +7,7 @@ import Form from 'react-bootstrap/Form'
 import Loading from './Loading'
 import { Permissions } from '../utils/permissions'
 import { useAuth0 } from "@auth0/auth0-react"
+import { globalDataTableStyle } from '../styles/componentStyles.js'
 
 const MAX_DAYS = 30; 
 const DEF_DAYS = 7; 
@@ -26,7 +27,7 @@ const columns = [
   },
   {
     name: 'Amount',
-    width: '6rem',
+    width: '7rem',
     selector: row => row.amount,
     sortable: true,
   },
@@ -175,6 +176,7 @@ export const PaypalTxSearchTable = () => {
       
       { data && 
         <DataTable
+          customStyles={globalDataTableStyle}
           title={getTitle()}
           columns={columns}
           data={data}

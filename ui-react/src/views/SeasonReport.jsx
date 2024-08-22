@@ -6,6 +6,7 @@ import { SeasonModel } from '../models/SeasonModel'
 import { useParams } from 'react-router-dom'
 import dayjs from 'dayjs'
 import DataTable from 'react-data-table-component'
+import { globalDataTableStyle } from '../styles/componentStyles.js'
 
 function SeasonReport() {
   let { id } = useParams()
@@ -179,6 +180,7 @@ function SeasonReport() {
     return ( 
       <DataTable
         dense
+        customStyles={globalDataTableStyle}
         key={headerName}
         title={headerName}
         columns={columns}
@@ -193,6 +195,7 @@ function SeasonReport() {
     return ( 
       <DataTable
         dense
+        customStyles={globalDataTableStyle}
         key={headerName}
         title={headerName}
         columns={columns}

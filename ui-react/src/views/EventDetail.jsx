@@ -17,6 +17,7 @@ import { TrashCan } from '../components/TrashCan'
 import { PencilSquare } from '../components/PencilSquare'
 import { useHistory } from 'react-router-dom'
 import DataTable from 'react-data-table-component';
+import { globalDataTableStyle } from '../styles/componentStyles.js'
 
 const raceModel = new RaceModel() 
 const carModel = new CarModel()
@@ -470,6 +471,7 @@ function EventDetail() {
           <h5 key={race._id+'-race-name'} style={{float: 'left', marginRight: '6px'}}>{race.name}</h5> 
           {allowDelRaces && <TrashCan key={race._id+'-del-race'} id={race._id} handleClick={() => deleteRace(race._id)} /> }
           <DataTable
+            customStyles={globalDataTableStyle}
             columns={[
               {
                 name: 'Pos',
@@ -522,6 +524,7 @@ function EventDetail() {
       filteredClasses.map((carClass, index) => (
           <div style={{overflow: 'auto'}} key={index+'-div'}>
             <DataTable
+              customStyles={globalDataTableStyle}
               title={carClass.name}
               columns={[
                 {
@@ -593,6 +596,8 @@ function EventDetail() {
       headCells: {
         style: {
           color: 'red',
+          //bold
+          fontWeight: 'bold',
         },
       },
       cells: {
@@ -658,6 +663,7 @@ function EventDetail() {
       <>
         <div style={{overflow: 'auto'}} key={'payments-div'}>
         <DataTable
+          customStyles={globalDataTableStyle}
           title={'Payments'}
           columns={[
             {
