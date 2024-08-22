@@ -11,6 +11,7 @@ import {
 
 const DEFAULT_DAYS = 7;
 const NUM_EVENT_EXTRAS_ALLOWED = 3;
+const CURRENCY_CODE = 'EUR';
 
 let paypalToken = {
   scope: '',
@@ -78,7 +79,7 @@ const findTxByKeywordAndAmt = (txs, keyword = '', txAmount = '') => txs
   ? txs.filter(tx =>
     (keyword === '' || tx.transaction_info.transaction_note &&
       tx.transaction_info.transaction_note.toLowerCase().includes(keyword.toLowerCase())) && 
-    (txAmount === '' || tx.transaction_info.transaction_amount.value === txAmount))
+    (txAmount === '' || tx.transaction_info.transaction_amount.value === txAmount && tx.transaction_info.transaction_amount.currency_code === CURRENCY_CODE))
   : [];
 
 const paypalTxByDateRange = async (token, startDateIso, endDateIso) => {
@@ -205,7 +206,6 @@ export const generateCurrentEventPayments = async () => {
         const userAlreadyPaid = eventPayments.some(ep => ep.user_id.toString() === eventEntry.user._id.toString());
         
         if (!userAlreadyPaid && eventEntry.payment_tx) {
-          
           const payment = {
             event_id: event._id,
             payment_date: eventEntry.payment_tx.date,
