@@ -493,8 +493,7 @@ function EventDetail() {
                 width: '7rem',
                 selector: row => getCar(row.car_id)?.model,
                 sortable: true,
-              },
-            ]}
+              }]}
               title={race.name}
               data={race.results}
               pagination={false}
@@ -708,8 +707,8 @@ function EventDetail() {
       <Header props={{header: `${event.name}`, subHeader: dayjs(event.date).format('DD/MM/YYYY')}} /> 
       <div style={{display: 'grid', justifyContent: 'center'}}>
         { carsAwaitingPayment.length > 0 && showCarsAwaitingPayment()}
-        { showRoster() }  
         { event && event.payments && event.payments.length > 0 && showEventPayments()}
+        { showRoster() }  
         { allowAddRaces && raceForm() }
         { allowEditEvents && editEntryModal() }
       </div>
