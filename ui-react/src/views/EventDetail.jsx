@@ -560,7 +560,7 @@ function EventDetail() {
                   sortable: true,
                 },
               ]}
-              data={event.cars}
+              data={event.cars.filter(car => car.class_id === carClass._id)}
               pagination={false}
               highlightOnHover
               pointerOnHover
