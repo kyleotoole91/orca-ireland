@@ -12,6 +12,7 @@ import {
 const DEFAULT_DAYS = 7;
 const NUM_EVENT_EXTRAS_ALLOWED = 3;
 const CURRENCY_CODE = 'EUR';
+const EVENT_IGNORE_WORDS = ['Lotto', 'Raffle', 'Donation', 'Sponsor', 'Sponsoring', 'Sponsorship', 'Membership'];
 
 let paypalToken = {
   scope: '',
@@ -130,8 +131,27 @@ const getPaypalTransactionsByEvent = async (event) => {
 
 const addPaypalTxToEventDetails = async (eventDetail) => {
   if (!eventDetail.cars) return eventDetail;
-  
+  const lowerCaseIgnoreWords = EVENT_IGNORE_WORDS.map(word => word.toLowerCase());
   const response = await getPaypalTransactionsByEvent(eventDetail);
+
+  const filteredResponse = response.filter(tx => {
+    const note = tx.note ? tx.note : '';
+    const noteWords = note.split(' ');
+    let containsIngoreWord = false;
+    noteWords.every(noteWord => {
+      if (lowerCaseIgnoreWords.includes(noteWord.toLowerCase())) {
+        containsIngoreWord = true;
+        return false;
+      }
+    });
+
+    if(!containsIngoreWord) {
+      containsIngoreWord = lowerCaseIgnoreWords.includes(note.toLowerCase());
+    }
+
+    return !containsIngoreWord;
+  });
+
   eventDetail.cars.forEach((raceEntry) => {
     const email = raceEntry.user.email ? raceEntry.user.email.toLowerCase() : '';
     const paypalEmail = raceEntry.user.paypalEmail ? raceEntry.user.paypalEmail.toLowerCase() : '';
@@ -139,7 +159,7 @@ const addPaypalTxToEventDetails = async (eventDetail) => {
     if (!!paypalEmail && !emailAddresses.includes(paypalEmail)) {
       emailAddresses.push(paypalEmail);
     }
-    raceEntry.payment_tx = response.find(tx => tx.email && (
+    raceEntry.payment_tx = filteredResponse.find(tx => tx.email && (
       emailAddresses.includes(tx.email.toLowerCase())
     ));
   });
