@@ -76,11 +76,24 @@ function SeasonReport() {
           );
           item.consistPct = (tmp / item.races.length).toFixed(3);
 
-          tmp = item.lapCount || 0 + item.races.reduce(
+          tmp = item.races.reduce(
             (accumulator, currentValue) => accumulator + currentValue.lapCount,
             0,
           );
           item.lapCount = tmp;
+
+          item.wins = 0;
+          driver.finalPodiums = 0;
+          driver.wins = driver.wins ?? 0;
+          item.races.forEach((rc) => {
+            if (rc.pos === 1) {
+              item.wins++;
+              driver.wins++;
+            }
+            if (rc.pos <= 3 && rc.name.toLowerCase().split(' ').includes('final')) {
+              driver.finalPodiums++;
+            }
+          });
 
           const sortedByBestLap = item.races.sort((a, b) => a.bestLap - b.bestLap)
           item.bestLap = sortedByBestLap[0].bestLap;
@@ -91,8 +104,6 @@ function SeasonReport() {
 
     return data;
   };
-
-  console.log('seasonBbkReport', seasonBbkReport)
 
   async function getApiToken() {
     try { 
@@ -118,16 +129,28 @@ function SeasonReport() {
       sortable: true,
     },
     {
-      name: 'Podiums',
-      selector: row => row.podiums,
-      sortable: true,
-      width: '7rem',
-    },
-    {
       name: 'Events',
       selector: row => row.roundCount,
       sortable: true,
       width: '6rem',
+    },
+    // { // only include pos > 3, should be just finals
+    //   name: 'Podiums',
+    //   selector: row => row.podiums,
+    //   sortable: true,
+    //   width: '7rem',
+    // },
+    {
+      name: 'Podiums',
+      selector: row => row.finalPodiums,
+      sortable: true,
+      width: '7rem',
+    },
+    {
+      name: 'Wins',
+      selector: row => row.wins,
+      sortable: true,
+      width: '5rem',
     },
     {
       name: 'Laps',
@@ -142,6 +165,7 @@ function SeasonReport() {
       sortable: true,
     },
     {
+      id: 'bestSec',
       name: 'Best Sec',
       width: '7rem',
       selector: row => row.bestLap,
@@ -174,6 +198,12 @@ function SeasonReport() {
       width: '18rem',
       selector: row => row.name,
       sortable: true,
+    },
+    {
+      name: 'Wins',
+      selector: row => row.wins ?? 0,
+      sortable: true,
+      width: '5rem',
     },
     {
       name: 'Laps',
@@ -329,7 +359,7 @@ function SeasonReport() {
       }} /> 
       <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
         {seasonBbkReport.classes.map((item) => {
-          return GenExpDataTable(item.class, driverColumns, item.racesByRacer, ExpandedDriver)
+          return GenExpDataTable(item.class, driverColumns, item.racesByRacer, ExpandedDriver, 'bestSec')
         })}
       </div>
     </>
