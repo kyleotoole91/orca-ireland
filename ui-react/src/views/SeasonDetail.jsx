@@ -124,7 +124,7 @@ function SeasonDetail() {
   function bbkWebPublishButton(season) {
     return (
       <Button id='bbkWebPublishBtn' href={bbkUrl(season)} style={{marginBottom: "6px", marginTop: "6px", marginRight:'3px', width: "100%", maxWidth: "15rem"}} variant="outline-primary">
-        BBK Direct Link
+        BBK Results Link
       </Button> 
     )
   }
@@ -133,22 +133,26 @@ function SeasonDetail() {
     return <Loading /> 
   } else if (season) {
     return <>
-      <Header props={{header: `${season.name}`, 
-                      subHeader: dayjs(season.startDate).format('DD/MM/YYYY') +' -> '+
-                                 dayjs(season.endDate).format('DD/MM/YYYY'),
-                      //subHeader3: `Best ${season.bestOf}/${season.eventCount} rounds`,
-                    }} /> 
+      <Header 
+        props={{header: `${season.name}`, 
+        subHeader: dayjs(season.startDate).format('DD/MM/YYYY') +' -> '+
+          dayjs(season.endDate).format('DD/MM/YYYY'),
+        //subHeader3: `Best ${season.bestOf}/${season.eventCount} rounds`,
+      }} /> 
       {season.hasOwnProperty('bbkURL') && 
-        <div style={{display: 'flex', flexFlow: 'wrap', justifyContent: 'center'}}>
+        <div style={{display: 'flex', flexFlow: 'wrap', justifyContent: 'center', marginBottom: '1rem'}}>
           {detailsButton(season)}
           {bbkWebPublishButton(season)}
-        </div> }
+        </div>}
       <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
         {season && season.hasOwnProperty('classResults') && showDriverStandings()}
       </div>
+      {season && !!season.bbkSeasonDir &&  
+      <div style={{ alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center', alignItems:'center', height: 'auto'}}>
+        <h4 style={{fontWeight: 'bold'}}>BBK Results</h4>
+      </div>}
       {season && !!season.bbkSeasonDir && 
-        <iframe style={{width: '100%', height: '40rem'}} src={bbkUrl(season)} ></iframe>
-      }
+        <iframe style={{width: '100%', height: '40rem'}} src={bbkUrl(season)} ></iframe>}
     </>
   } else return <h2>Not found</h2>
 }
