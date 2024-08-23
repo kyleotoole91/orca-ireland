@@ -82,16 +82,21 @@ function SeasonReport() {
           );
           item.lapCount = tmp;
 
+          item.finalWins = 0;
+          driver.finalWins = driver.finalWins ?? 0;
           item.wins = 0;
-          driver.finalPodiums = driver.finalPodiums ?? 0;
           driver.wins = driver.wins ?? 0;
+          driver.finalPodiums = driver.finalPodiums ?? 0;
           item.races.forEach((rc) => {
-            if (rc.pos === 1) {
-              item.wins++;
-              driver.wins++;
-            }
             if (rc.pos <= 3 && rc.name.toLowerCase().split(' ').includes('final')) {
               driver.finalPodiums++;
+              if (rc.pos === 1) {
+                item.finalWins++;
+                driver.finalWins++;
+              }
+            } else if (rc.pos === 1) {
+              item.wins++;
+              driver.wins++;
             }
           });
 
@@ -141,28 +146,16 @@ function SeasonReport() {
     //   width: '7rem',
     // },
     {
+      name: 'Wins',
+      selector: row => row.finalWins,
+      sortable: true,
+      width: '5rem',
+    },
+    {
       name: 'Podiums',
       selector: row => row.finalPodiums,
       sortable: true,
       width: '7rem',
-    },
-    {
-      name: 'Wins',
-      selector: row => row.wins,
-      sortable: true,
-      width: '5rem',
-    },
-    {
-      name: 'Laps',
-      width: '5rem',
-      selector: row => row.totalLaps,
-      sortable: true,
-    },
-    {
-      name: 'Avrg Lap',
-      width: '7rem',
-      selector: row => row.avrgLap,
-      sortable: true,
     },
     {
       id: 'bestSec',
@@ -172,13 +165,25 @@ function SeasonReport() {
       sortable: true,
     },
     {
+      name: 'Avrg Lap',
+      width: '7rem',
+      selector: row => row.avrgLap,
+      sortable: true,
+    },
+    {
       name: 'Best Kph',
       width: '7rem',
       selector: row => row.bestLapKph,
       sortable: true,
     },
     {
-      name: 'Improv. (sec)',
+      name: 'Laps',
+      width: '5rem',
+      selector: row => row.totalLaps,
+      sortable: true,
+    },
+    {
+      name: 'Improv. Sec',
       width: '9rem',
       selector: row => row.improvSec,
       sortable: true,
@@ -201,7 +206,7 @@ function SeasonReport() {
     },
     {
       name: 'Wins',
-      selector: row => row.wins ?? 0,
+      selector: row => row.finalWins ?? 0,
       sortable: true,
       width: '5rem',
     },
