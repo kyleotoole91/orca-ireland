@@ -22,7 +22,8 @@ function SeasonReport() {
         const seasonModel = new SeasonModel(apiToken)
         await seasonModel.getSeasonBbkReport(id)
         if (seasonModel.success) {
-          setSeasonBbkReport(seasonModel.responseData)
+          const transformedData = addEventsGroup(seasonModel.responseData);
+          setSeasonBbkReport(transformedData)
         } else {
           window.alert(seasonModel.message)
         }
@@ -32,6 +33,58 @@ function SeasonReport() {
     }  
     loadData()
   }, [id, apiToken, user])
+
+  const addEventsGroup = (data) => {
+    data.classes.forEach((item) => {
+      item.racesByRacer.forEach((driver) => {
+        const races = driver.races ?? [];
+        const raceMap = new Map();
+        races.forEach((item) => {
+          let racesByEvent = raceMap.get(item.event);
+          
+          if (!racesByEvent) {
+            racesByEvent = [];
+          }
+          racesByEvent.push(item);
+          raceMap.set(item.event, racesByEvent);
+        })
+        driver.events = Array.from(raceMap, ([name, races]) => ({ name, races }));
+        driver.events.forEach((item) => {
+          let tmp = item.races.reduce(
+            (accumulator, currentValue) => accumulator + currentValue.avrgLap,
+            0,
+          );
+          item.avrgLap = tmp / item.races.length;
+
+          tmp = item.races.reduce(
+            (accumulator, currentValue) => accumulator + currentValue.avrgLapKph,
+            0,
+          );
+          item.avrgLapKph = tmp / item.races.length;
+
+          tmp = item.races.reduce(
+            (accumulator, currentValue) => accumulator + currentValue.avrgLapKph,
+            0,
+          );
+          item.avrgLapKph = tmp / item.races.length;
+
+          tmp = item.lapCount || 0 + item.races.reduce(
+            (accumulator, currentValue) => accumulator + currentValue.lapCount,
+            0,
+          );
+          item.lapCount = tmp;
+
+          const sortedByBestLap = item.races.sort((a, b) => a.bestLap - b.bestLap)
+          item.bestLap = sortedByBestLap[0].bestLap;
+          item.bestLapKph = sortedByBestLap[0].bestLapKph;
+        });
+      })
+    })
+
+    return data;
+  };
+
+  console.log('seasonBbkReport', seasonBbkReport)
 
   async function getApiToken() {
     try { 
@@ -106,16 +159,16 @@ function SeasonReport() {
 
   const expColumns = [
     {
+      name: 'Race',
+      selector: row => row.name,
+      width: '18rem',
+      sortable: true,
+    },
+    {
       id: 'Event',
       name: 'Event',
       width: '18rem',
       selector: row => row.event,
-      sortable: true,
-    },
-    {
-      name: 'Race',
-      selector: row => row.name,
-      width: '18rem',
       sortable: true,
     },
     {
