@@ -116,7 +116,7 @@ function SeasonDetail() {
   function detailsButton(season) {
     return (
       <Button id={season._id} onClick={(e) => bbkReportUrl(e.target.id)} style={{marginBottom: "6px", marginTop: "6px", marginRight:'3px', width: "100%", maxWidth: "15rem"}} variant="outline-primary">
-        Season Overview
+        Season Statistics
       </Button> 
     )
   }
