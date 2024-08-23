@@ -110,7 +110,7 @@ function SeasonReport() {
     }
   }
 
-  const columns = [
+  const driverColumns = [
     {
       name: 'Name',
       width: '10rem',
@@ -123,43 +123,43 @@ function SeasonReport() {
       sortable: true,
     },
     {
-      name: 'Rounds',
+      name: 'Events',
       selector: row => row.roundCount,
       sortable: true,
     },
     {
-      name: 'Total Laps',
-      width: '8rem',
+      name: 'Laps',
+      width: '5rem',
       selector: row => row.totalLaps,
       sortable: true,
     },
     {
       name: 'Avrg Lap',
-      width: '8rem',
+      width: '7rem',
       selector: row => row.avrgLap,
       sortable: true,
     },
     {
       name: 'Best Sec',
-      width: '8rem',
+      width: '7rem',
       selector: row => row.bestLap,
       sortable: true,
     },
     {
       name: 'Best Kph',
-      width: '8rem',
+      width: '7rem',
       selector: row => row.bestLapKph,
       sortable: true,
     },
     {
-      name: 'Improvement (sec)',
-      width: '11rem',
+      name: 'Improv. (sec)',
+      width: '9rem',
       selector: row => row.improvSec,
       sortable: true,
     },
     {
-      name: 'Consistency (%)',
-      width: '10rem',
+      name: 'Consistency',
+      width: '8rem',
       selector: row => row.consistPct,
       sortable: true,
     },
@@ -177,28 +177,32 @@ function SeasonReport() {
       name: 'Laps',
       selector: row => row.lapCount,
       sortable: true,
+      width: '5rem',
     },
     {
-      name: 'Average Sec',
+      name: 'Avrg Sec',
       selector: row => row.avrgLap,
-      width: '8rem',
+      width: '7rem',
       sortable: true,
     },
     {
       name: 'Best Sec',
       selector: row => row.bestLap,
       sortable: true,
+      width: '7rem',
     },
     {
       name: 'Best Kph',
       selector: row => row.bestLapKph,
       sortable: true,
+      width: '7rem',
     },
     {
-      name: 'Consistency (%)',
+      name: 'Consistency',
       width: '10rem',
       selector: row => row.consistPct,
       sortable: true,
+      width: '8rem',
     },
   ]
 
@@ -206,38 +210,43 @@ function SeasonReport() {
     {
       name: 'Race',
       selector: row => row.name,
-      width: '18rem',
+      width: '17rem',
       sortable: true,
     },
     {
-      name: 'Position',
+      name: 'Pos',
       selector: row => row.pos,
+      width: '5rem',
       sortable: true,
     },
     {
       name: 'Laps',
       selector: row => row.lapCount,
       sortable: true,
+      width: '5rem',
     },
     {
-      name: 'Average Sec',
+      name: 'Avrg Sec',
       selector: row => row.avrgLap,
       width: '8rem',
       sortable: true,
+      width: '7rem',
     },
     {
       name: 'Best Sec',
       selector: row => row.bestLap,
       sortable: true,
+      width: '7rem',
     },
     {
       name: 'Best Kph',
       selector: row => row.bestLapKph,
       sortable: true,
+      width: '7rem',
     },
     {
-      name: 'Consistency (%)',
-      width: '10rem',
+      name: 'Consistency',
+      width: '8rem',
       selector: row => row.consistPct,
       sortable: true,
     },
@@ -263,7 +272,7 @@ function SeasonReport() {
   const ExpandedDriver = ({ data }) => { 
     return ( 
       <div key={data.class} style={{marginLeft: '18px', marginRight: '18px'}}>
-        {GenExpDataTable('Races', eventColumns, data.events, ExpandedEvent, 'Event')}
+        {GenExpDataTable('Events', eventColumns, data.events, ExpandedEvent, 'Event')}
       </div>
     )
   }
@@ -317,7 +326,7 @@ function SeasonReport() {
       }} /> 
       <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
         {seasonBbkReport.classes.map((item) => {
-          return GenExpDataTable(item.class, columns, item.racesByRacer, ExpandedDriver)
+          return GenExpDataTable(item.class, driverColumns, item.racesByRacer, ExpandedDriver)
         })}
       </div>
     </>
