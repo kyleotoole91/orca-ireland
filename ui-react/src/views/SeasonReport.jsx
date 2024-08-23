@@ -39,6 +39,7 @@ function SeasonReport() {
       item.racesByRacer.forEach((driver) => {
         const races = driver.races ?? [];
         const raceMap = new Map();
+
         races.forEach((item) => {
           let racesByEvent = raceMap.get(item.event);
           
@@ -48,25 +49,32 @@ function SeasonReport() {
           racesByEvent.push(item);
           raceMap.set(item.event, racesByEvent);
         })
+
         driver.events = Array.from(raceMap, ([name, races]) => ({ name, races }));
         driver.events.forEach((item) => {
           let tmp = item.races.reduce(
             (accumulator, currentValue) => accumulator + currentValue.avrgLap,
             0,
           );
-          item.avrgLap = tmp / item.races.length;
+          item.avrgLap = (tmp / item.races.length).toFixed(3);
 
           tmp = item.races.reduce(
             (accumulator, currentValue) => accumulator + currentValue.avrgLapKph,
             0,
           );
-          item.avrgLapKph = tmp / item.races.length;
+          item.avrgLapKph = (tmp / item.races.length).toFixed(3);
 
           tmp = item.races.reduce(
             (accumulator, currentValue) => accumulator + currentValue.avrgLapKph,
             0,
           );
-          item.avrgLapKph = tmp / item.races.length;
+          item.avrgLapKph = (tmp / item.races.length).toFixed(3);
+
+          tmp = item.races.reduce(
+            (accumulator, currentValue) => accumulator + currentValue.consistPct,
+            0,
+          );
+          item.consistPct = (tmp / item.races.length).toFixed(3);
 
           tmp = item.lapCount || 0 + item.races.reduce(
             (accumulator, currentValue) => accumulator + currentValue.lapCount,
@@ -157,18 +165,48 @@ function SeasonReport() {
     },
   ];
 
-  const expColumns = [
-    {
-      name: 'Race',
-      selector: row => row.name,
-      width: '18rem',
-      sortable: true,
-    },
+  const eventColumns = [
     {
       id: 'Event',
       name: 'Event',
       width: '18rem',
-      selector: row => row.event,
+      selector: row => row.name,
+      sortable: true,
+    },
+    {
+      name: 'Laps',
+      selector: row => row.lapCount,
+      sortable: true,
+    },
+    {
+      name: 'Average Sec',
+      selector: row => row.avrgLap,
+      width: '8rem',
+      sortable: true,
+    },
+    {
+      name: 'Best Sec',
+      selector: row => row.bestLap,
+      sortable: true,
+    },
+    {
+      name: 'Best Kph',
+      selector: row => row.bestLapKph,
+      sortable: true,
+    },
+    {
+      name: 'Consistency (%)',
+      width: '10rem',
+      selector: row => row.consistPct,
+      sortable: true,
+    },
+  ]
+
+  const raceColumns = [
+    {
+      name: 'Race',
+      selector: row => row.name,
+      width: '18rem',
       sortable: true,
     },
     {
@@ -225,7 +263,15 @@ function SeasonReport() {
   const ExpandedDriver = ({ data }) => { 
     return ( 
       <div key={data.class} style={{marginLeft: '18px', marginRight: '18px'}}>
-        {GenExpDataTable('Races', expColumns, data.races, ExpandedLaps, 'Event')}
+        {GenExpDataTable('Races', eventColumns, data.events, ExpandedEvent, 'Event')}
+      </div>
+    )
+  }
+
+  const ExpandedEvent = ({ data }) => { 
+    return ( 
+      <div key={data.class} style={{marginLeft: '18px', marginRight: '18px'}}>
+        {GenExpDataTable('Races', raceColumns, data.races, ExpandedLaps)}
       </div>
     )
   }
@@ -261,19 +307,23 @@ function SeasonReport() {
 
   if (loading) {
     return <Loading /> 
-  } else if (seasonBbkReport) {
+  } 
+  
+  if (seasonBbkReport) {
     return <>
       <Header props={{header: `${seasonBbkReport.season.name}`, 
-                      subHeader: dayjs(seasonBbkReport.season.startDate).format('DD/MM/YYYY') +' -> '+
-                                 dayjs(seasonBbkReport.season.endDate).format('DD/MM/YYYY'),
-                    }} /> 
+        subHeader: dayjs(seasonBbkReport.season.startDate).format('DD/MM/YYYY') +' -> '+
+          dayjs(seasonBbkReport.season.endDate).format('DD/MM/YYYY'),
+      }} /> 
       <div style={{alignSelf: 'center', textAlign: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
-      {seasonBbkReport.classes.map((item) => {
-        return GenExpDataTable(item.class, columns, item.racesByRacer, ExpandedDriver)
-      })}
+        {seasonBbkReport.classes.map((item) => {
+          return GenExpDataTable(item.class, columns, item.racesByRacer, ExpandedDriver)
+        })}
       </div>
-      </>
-  } else return <h2>Not found</h2>
+    </>
+  } 
+
+  return <h2>Not found</h2>
 }
 
 export default SeasonReport
