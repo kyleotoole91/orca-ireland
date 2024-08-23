@@ -121,11 +121,13 @@ function SeasonReport() {
       name: 'Podiums',
       selector: row => row.podiums,
       sortable: true,
+      width: '7rem',
     },
     {
       name: 'Events',
       selector: row => row.roundCount,
       sortable: true,
+      width: '6rem',
     },
     {
       name: 'Laps',
