@@ -83,7 +83,7 @@ function SeasonReport() {
           item.lapCount = tmp;
 
           item.wins = 0;
-          driver.finalPodiums = 0;
+          driver.finalPodiums = driver.finalPodiums ?? 0;
           driver.wins = driver.wins ?? 0;
           item.races.forEach((rc) => {
             if (rc.pos === 1) {
