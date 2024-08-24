@@ -171,7 +171,7 @@ function SeasonReport() {
       sortable: true,
     },
     {
-      name: 'Avrg Lap',
+      name: 'Avrg Sec',
       width: '7rem',
       selector: row => row.avrgLap,
       sortable: true,
@@ -211,12 +211,6 @@ function SeasonReport() {
       width: '5rem',
     },
     {
-      name: 'Laps',
-      selector: row => row.lapCount,
-      sortable: true,
-      width: '5rem',
-    },
-    {
       name: 'Best Sec',
       selector: row => row.bestLap,
       sortable: true,
@@ -233,6 +227,12 @@ function SeasonReport() {
       selector: row => row.avrgLap,
       width: '7rem',
       sortable: true,
+    },
+    {
+      name: 'Laps',
+      selector: row => row.lapCount,
+      sortable: true,
+      width: '5rem',
     },
     {
       name: 'Consistency',
@@ -257,18 +257,6 @@ function SeasonReport() {
       sortable: true,
     },
     {
-      name: 'Laps',
-      selector: row => row.lapCount,
-      sortable: true,
-      width: '5rem',
-    },
-    {
-      name: 'Avrg Sec',
-      selector: row => row.avrgLap,
-      sortable: true,
-      width: '7rem',
-    },
-    {
       name: 'Best Sec',
       selector: row => row.bestLap,
       sortable: true,
@@ -279,6 +267,18 @@ function SeasonReport() {
       selector: row => row.bestLapKph,
       sortable: true,
       width: '7rem',
+    },
+    {
+      name: 'Avrg Sec',
+      selector: row => row.avrgLap,
+      sortable: true,
+      width: '7rem',
+    },
+    {
+      name: 'Laps',
+      selector: row => row.lapCount,
+      sortable: true,
+      width: '5rem',
     },
     {
       name: 'Consistency',
