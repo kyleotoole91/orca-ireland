@@ -52,7 +52,7 @@ function SeasonDetail() {
       getApiToken()
     }
   }
-
+  //<td style={{textAlign: 'left'}}>{standing.manufacturers.toString()}</td>
   function addDrivers(standings) {
     function addTableRow(standing, index){
       return (
@@ -60,9 +60,8 @@ function SeasonDetail() {
           <td>{index+1}</td>
           <td style={{textAlign: 'left'}}>{standing.driverName}</td>
           <td>{standing.eventCount}</td>
-          <td style={{textAlign: 'left'}}>{standing.manufacturers.toString()}</td>
-          <td>{standing.totalPoints}</td>
           <td>{standing.bestOfPoints}</td>
+          <td>{standing.totalPoints}</td>
         </tr>
       )
     }  
@@ -88,10 +87,9 @@ function SeasonDetail() {
                 <tr key={index+'-roster-row'}>
                   <th>Pos</th>
                   <th>Name</th>
-                  <th>Rounds Entered</th>
-                  <th>Manufacturer</th>
-                  <th>Total Points</th>
+                  <th>Events</th>
                   <th>Best Points</th>
+                  <th>Total Points</th>
                 </tr>
               </thead>
               <tbody>

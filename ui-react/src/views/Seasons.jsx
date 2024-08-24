@@ -25,6 +25,12 @@ defaultTime.setHours(23)
 defaultTime.setMinutes(59)
 defaultTime.setSeconds(59)
 
+// TODO: Store these objects in the database and allow creation from the UI
+const fillterKnownFalseLaps = (data) => data.filter((c) => 
+  (c.data.name != 'Liam Elliott' && c.data.bestLap != 14.841) &&
+  (c.data.name != 'Eoin Grenham' && c.data.bestLap != 16.497)
+); 
+
 function Seasons() {
   const history = useHistory()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
@@ -311,10 +317,6 @@ function Seasons() {
     history.push('/seasons/'+id)
   }
 
-  function sortArrayByField(array, fieldName) {
-    return array.sort((a, b) => a[fieldName] - b[fieldName]);
-  }
-
   async function showOverallDetails() {
     let result;
     try {
@@ -365,8 +367,10 @@ function Seasons() {
         const topAscendingObj = Array.from(topAscendingMap, ([name, data]) => ({ name, data }));
         topAscendingObj.forEach((c) => {
           c = c.data;
-        });
-        value.topThreeBestLap = topAscendingObj.slice(0, 3);
+        }); 
+        // filter out known false laps (ie shortcut taken)
+        const filteredAscending = fillterKnownFalseLaps(topAscendingObj)
+        value.topThreeBestLap = filteredAscending.slice(0, 3);
       });
 
       result = Array.from(map, ([name, data]) => ({ name, data }));
@@ -382,8 +386,7 @@ function Seasons() {
         count = 0
         alertString += c.name + ':\n';
         c.topThreeBestLap.forEach((r) => {
-          count++;
-          alertString += `${count}: ${r.name} ${r.data.bestLap}\n`;
+          alertString += `${++count}: ${r.name} ${r.data.bestLap}\n`;
         });
         alertString += '\n';
       });
@@ -411,7 +414,7 @@ function Seasons() {
         {modalForm()}         
         <div style={{alignSelf: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
           <Button disabled={loadingOverall} id='showOverallDetailsBtn' onClick={(e) => showOverallDetails()} style={{marginLeft: "3px", marginTop: "6px", marginBottom: "6px",width: "100%"}} variant="outline-primary">
-            Lap records
+            All-time best laps
           </Button> 
           {data && data.length > 0 && data.map((doc, index) => (
             <Card style={{width: '100%', minWidth: '22rem', textAlign: 'center', maxWidth: '80rem', margin: '3px', zIndex: 0}} key={index}>
