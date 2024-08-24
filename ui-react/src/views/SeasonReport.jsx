@@ -244,6 +244,7 @@ function SeasonReport() {
 
   const raceColumns = [
     {
+      id: 'Race',
       name: 'Race',
       selector: row => row.name,
       width: '17rem',
@@ -315,7 +316,7 @@ function SeasonReport() {
   const ExpandedEvent = ({ data }) => { 
     return ( 
       <div key={data.class} style={{marginLeft: '18px', marginRight: '18px'}}>
-        {GenExpDataTable('Races', raceColumns, data.races, ExpandedLaps)}
+        {GenExpDataTable('Races', raceColumns, data.races, ExpandedLaps, 'Race')}
       </div>
     )
   }
