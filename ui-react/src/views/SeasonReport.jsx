@@ -133,12 +133,6 @@ function SeasonReport() {
       selector: row => row.name,
       sortable: true,
     },
-    {
-      name: 'Events',
-      selector: row => row.roundCount,
-      sortable: true,
-      width: '6rem',
-    },
     // { // only include pos > 3, should be just finals
     //   name: 'Podiums',
     //   selector: row => row.podiums,
@@ -158,6 +152,12 @@ function SeasonReport() {
       width: '7rem',
     },
     {
+      name: 'Events',
+      selector: row => row.roundCount,
+      sortable: true,
+      width: '6rem',
+    },
+    {
       id: 'bestSec',
       name: 'Best Sec',
       width: '7rem',
@@ -165,15 +165,15 @@ function SeasonReport() {
       sortable: true,
     },
     {
-      name: 'Avrg Lap',
-      width: '7rem',
-      selector: row => row.avrgLap,
-      sortable: true,
-    },
-    {
       name: 'Best Kph',
       width: '7rem',
       selector: row => row.bestLapKph,
+      sortable: true,
+    },
+    {
+      name: 'Avrg Lap',
+      width: '7rem',
+      selector: row => row.avrgLap,
       sortable: true,
     },
     {
@@ -217,12 +217,6 @@ function SeasonReport() {
       width: '5rem',
     },
     {
-      name: 'Avrg Sec',
-      selector: row => row.avrgLap,
-      width: '7rem',
-      sortable: true,
-    },
-    {
       name: 'Best Sec',
       selector: row => row.bestLap,
       sortable: true,
@@ -233,6 +227,12 @@ function SeasonReport() {
       selector: row => row.bestLapKph,
       sortable: true,
       width: '7rem',
+    },
+    {
+      name: 'Avrg Sec',
+      selector: row => row.avrgLap,
+      width: '7rem',
+      sortable: true,
     },
     {
       name: 'Consistency',
