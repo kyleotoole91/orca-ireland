@@ -236,7 +236,6 @@ function SeasonReport() {
     },
     {
       name: 'Consistency',
-      width: '10rem',
       selector: row => row.consistPct,
       sortable: true,
       width: '8rem',
@@ -265,7 +264,6 @@ function SeasonReport() {
     {
       name: 'Avrg Sec',
       selector: row => row.avrgLap,
-      width: '8rem',
       sortable: true,
       width: '7rem',
     },

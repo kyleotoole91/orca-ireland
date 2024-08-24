@@ -41,6 +41,7 @@ function Seasons() {
   const [endDateCtrl, setEndDateCtrl] = useState(defaultDateCtrl)
   const [allowAddSeasons, setAllowAddSeasons] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadingOverall, setLoadingOverall] = useState(false)
   const [show, setShow] = useState(false)
   const [editing, setEditing] = useState(false)
   const [refresh, setRefresh] = useState(false)
@@ -310,6 +311,86 @@ function Seasons() {
     history.push('/seasons/'+id)
   }
 
+  function sortArrayByField(array, fieldName) {
+    return array.sort((a, b) => a[fieldName] - b[fieldName]);
+  }
+
+  async function showOverallDetails() {
+    let result;
+    try {
+      setLoadingOverall(true);
+      const overallData = []
+      if (data && data.length > 0) {
+        for (let i = 0; i < data.length; i++) {
+          const resp = await seasonModel.getSeasonBbkReport(data[i]._id);
+          resp.classes.forEach((c) => {
+            c.racesByRacer = c.racesByRacer.sort((a, b) => a.bestLap - b.bestLap);
+            c.topThreeBestLap = c.racesByRacer.slice(0, 3);
+            overallData.push(c);
+          });
+        }
+      }
+      const map = new Map();
+      overallData.forEach((c) => { 
+        if (map.has(c.class)) {
+          const item = map.get(c.class);
+          item.push(c);
+          map.set(c.class, item);
+        } else {
+          map.set(c.class, [{ ...c }]);
+        }
+      });
+
+      map.forEach((value, key) => {
+        value.topThreeBestLap = value.reduce((acc, curr) => {
+          return acc.concat(curr.topThreeBestLap);
+        }, []);
+        value.topAscending = value.topThreeBestLap.sort((a, b) => a.bestLap - b.bestLap);
+
+        const topAscendingMap = new Map();
+        value.topAscending.forEach((c) => { 
+          if (topAscendingMap.has(c.name)) {
+            const item = topAscendingMap.get(c.name);
+            item.push(c);
+            topAscendingMap.set(c.name, item);
+          } else {
+            topAscendingMap.set(c.name, [{ ...c }]);
+          }
+        });
+        // remove duplicates by name and picking the best lap
+        topAscendingMap.forEach((value, key) => {
+          value = value.sort((a, b) => a.bestLap - b.bestLap);
+          topAscendingMap.set(key, value[0]);
+        });
+        const topAscendingObj = Array.from(topAscendingMap, ([name, data]) => ({ name, data }));
+        topAscendingObj.forEach((c) => {
+          c = c.data;
+        });
+        value.topThreeBestLap = topAscendingObj.slice(0, 3);
+      });
+
+      result = Array.from(map, ([name, data]) => ({ name, data }));
+      result.forEach((c) => {
+        c.topThreeBestLap = c.data.topThreeBestLap;
+        c.bestLap = c.data.topThreeBestLap[0];
+      });
+    } finally {
+      setLoadingOverall(false);
+      let alertString = '';
+      let count = 0;
+      result.forEach((c) => {
+        count = 0
+        alertString += c.name + ':\n';
+        c.topThreeBestLap.forEach((r) => {
+          count++;
+          alertString += `${count}: ${r.name} ${r.data.bestLap}\n`;
+        });
+        alertString += '\n';
+      });
+      window.alert(alertString)
+    }
+  }
+
   function detailsButton(season) {
     return (
       <Button id={season._id} onClick={(e) => showSeasonDetails(e.target.id)} style={{marginTop: "6px", width: "100%"}} variant="outline-primary">
@@ -329,6 +410,9 @@ function Seasons() {
         </div>
         {modalForm()}         
         <div style={{alignSelf: 'center', display: 'grid',  justifyContent:'center',  width: 'auto', height: 'auto'}}>
+          <Button disabled={loadingOverall} id='showOverallDetailsBtn' onClick={(e) => showOverallDetails()} style={{marginLeft: "3px", marginTop: "6px", marginBottom: "6px",width: "100%"}} variant="outline-primary">
+            Lap records
+          </Button> 
           {data && data.length > 0 && data.map((doc, index) => (
             <Card style={{width: '100%', minWidth: '22rem', textAlign: 'center', maxWidth: '80rem', margin: '3px', zIndex: 0}} key={index}>
               <Card.Header>
