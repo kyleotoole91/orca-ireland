@@ -49,13 +49,20 @@ export class EventModel extends BaseModel {
     }
   }
 
+  subtractDaysFromDate(currentDate, daysToSubtract) {
+      daysToSubtract = daysToSubtract || 0;
+      const pastDate = new Date(currentDate);
+      pastDate.setDate(pastDate.getDate() - daysToSubtract);
+
+      return pastDate
+  }
+
   addRegistrationCloseDate(event) {
     const eventDate = new Date(event.date);
     event.closeDate = event.closeDate
       ? new Date(event.closeDate)
       : new Date(eventDate.setHours(eventDate.getHours() - cRegistrationHours));
-    const openDate = new Date(event.date);
-    openDate.setDate(eventDate.getDate() - cRegistrationOpenDays);
+    const openDate = this.subtractDaysFromDate(new Date(event.date), cRegistrationOpenDays);
     event.openDate = event.openDate
       ? new Date(event.openDate)
       : openDate;

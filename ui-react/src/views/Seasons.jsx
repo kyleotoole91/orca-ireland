@@ -25,12 +25,6 @@ defaultTime.setHours(23)
 defaultTime.setMinutes(59)
 defaultTime.setSeconds(59)
 
-// TODO: Store these objects in the database and allow creation from the UI
-const fillterKnownFalseLaps = (data) => data.filter((c) => 
-  (c.data.name != 'Liam Elliott' && c.data.bestLap != 14.841) &&
-  (c.data.name != 'Eoin Grenham' && c.data.bestLap != 16.497)
-); 
-
 function Seasons() {
   const history = useHistory()
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } = useAuth0()
@@ -368,9 +362,7 @@ function Seasons() {
         topAscendingObj.forEach((c) => {
           c = c.data;
         }); 
-        // filter out known false laps (ie shortcut taken)
-        const filteredAscending = fillterKnownFalseLaps(topAscendingObj)
-        value.topThreeBestLap = filteredAscending.slice(0, 3);
+        value.topThreeBestLap = topAscendingObj.slice(0, 3);
       });
 
       result = Array.from(map, ([name, data]) => ({ name, data }));
