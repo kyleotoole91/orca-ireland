@@ -89,7 +89,7 @@ export class EventModel extends BaseModel {
       const where = {"date" : {"$gte": new Date()}, "deleted": {"$in": [null, false]}}
       this.result = await this.db.aggregate(joins).match(where).sort(sort).limit(1).toArray()
 
-      if(!this.result) { 
+      if (!this.result) { 
         this.message = 'Not found: ' + id 
       } else {
         this.message = this.collectionName
@@ -160,7 +160,7 @@ export class EventModel extends BaseModel {
       const sort = {"date": 1}
       const where = {"date" : {"$gte": sDate, "$lt": eDate}, "deleted": {"$in": [null, false]}}
       this.result = await this.db.aggregate(joins).match(where).sort(sort).toArray()
-      if(!this.result) { 
+      if (!this.result) { 
         this.message = 'Not found: ' + id 
       } else {
         this.message = this.collectionName
@@ -219,7 +219,7 @@ export class EventModel extends BaseModel {
       const objId = new ObjectId(id)
       const where = {"_id" : objId}
       this.result = await this.db.find(where).project(fields).toArray()
-      if(!this.result || this.result.length === 0) { 
+      if (!this.result || this.result.length === 0) { 
         this.result = null
         this.message = 'Not found: ' + id 
       } else {
@@ -246,7 +246,7 @@ export class EventModel extends BaseModel {
         }
       }
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$set:  document })
-      if(!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
+      if (!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
         this.result = null
         this.message = 'Error updating: ' + id
       } else {
@@ -278,7 +278,7 @@ export class EventModel extends BaseModel {
 
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$push: { "paid_user_ids": userObjId }})
       
-      if(!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
+      if (!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
         this.result = null
         this.message = 'Error updating: ' + id
       } else {
@@ -311,7 +311,7 @@ export class EventModel extends BaseModel {
 
       this.result = await this.db.findOneAndUpdate({'_id': objId}, {$pull: { "paid_user_ids": userObjId }})
       
-      if(!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
+      if (!this.result || !this.result.hasOwnProperty('ok') || this.result.ok !== 1) {
         this.result = null
         this.message = 'Error updating: ' + id
       } else {
@@ -331,7 +331,7 @@ export class EventModel extends BaseModel {
     try {
       const objId = new ObjectId(id)
       const result = await this.db.findOneAndUpdate({'_id': objId}, {$set: { "notified": true }})
-      if(!result || !result.hasOwnProperty('ok') || result.ok !== 1) {
+      if (!result || !result.hasOwnProperty('ok') || result.ok !== 1) {
         return {
           success: false,
           message: 'Error updating: ' + id
@@ -354,7 +354,7 @@ export class EventModel extends BaseModel {
     try {
       const objId = new ObjectId(id)
       const result = await this.db.findOneAndUpdate({'_id': objId}, {$set: { "reminded": true }})
-      if(!result || !result.hasOwnProperty('ok') || result.ok !== 1) {
+      if (!result || !result.hasOwnProperty('ok') || result.ok !== 1) {
         return {
           success: false,
           message: 'Error updating: ' + id
